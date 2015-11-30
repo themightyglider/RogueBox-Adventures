@@ -35,17 +35,14 @@
     - THere are monsters like orcs and dryades and items like magic scrolls and weapons inside RBA. So yes, it has got some kind of high
       fantasy setting
 
-   Sandbox games on the other hand are a special kind of open-world-game which is about the interaction between the player and the 
-   game-world. Everything is about changing the gameworld.
-
-   RBA is definatly a game about changing the gameworld by interacting with it. So you can call it a sandbox game with some rogue-like
-   elements...
-   
-   ...Or you simply can call it a RogueBox-game.
+    Sandbox games on the other hand are a special kind of open-world-game which is about the interaction between the player and the 
+    game-world. Everything is about changing the gameworld.
+    RBA is definatly a game about changing the gameworld by interacting with it. So you can call it a sandbox game with some rogue-like elements...
+    ...Or you simply can call it a RogueBox-game.
 
 2.) Were can I get the game? On witch platforms does it run?
 
-    You can download a build of RBA at: https://github.com/themightyglider/rogueboxadventures/releases
+    You can download a build of RBA at: https://github.com/themightyglider/RogueBox-Adventures/releases
 
     It is distributed in three ways:
 
@@ -75,10 +72,31 @@
 
 5.) I've found a bug. I want to make a suggestion.
 
-    You can report bugs on GitHub at: https://github.com/themightyglider/rogueboxadventures
+    You can report bugs on GitHub at: https://github.com/themightyglider/RogueBox-Adventures
 
     Or you can mail me at: themightyglider@gmx.de (love- or hate-mail is welcome as well)
 
 6.) Have Fun!
 
     Thank you for beeing interested in my little game. I hope it will bring you some hours of joy.
+    
+    
+
+
+
+
+
+Copyright (C) 2015  Marian Luck
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
