@@ -24,7 +24,7 @@ try:
 except:
 	device = 'Desktop'
 
-basic_path = os.path.dirname(os.path.realpath(__file__)) #just get the execution path for resources
+basic_path = os.path.dirname(os.path.realpath('main.py')) #just get the execution path for resources
 max_map_size = 202
 monitor = [0,0]
 
