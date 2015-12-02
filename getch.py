@@ -8,7 +8,7 @@ try:
 except:
 	device = 'Desktop'
 	
-basic_path = os.path.dirname(os.path.realpath(__file__)) #just get the execution path for resources
+basic_path = os.path.dirname(os.path.realpath('getch.py')) #just get the execution path for resources
 sfx_path = basic_path + os.sep + 'AUDIO' + os.sep + 'SFX' + os.sep
 pygame.init()
 clock = pygame.time.Clock()
