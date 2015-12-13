@@ -4,9 +4,15 @@
 import time
 import sys
 import os
-from getch import *
 import pickle as p
 import random
+
+basic_path = os.path.dirname(os.path.realpath('main.py')) #just get the execution path for resources
+lib_path = basic_path + os.sep + 'LIB'
+data_path = basic_path + os.sep + 'DATA'
+sys.path.append(lib_path)
+
+from getch import *
 from tile import tile
 from attribute import attribute
 from item import *
@@ -24,7 +30,6 @@ try:
 except:
 	device = 'Desktop'
 
-basic_path = os.path.dirname(os.path.realpath('main.py')) #just get the execution path for resources
 max_map_size = 202
 monitor = [0,0]
 
@@ -1530,10 +1535,10 @@ class g_screen():
 		
 		pygame.display.set_caption('RogueBox Adventures')
 		if device != 'Mobile':
-			font_path = basic_path + os.sep + 'PressStart2P.ttf'
+			font_path = basic_path + os.sep + 'FONT' + os.sep + 'PressStart2P.ttf'
 			self.font = pygame.font.Font(font_path,8)
 		else:
-			font_path = basic_path + os.sep + 'DejaVuSansMono.ttf'
+			font_path = basic_path + os.sep + 'FONT' + os.sep + 'DejaVuSansMono.ttf'
 			self.font = pygame.font.Font(font_path,14)
 		
 		if show_logo == True:
@@ -2947,7 +2952,7 @@ class tilelist():
 	
 	def __init__(self):
 		
-		path = basic_path
+		path = data_path
 		self.tlist = {}
 		
 		name = path + os.sep + 'misc_tiles.data'
@@ -3009,7 +3014,7 @@ class itemlist():
 	
 	def __init__(self):
 		
-		path = basic_path
+		path = data_path
 		self.ilist = {}
 		
 		name = path + os.sep + 'misc_items.data'
@@ -3026,7 +3031,7 @@ class monsterlist():
 	
 	def __init__(self):
 		
-		path = basic_path
+		path = data_path
 		self.mlist = {}
 		
 		name = path + os.sep + 'overworld_monster.data'
