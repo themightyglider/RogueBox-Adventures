@@ -3363,6 +3363,9 @@ class map():
 				
 				if self.tilemap[spawnpoints[ran2][1]][spawnpoints[ran2][0]].civilisation == False:#spawn a wild monster
 					self.npcs[spawnpoints[ran2][1]][spawnpoints[ran2][0]] = deepcopy(ml.mlist[self.map_type][ran])#deepcopy is used that every monster on the map is saved seperate
+					if player.difficulty == 4:
+						self.npcs[spawnpoints[ran2][1]][spawnpoints[ran2][0]].AI_style = 'ignore'
+						
 				else:#spawn a civilian
 					self.npcs[spawnpoints[ran2][1]][spawnpoints[ran2][0]] = deepcopy(ml.mlist['civilian'][ran3])
 					
@@ -3390,7 +3393,12 @@ class map():
 			for x in range (xmin,xmax):
 				
 				if self.npcs[y][x] != 0:
-					self.npcs[y][x].move_done = 0
+					if self.npcs[y][x].lp > 0:
+						self.npcs[y][x].move_done = 0
+					else:
+						test = False
+						while test == False:
+							test = self.monster_die(x,y)	
 		
 		for y in range (ymin,ymax):
 			for x in range (xmin,xmax):
@@ -3577,7 +3585,7 @@ class map():
 				
 				coin = random.randint(0,99)
 				
-				if coin < 15:#there is a chance of 50%
+				if coin < 15:#there is a chance of 15%
 					die_mess = 'The ' + self.npcs[y][x].name + ' dies!'
 					replace = self.tilemap[y][x]
 					self.tilemap[y][x] = deepcopy(tl.tlist['functional'][6])#<--humanoid remains
@@ -3585,12 +3593,14 @@ class map():
 					
 					items = []
 					
-					for i in range (0, self.npcs[y][x].corps_lvl):
+					max_items = max(1,self.npcs[y][x].corps_lvl)
+					
+					for i in range (0, max_items):
 						#possible drops of a humanoid monster are equipment items and food items
 						
 						coin = random.randint(0,99)
 						
-						if coin < 65: #there is a chance of 75% that a item becomes a eqipment item
+						if coin < 65: #there is a chance of 65% that a item becomes a eqipment item
 							
 							material = random.randint(0,20) #all materials are allowed
 							classes = ('spear','sword','axe','hammer','shoes','cuisse','helmet','armor','ward','rune','rune staff','artefact','ring','amulet','necklace','talisman','pickaxe')
@@ -3612,24 +3622,26 @@ class map():
 							
 						else:
 							
-							item = deepcopy(il.ilist['food'][random.randint(0,len(il.ilist['food']))])
+							item = deepcopy(il.ilist['food'][random.randint(0,len(il.ilist['food'])-1)])
 							
 						items.append(item)
-						
+					
 					self.containers[y][x] = container(items)
 			
 			elif self.npcs[y][x].corps_style == 'animal': #humanoid monsters can leave behind humanoid remains when they die. the corps_lvl says how much items are stored inside them
 				
 				coin = random.randint(0,99)
 				
-				if coin < 15:#there is a chance of 50%
+				if coin < 15:#there is a chance of 15%
 					replace = self.tilemap[y][x]
 					self.tilemap[y][x] = deepcopy(tl.tlist['functional'][21])#<--animal remains
 					self.tilemap[y][x].replace = replace
 					
 					items = []
 					
-					for i in range (0, self.npcs[y][x].corps_lvl):
+					max_items = max(1,self.npcs[y][x].corps_lvl)
+					
+					for i in range (0, max_items):
 						#animals drop flesh. the corpslvl says how much
 							
 						items.append(deepcopy(il.ilist['food'][9]))#<---raw meat
@@ -3642,7 +3654,7 @@ class map():
 				
 				coin = random.randint(0,99)
 				
-				if coin < 10:#there is a chance of 50%
+				if coin < 10:#there is a chance of 10%
 					die_mess = 'The ' + self.npcs[y][x].name + ' dies!'
 					replace = self.tilemap[y][x]
 					self.tilemap[y][x] = deepcopy(tl.tlist['functional'][6])#<--humanoid remains
@@ -3650,12 +3662,14 @@ class map():
 					
 					items = []
 					
-					for i in range (0, self.npcs[y][x].corps_lvl):
+					max_items = max(1,self.npcs[y][x].corps_lvl)
+					
+					for i in range (0, max_items):
 						#possible drops of a scrollkeeper are scrolls and spellbooks
 						
 						coin = random.randint(0,99)
 						
-						if coin < 95: #there is a chance of 75% that a item becomes a scroll
+						if coin < 75: #there is a chance of 75% that a item becomes a scroll
 							
 							scrolls = (il.ilist['misc'][25],il.ilist['misc'][27],il.ilist['misc'][29],il.ilist['misc'][31],il.ilist['misc'][33],il.ilist['misc'][35],il.ilist['misc'][37],il.ilist['misc'][45])
 							
@@ -3706,6 +3720,8 @@ class map():
 						if yy != player.pos[1] or xx!= player.pos[0]:
 							if self.npcs[yy][xx] == 0 and self.tilemap[yy][xx].move == True and self.tilemap[yy][xx].damage == 0:
 								self.npcs[yy][xx] = deepcopy(ml.mlist['special'][2])#set vase monsters
+								if player.difficulty == 4:
+									self.npcs[yy][xx].AI_style = 'ignore'
 								
 			elif self.npcs[y][x].corps_style == 'mimic':
 				
@@ -3743,10 +3759,13 @@ class map():
 		
 		if self.npcs[y][x].corps_style == 'mimic':
 			self.npcs[y][x] = deepcopy(ml.mlist['special'][4])#set a mimic
+			if player.difficulty == 4:
+				self.npcs[y][x].AI_style = 'ignore'
 		else:
 			self.npcs[y][x] = 0 #allways del the monster if it is no mimic
 		self.make_monsters_angry(x,y)
 		message.add(die_mess)
+		return True
 	
 	def make_shops(self):
 		
@@ -6166,8 +6185,8 @@ class player_class(mob):
 					
 			
 				num3 = 0
-				dificulty_list = ('EASY','NORMAL','HARD','ROGUELIKE')
-				description_list = ('Lose resources on death.','Lose inventory on death.','Lose inventory and level on death.','LOSE EVERYTHING') 
+				dificulty_list = ('EASY','NORMAL','HARD','ROGUELIKE','SANDBOX')
+				description_list = ('Lose resources on death.','Lose inventory on death.','Lose inventory and level on death.','LOSE EVERYTHING', 'MONSTERS IGNORE YOU') 
 				run3 = True
 			
 				while run3:
@@ -6176,12 +6195,12 @@ class player_class(mob):
 					
 					s.blit(gra_files.gdic['display'][1],(0,0)) #render background
 				
-					text_image = screen.font.render('Choose difficulty:',1,(255,255,255))
+					text_image = screen.font.render('Choose Game Mode:',1,(255,255,255))
 					s.blit(text_image,(5,2))#menue title
 				
 					s.blit(gra_files.gdic['display'][4],(0,115+num3*25))#blit marker
 				
-					for i in range (0,4): 
+					for i in range (0,5): 
 						string = dificulty_list[i]
 						text_image = screen.font.render(string,1,(0,0,0))
 						s.blit(text_image,(21,120+i*25))#blit item names
@@ -6200,13 +6219,13 @@ class player_class(mob):
 				
 					if ui == 's':
 						num3 += 1
-						if num3 > 3:
+						if num3 > 4:
 							num3 = 0
 						
 					if ui == 'w':
 						num3 -= 1
 						if num3 < 0:
-							num3 = 3
+							num3 = 4
 						
 					if ui == 'e':
 						self.difficulty = num3
@@ -6239,7 +6258,7 @@ class player_class(mob):
 					name_image = screen.font.render(n_string,1,(0,0,0))
 					s.blit(name_image,(160,120))
 					
-					d_list = ('Easy', 'Normal', 'Hard', 'Rougelike')
+					d_list = ('Easy', 'Normal', 'Hard', 'Rougelike', 'Sandbox')
 					
 					d_string = 'Difficulty: ' + d_list[self.difficulty]
 					name_image = screen.font.render(d_string,1,(0,0,0))
@@ -6280,6 +6299,18 @@ class player_class(mob):
 							accept = True
 							
 						run4 = False
+						
+			if self.difficulty == 4:
+				
+				
+				for i in range (0,len(world.maplist)-1):
+					
+					for y in range(0,max_map_size):
+						for x in range(0,max_map_size):
+							
+							if world.maplist[i]['local_0_0'].npcs[y][x] != 0:
+								world.maplist[i]['local_0_0'].npcs[y][x].AI_style = 'ignore'
+					
 			
 			mob.__init__(self, name, char, on_map, attribute, pos)
 		
@@ -6787,7 +6818,9 @@ class player_class(mob):
 					world.maplist[self.pos[2]][self.on_map].npcs[y][x].lp -= 2
 					 
 					if world.maplist[self.pos[2]][self.on_map].npcs[y][x].lp <= 0:
-						world.maplist[self.pos[2]][self.on_map].monster_die(x,y)
+						test = False
+						while test == False:
+							test = world.maplist[self.pos[2]][self.on_map].monster_die(x,y)	
 						if self.lvl < self.pos[2]:#giving xp to the player
 							self.xp += 3
 						elif self.lvl == self.pos[2]:
@@ -6812,7 +6845,9 @@ class player_class(mob):
 					world.maplist[self.pos[2]][self.on_map].npcs[y][x].lp -= 1
 					
 					if world.maplist[self.pos[2]][self.on_map].npcs[y][x].lp <= 0:
-						world.maplist[self.pos[2]][self.on_map].monster_die(x,y)
+						test = False
+						while test == False:
+							test = world.maplist[self.pos[2]][self.on_map].monster_die(x,y)	
 						if self.lvl < self.pos[2]:#giving xp to the player
 							self.xp += 3
 						elif self.lvl == self.pos[2]:
@@ -6869,7 +6904,9 @@ class player_class(mob):
 					world.maplist[self.pos[2]][self.on_map].npcs[y][x].lp -= 2
 					 
 					if world.maplist[self.pos[2]][self.on_map].npcs[y][x].lp <= 0:
-						world.maplist[self.pos[2]][self.on_map].monster_die(x,y)
+						test = False
+						while test == False:
+							test = world.maplist[self.pos[2]][self.on_map].monster_die(x,y)	
 						if self.lvl < self.pos[2]:#giving xp to the player
 							self.xp += 3
 						elif self.lvl == self.pos[2]:
@@ -6894,7 +6931,9 @@ class player_class(mob):
 					world.maplist[self.pos[2]][self.on_map].npcs[y][x].lp -= 1
 					
 					if world.maplist[self.pos[2]][self.on_map].npcs[y][x].lp <= 0:
-						world.maplist[self.pos[2]][self.on_map].monster_die(x,y)
+						test = False
+						while test == False:
+							test = world.maplist[self.pos[2]][self.on_map].monster_die(x,y)	
 						if self.lvl < self.pos[2]:#giving xp to the player
 							self.xp += 3
 						elif self.lvl == self.pos[2]:
