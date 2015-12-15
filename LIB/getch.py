@@ -84,9 +84,6 @@ def getch(x=640,y=360,sfx=0):#x and y are the resolution of the surface
 					
 				if event.key == pygame.K_i or event.key == pygame.K_BACKSPACE:
 					g='i'
-					
-				if event.key == pygame.K_r or event.key == pygame.K_CLEAR:
-					g='r'
 				
 				if event.key == pygame.K_b or event.key == pygame.K_SPACE:
 					g='b'
@@ -135,6 +132,9 @@ def getch(x=640,y=360,sfx=0):#x and y are the resolution of the surface
 				None
 			else:
 				if g != 'none' and g != 'foo':
-					sfxlist[file_name].play(maxtime=1000)
+					try:
+						sfxlist[file_name].play(maxtime=1000)
+					except:
+						None
 					
 	return g
