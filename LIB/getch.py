@@ -18,7 +18,7 @@ if device != 'Mobile':
 else:
 	sfxlist = 'foo'
 
-def getch(x=640,y=360,sfx=0):#x and y are the resolution of the surface
+def getch(x=640,y=360,sfx=0,mode=0):#x and y are the resolution of the surface
 	
 	g = 'foo'
 	run = 0
@@ -119,7 +119,8 @@ def getch(x=640,y=360,sfx=0):#x and y are the resolution of the surface
 				g='x'
 					
 		if run > 59:
-			g='none'
+			if mode == 1:
+				g='none'
 			run = 0
 			
 		if sfx == 1:
