@@ -46,11 +46,13 @@ class game_options():
 			self.screenmode = temp.screenmode
 			self.bgmmode = temp.bgmmode
 			self.sfxmode = temp.sfxmode
+			self.turnmode = temp.turnmode
 		
 		except:
 			self.screenmode = 1 #0:windowed,1:fullscreen
 			self.bgmmode = 1 #0:bgm off, 1:bgm on
 			self.sfxmode = 1 #0:sfx off, 1:sfx on
+			self.turnmode = 1 #0:classic, 1:Semi-Real-Time
 			self.save()
 			
 	def save(self):
@@ -1549,7 +1551,7 @@ class g_screen():
 			i = pygame.transform.scale(i,(self.displayx,self.displayy))
 			self.screen.blit(i,(0,0))
 			pygame.display.flip()
-			getch(640,360)
+			getch(640,360,mode=1)
 	
 	def re_init(self): # For changing screenmode
 		
@@ -2394,7 +2396,8 @@ class g_screen():
 			
 			wood_need = 0
 			stone_need = 0
-		#if device == 'Mobile':
+			
+			
 		s.set_colorkey((255,0,255),pygame.RLEACCEL)	
 		s = s.convert_alpha()
 		s = pygame.transform.scale(s,(self.displayx,self.displayy))
@@ -2437,7 +2440,8 @@ class g_screen():
 		
 		s.blit(line3_image,(posx,posy))
 		
-		s.set_colorkey((255,0,255))	
+		s.set_colorkey((255,0,255),pygame.RLEACCEL)	
+		s = s.convert_alpha()
 		s = pygame.transform.scale(s,(self.displayx,self.displayy))
 		self.screen.blit(s,(0,0))
 			
@@ -2493,7 +2497,7 @@ class g_screen():
 			
 			pygame.display.flip()
 			
-			ui = getch(screen.displayx,screen.displayy,game_options.sfxmode)
+			ui = getch(screen.displayx,screen.displayy,game_options.sfxmode,game_options.turnmode)
 			
 			if ui == 's':
 				if level < len(world.maplist)-1:
@@ -2503,6 +2507,37 @@ class g_screen():
 					level -=1		
 			elif ui == 'x':
 				run = False
+	
+	def render_credits(self):
+		
+		run = True
+		
+		while run:
+			
+			s = pygame.Surface((640,360))
+			s.blit(gra_files.gdic['display'][1],(0,0)) #render background
+			s.blit(gra_files.gdic['display'][8],(480,0)) #render mouse pad
+			
+			text_image = screen.font.render('~*~ Credits ~*~        [Press [x] to leave]',1,(255,255,255))
+			s.blit(text_image,(5,2))#menue title
+			
+			credit_items = ('Idea & Code: Marian Luck aka Nothing', 'BGM: Yubatake & Avgvsta [opengameart.org]' , 'SFX: Little Robot Sound Factory', 'Font: Cody Boisclair' )
+		
+			for i in range (0,len(credit_items)):
+			
+				text_image = screen.font.render(credit_items[i],1,(0,0,0))
+				s.blit(text_image,(21,120+i*25))#blit credit_items
+				
+			s = pygame.transform.scale(s,(self.displayx,self.displayy))
+			self.screen.blit(s,(0,0))
+			
+			pygame.display.flip()
+			
+			ui = getch(screen.displayx,screen.displayy,game_options.sfxmode,game_options.turnmode)
+			
+			if ui == 'x':
+				run = False
+			
 					  
 	def render_options(self):
 		
@@ -2533,16 +2568,21 @@ class g_screen():
 				sfxm = 'SFX: ON'
 			else:
 				sfxm = 'SFX: OFF'
-				
+			
 			if device == 'Mobile':
 				sfxm = 'Not for Android'
+			
+			if game_options.turnmode == 1:
+				turnm = 'Gamemode: Semi-Realtime'
+			else:
+				turnm = 'Gamemode: Turnbased'
 			
 			s.blit(gra_files.gdic['display'][1],(0,0)) #render background
 		
 			text_image = screen.font.render('~*~ Options ~*~        [Press [e] to choose]',1,(255,255,255))
 			s.blit(text_image,(5,2))#menue title
 		
-			menu_items = (winm, audiom, sfxm,'Done')
+			menu_items = (winm, audiom, sfxm,turnm ,'Done')
 		
 			for i in range (0,len(menu_items)):
 			
@@ -2558,7 +2598,7 @@ class g_screen():
 			
 			pygame.display.flip()
 			
-			ui = getch(screen.displayx,screen.displayy,game_options.sfxmode)
+			ui = getch(screen.displayx,screen.displayy,game_options.sfxmode,game_options.turnmode)
 		
 			if ui == 'w':
 				num -= 1
@@ -2601,8 +2641,14 @@ class g_screen():
 							game_options.sfxmode = 1
 						
 					game_options.save()
-					
+				
 				if num == 3:
+					if game_options.turnmode == 1:
+						game_options.turnmode = 0
+					else:
+						game_options.turnmode = 1
+					
+				if num == 4:
 					run = False
 					
 			
@@ -2621,7 +2667,7 @@ class g_screen():
 			text_image = screen.font.render('~*~ Game Paused ~*~        [Press [e] to choose]',1,(255,255,255))
 			s.blit(text_image,(5,2))#menue title
 		
-			menu_items = ('Resume','Map','Message History','Save and Exit', 'Options', '!!!RESET GAME!!!')
+			menu_items = ('Resume','Map','Message History','Save and Exit', 'Options', 'Credits', '!!!RESET GAME!!!')
 		
 			for i in range (0,len(menu_items)):
 			
@@ -2637,7 +2683,7 @@ class g_screen():
 			
 			pygame.display.flip()
 		
-			ui = getch(screen.displayx,screen.displayy,game_options.sfxmode)
+			ui = getch(screen.displayx,screen.displayy,game_options.sfxmode,game_options.turnmode)
 		
 			if ui == 'w':
 				num -= 1
@@ -2671,8 +2717,11 @@ class g_screen():
 					
 				if num == 4:
 					screen.render_options()
-					
+				
 				if num == 5:
+					screen.render_credits()
+					
+				if num == 6:
 					run2 = True
 					num2 = 0
 		
@@ -2707,7 +2756,7 @@ class g_screen():
 						
 						pygame.display.flip()
 						
-						ui = getch(screen.displayx,screen.displayy,game_options.sfxmode)
+						ui = getch(screen.displayx,screen.displayy,game_options.sfxmode,game_options.turnmode)
 		
 						if ui == 'w':
 							num2 -= 1
@@ -2797,7 +2846,7 @@ class g_screen():
 			
 			pygame.display.flip()
 		
-			ui = getch(screen.displayx,screen.displayy,game_options.sfxmode)
+			ui = getch(screen.displayx,screen.displayy,game_options.sfxmode,game_options.turnmode)
 		
 			if ui == 'w':
 				num -= 1
@@ -2870,7 +2919,7 @@ class g_screen():
 				
 			pygame.display.flip()
 						
-			ui = getch(screen.displayx,screen.displayy,game_options.sfxmode)
+			ui = getch(screen.displayx,screen.displayy,game_options.sfxmode,game_options.turnmode)
 		
 			if ui == 'w':
 				y -= 1
@@ -2935,7 +2984,7 @@ class g_screen():
 			
 			pygame.display.flip()
 		
-			ui = getch(screen.displayx,screen.displayy,game_options.sfxmode)
+			ui = getch(screen.displayx,screen.displayy,game_options.sfxmode,game_options.turnmode)
 		
 			if ui == 'e' and player.difficulty != 3:
 				player.respawn()
@@ -4078,12 +4127,12 @@ class map():
 										except:
 											None
 							
-							elif rand < 30:
+							elif rand < 30:#make a giant mushroom
 								
 								self.containers[y][x] = 0 #del container
-								replace = self.tilemap[y+yy][x+xx]
-								self.tilemap[y+yy][x+xx] = deepcopy(tl.tlist['misc'][14])
-								self.tilemap[y+yy][x+xx].replace = replace
+								replace = self.tilemap[y][x].replace
+								self.tilemap[y][x] = deepcopy(tl.tlist['misc'][14])
+								self.tilemap[y][x].replace = replace
 							
 							if tile.techID == tl.tlist['misc'][14].techID:#let a giant mushroom die(5%)
 								
@@ -5117,7 +5166,7 @@ class world_class():
 			
 		#Step 2: Choose
 		
-			ui = getch(screen.displayx,screen.displayy,game_options.sfxmode)
+			ui = getch(screen.displayx,screen.displayy,game_options.sfxmode,game_options.turnmode)
 		
 			if ui == 'w':
 			
@@ -5468,7 +5517,7 @@ class mob():
 				else:
 					screen.render_request('[e] - produce something (-10 Wood)', '[b] -      XXXXXXXXXXXX   ', '[x] - leave')
 					
-				ui = getch(screen.displayx,screen.displayy,game_options.sfxmode)
+				ui = getch(screen.displayx,screen.displayy,game_options.sfxmode,game_options.turnmode)
 				
 				if ui == 'e':
 					test = False
@@ -5530,7 +5579,7 @@ class mob():
 				else:
 					screen.render_request('[e] - produce something (-5 Wood)', '[b] -      XXXXXXXXXXXX   ', '[x] - leave')
 					
-				ui = getch(screen.displayx,screen.displayy,game_options.sfxmode)
+				ui = getch(screen.displayx,screen.displayy,game_options.sfxmode,game_options.turnmode)
 				
 				if ui == 'e':
 					test = False
@@ -5596,7 +5645,7 @@ class mob():
 				else:
 					screen.render_request('[e] - produce something (-10 Stone)', '[b] -      XXXXXXXXXXXX   ', '[x] - leave')
 					
-				ui = getch(screen.displayx,screen.displayy,game_options.sfxmode)
+				ui = getch(screen.displayx,screen.displayy,game_options.sfxmode,game_options.turnmode)
 				
 				if ui == 'e':
 					test = False
@@ -5665,7 +5714,7 @@ class mob():
 					string = '[e] - produce something (-' + str(price) + ' Ore)', '[b] -      XXXXXXXXXXXX   ', '[x] - leave'
 					screen.render_request(string)
 					
-				ui = getch(screen.displayx,screen.displayy,game_options.sfxmode)
+				ui = getch(screen.displayx,screen.displayy,game_options.sfxmode,game_options.turnmode)
 				
 				if ui == 'e':
 					test = False
@@ -5734,7 +5783,7 @@ class mob():
 				else:
 					screen.render_request('[e] - brew a potion (-5 Herbs)', '[b] -      XXXXXXXXXXXX   ', '[x] - leave')
 					
-				ui = getch(screen.displayx,screen.displayy,game_options.sfxmode)
+				ui = getch(screen.displayx,screen.displayy,game_options.sfxmode,game_options.turnmode)
 				
 				if ui == 'e':
 					test = False
@@ -5798,7 +5847,7 @@ class mob():
 				
 				screen.render_request('[e] - fire up the furnace (-10 wood)', ' ', '[x] - leave')
 					
-				ui = getch(screen.displayx,screen.displayy,game_options.sfxmode)
+				ui = getch(screen.displayx,screen.displayy,game_options.sfxmode,game_options.turnmode)
 				
 				if ui == 'e':
 					
@@ -5857,7 +5906,7 @@ class mob():
 				
 				screen.render_request('[e] - pray', '[b] - identify ', '[x] - leave')
 					
-				ui = getch(screen.displayx,screen.displayy,game_options.sfxmode)
+				ui = getch(screen.displayx,screen.displayy,game_options.sfxmode,game_options.turnmode)
 				
 				if ui == 'e':
 					
@@ -6122,7 +6171,7 @@ class player_class(mob):
 					
 					pygame.display.flip()
 					
-					ui = getch(screen.displayx,screen.displayy,game_options.sfxmode)
+					ui = getch(screen.displayx,screen.displayy,game_options.sfxmode,game_options.turnmode)
 				
 					if ui == 's':
 						num += 1
@@ -6167,7 +6216,7 @@ class player_class(mob):
 					
 					pygame.display.flip()
 				
-					ui = getch(screen.displayx,screen.displayy,game_options.sfxmode)
+					ui = getch(screen.displayx,screen.displayy,game_options.sfxmode,game_options.turnmode)
 				
 					if ui == 's':
 						num2 += 1
@@ -6215,7 +6264,7 @@ class player_class(mob):
 					
 					pygame.display.flip()
 					
-					ui = getch(screen.displayx,screen.displayy,game_options.sfxmode)
+					ui = getch(screen.displayx,screen.displayy,game_options.sfxmode,game_options.turnmode)
 				
 					if ui == 's':
 						num3 += 1
@@ -6281,7 +6330,7 @@ class player_class(mob):
 					
 					pygame.display.flip()
 					
-					ui = getch(screen.displayx,screen.displayy,game_options.sfxmode)
+					ui = getch(screen.displayx,screen.displayy,game_options.sfxmode,game_options.turnmode)
 				
 					if ui == 's':
 						num4 += 1
@@ -6331,7 +6380,7 @@ class player_class(mob):
 		
 	def user_input(self):
 		
-		ui = getch(screen.displayx,screen.displayy,game_options.sfxmode)
+		ui = getch(screen.displayx,screen.displayy,game_options.sfxmode,game_options.turnmode)
 		
 		if ui == 'w':
 			self.move(0,-1)
@@ -6386,7 +6435,7 @@ class player_class(mob):
 			
 			res_need = screen.render_built(xmin,xmax,ymin,ymax,style)
 			
-			ui = getch(screen.displayx,screen.displayy,game_options.sfxmode)
+			ui = getch(screen.displayx,screen.displayy,game_options.sfxmode,game_options.turnmode)
 			
 			if ui == 'w':
 				
@@ -7075,7 +7124,7 @@ class messager():
 			
 			pygame.display.flip()
 			
-			ui = getch(screen.displayx,screen.displayy,game_options.sfxmode)
+			ui = getch(screen.displayx,screen.displayy,game_options.sfxmode,game_options.turnmode)
 			
 			if ui == 'w' or ui == 'a':
 				page -= 1
@@ -7796,7 +7845,7 @@ class inventory():
 			
 			self.render(category, slot)
 			
-			ui = getch(screen.displayx,screen.displayy,game_options.sfxmode)
+			ui = getch(screen.displayx,screen.displayy,game_options.sfxmode,game_options.turnmode)
 			
 			if ui == 'd':	
 				slot = 0
@@ -7985,7 +8034,7 @@ class container():
 				
 				pygame.display.flip()
 			
-				ui = getch(screen.displayx,screen.displayy,game_options.sfxmode)
+				ui = getch(screen.displayx,screen.displayy,game_options.sfxmode,game_options.turnmode)
 			
 				if ui == 'x':
 					running = False
@@ -8361,7 +8410,7 @@ def main():
 				a=screen.render(i)
 				
 				if a == False:
-					getch(screen.displayx,screen.displayy,game_options.sfxmode)
+					getch(screen.displayx,screen.displayy,game_options.sfxmode,game_options.turnmode)
 			
 		else: 
 			screen.render(0) 
@@ -8378,7 +8427,7 @@ def main():
 				move_border += 1
 				
 		if player.buffs.immobilized > 0:
-			ui = getch(screen.displayx,screen.displayy,game_options.sfxmode)
+			ui = getch(screen.displayx,screen.displayy,game_options.sfxmode,game_options.turnmode)
 			if ui == 'x':
 				screen.render_brake()
 		else:
