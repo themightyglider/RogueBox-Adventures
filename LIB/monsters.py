@@ -194,7 +194,7 @@ m=monster(techID,'monster vase','special',0,10,a,'flee','vase',1,True,True, 'att
 techID+=1
 ml[8].append(m)
 a = attribute(3,3,3,3,5,3,0,0,0,0,0)
-m=monster(techID,'vase monster','special',1,10,a,'hostile','miner',5,True,True, 'attack_random', ('Body','Legs','Feet'),None , 0, 0, 'None')
+m=monster(techID,'vase monster','special',1,1,a,'hostile','miner',5,True,True, 'attack_random', ('Body','Legs','Feet'),None , 0, 0, 'None')
 techID+=1
 ml[8].append(m)
 a = attribute(0,0,0,0,0,1,0,0,0,0,0)
