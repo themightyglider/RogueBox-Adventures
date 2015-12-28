@@ -2411,6 +2411,8 @@ class g_screen():
 	def render_request(self,line1,line2,line3):
 		#this function just renders 3 lines of text in the textbox
 		
+		self.render(0, True)
+		
 		s = pygame.Surface((640,360))
 		s.fill((255,0,255))
 		
