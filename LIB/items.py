@@ -6,7 +6,7 @@ techID = 0
 
 #misc items
 il.append([])
-t=item_misc(techID, 'Fontain', 'place', 'functional', 7)
+t=item_misc(techID, 'Fontain', 'place', 'functional', 7)#0
 il[0].append(t)
 techID += 1
 t=item_misc(techID, 'Chest', 'place', 'functional' ,3)#empty chest
@@ -21,7 +21,7 @@ techID += 1
 t=item_misc(techID, 'Carver\'s workbench', 'place', 'functional', 10)
 il[0].append(t)
 techID += 1
-t=item_misc(techID, 'Stonecutter\'s workbench', 'place', 'functional', 11)
+t=item_misc(techID, 'Stonecutter\'s workbench', 'place', 'functional', 11)#5
 il[0].append(t)
 techID += 1
 t=item_misc(techID, 'Forger\'s workbench', 'place', 'functional', 12)
@@ -36,7 +36,7 @@ techID += 1
 t=item_misc(techID, 'Altar', 'place', 'functional', 15)
 il[0].append(t)
 techID += 1
-t=item_misc(techID, 'Table', 'place', 'functional', 16)
+t=item_misc(techID, 'Table', 'place', 'functional', 16)#10
 il[0].append(t)
 techID += 1
 t=item_misc(techID, 'Wooden seat', 'place', 'functional', 17)
