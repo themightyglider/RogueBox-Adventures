@@ -5505,7 +5505,8 @@ class mob():
 			else:
 				message.add('Your inventory is full.')
 				
-		elif world.maplist[self.pos[2]][self.on_map].tilemap[self.pos[1]][self.pos[0]].techID == tl.tlist['functional'][9].techID: #this is a carpenter's workbench
+		elif world.maplist[self.pos[2]][self.on_map].tilemap[self.pos[1]][self.pos[0]].techID == tl.tlist['functional'][9].techID: 
+			#this is a carpenter's workbench
 			
 			run = True
 			
@@ -5567,7 +5568,8 @@ class mob():
 					
 					run = False
 					
-		elif world.maplist[self.pos[2]][self.on_map].tilemap[self.pos[1]][self.pos[0]].techID == tl.tlist['functional'][10].techID: #this is a carvers's workbench
+		elif world.maplist[self.pos[2]][self.on_map].tilemap[self.pos[1]][self.pos[0]].techID == tl.tlist['functional'][10].techID: 
+			#this is a carvers's workbench
 			
 			run = True
 			
@@ -5596,18 +5598,23 @@ class mob():
 					if test == True:
 						if player.inventory.materials.wood >= 5:
 							
-							gc = screen.get_choice('What do you want to prodcuce?', ('Tool', 'Weapon', 'Armor','Jewelry'), False)
+							final_choice = 'Foo'
+							gc = screen.get_choice('What do you want to prodcuce exactly?', ('Tool', 'Weapon', 'Armor','Jewelry'), False)
 							
 							if gc == 0: #make a tool
 								items = (il.ilist['misc'][14], il.ilist['misc'][44], item_wear('axe',0,0), item_wear('pickaxe',0,0))
+								final_choice = screen.get_choice('What do you want to prodcuce exactly?', ('Fishing rod','Torch','Axe','Pickaxe'),False)
 							elif gc == 1: #make a weapon
 								items = (item_wear('spear',0,0), item_wear('sword',0,0), item_wear('hammer',0,0), item_wear('ward',0,0), item_wear('rune',0,0), item_wear('rune staff',0,0), item_wear('artefact',0,0))
 							elif gc == 2: #make some armor
 								items = (item_wear('shoes',0,0), item_wear('cuisse',0,0), item_wear('helmet',0,0), item_wear('armor',0,0))
+								final_choice = screen.get_choice('What do you want to prodcuce?', ('Shoes','Cuisse','Helmet','Armor'), False)
 							else:#make some jewlry
 								items = (item_wear('ring',0,0),  item_wear('amulet',0,0),  item_wear('necklace',0,0), item_wear('talisman',0,0))
-								
-							choose = random.randint(0, len(items)-1)
+							if final_choice == 'Foo':	
+								choose = random.randint(0, len(items)-1)
+							else:
+								choose = final_choice
 							
 							if world.maplist[self.pos[2]][self.on_map].containers[self.pos[1]][self.pos[0]] == 0: 
 								world.maplist[self.pos[2]][self.on_map].containers[self.pos[1]][self.pos[0]] = container([items[choose]])
@@ -5633,7 +5640,8 @@ class mob():
 					run = False
 									
 		
-		elif world.maplist[self.pos[2]][self.on_map].tilemap[self.pos[1]][self.pos[0]].techID == tl.tlist['functional'][11].techID: #this is a stonecutter's workbench
+		elif world.maplist[self.pos[2]][self.on_map].tilemap[self.pos[1]][self.pos[0]].techID == tl.tlist['functional'][11].techID: 
+			#this is a stonecutter's workbench
 			
 			run = True
 			
@@ -5696,7 +5704,8 @@ class mob():
 					
 					run = False
 					
-		elif world.maplist[self.pos[2]][self.on_map].tilemap[self.pos[1]][self.pos[0]].techID == tl.tlist['functional'][12].techID or world.maplist[self.pos[2]][self.on_map].tilemap[self.pos[1]][self.pos[0]].techID == tl.tlist['functional'][23].techID: #this is a forger's workbench or a master forge
+		elif world.maplist[self.pos[2]][self.on_map].tilemap[self.pos[1]][self.pos[0]].techID == tl.tlist['functional'][12].techID or world.maplist[self.pos[2]][self.on_map].tilemap[self.pos[1]][self.pos[0]].techID == tl.tlist['functional'][23].techID: 
+			#this is a forger's workbench or a master forge
 			
 			run = True
 			
@@ -5734,19 +5743,24 @@ class mob():
 							material = random.randint(6,20)#tin to magnicum
 							if world.maplist[self.pos[2]][self.on_map].tilemap[self.pos[1]][self.pos[0]].techID == tl.tlist['functional'][23].techID: #this is a master forge
 								material = 20 #magnicum only
-							
+							final_choice = 'Foo'
 							gc = screen.get_choice('What do you want to procuce?', ('Tool', 'Weapon', 'Armor','Jewelry'), False)
 							
 							if gc == 0: #make a tool
+								final_choice = screen.get_choice('What do you want to procuce exactly?', ('Axe', 'Pickaxe'), False)
 								items = (item_wear('axe',material,0), item_wear('pickaxe',material,0)) 
 							elif gc == 1: #make a weapon
 								items = (item_wear('spear',material,0), item_wear('sword',material,0), item_wear('hammer',material,0), item_wear('ward',material,0), item_wear('rune',material,0), item_wear('rune staff',material,0), item_wear('artefact',material,0))
 							elif gc == 2: #make some armor
+								final_choice = screen.get_choice('What do you want to procuce exactly?', ('Shoes', 'Cuisse', 'Helmet', 'Armor'), False)
 								items = (item_wear('shoes',material,0), item_wear('cuisse',material,0), item_wear('helmet',material,0), item_wear('armor',material,0))
 							else:#make some  jewelry
 								items = (item_wear('ring',material,0),  item_wear('amulet',material,0),  item_wear('necklace',material,0), item_wear('talisman',material,0))
-								
-							choose = random.randint(0, len(items)-1)
+							
+							if final_choice == 'Foo':	
+								choose = random.randint(0, len(items)-1)
+							else:
+								choose = final_choice
 							
 							if world.maplist[self.pos[2]][self.on_map].containers[self.pos[1]][self.pos[0]] == 0: 
 								world.maplist[self.pos[2]][self.on_map].containers[self.pos[1]][self.pos[0]] = container([items[choose]])
