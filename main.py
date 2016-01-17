@@ -18,17 +18,12 @@ from attribute import attribute
 from item import *
 from countdown import *
 import pygame
+from gra_files import *
 from save import save_everything as save
 from monster import monster
 from copy import deepcopy
 from buffs import buffs
 from version import *
-try:
-	import android
-	android.init()
-	device = 'Mobile'
-except:
-	device = 'Desktop'
 
 max_map_size = 202
 monitor = [0,0]
@@ -47,12 +42,14 @@ class game_options():
 			self.bgmmode = temp.bgmmode
 			self.sfxmode = temp.sfxmode
 			self.turnmode = temp.turnmode
+			self.mousepad = temp.mousepad
 		
 		except:
 			self.screenmode = 1 #0:windowed,1:fullscreen
 			self.bgmmode = 1 #0:bgm off, 1:bgm on
 			self.sfxmode = 1 #0:sfx off, 1:sfx on
 			self.turnmode = 1 #0:classic, 1:Semi-Real-Time
+			self.mousepad = 0 #0:mouse off, 1:mouse on
 			self.save()
 			
 	def save(self):
@@ -65,1438 +62,6 @@ class game_options():
 		
 
 game_options = game_options()
-
-class g_files():
-	
-	def __init__(self):
-		
-		self.gdic = { 'tile32' : {} , 'tile1' : {} , 'char' : {} , 'display' : [] , 'built' : [], 'monster' : {}}
-		
-		self.gdic['tile32']['cave'] = []
-		self.gdic['tile32']['functional'] = []
-		self.gdic['tile32']['misc'] = []
-		self.gdic['tile32']['unknown'] = []
-		self.gdic['tile32']['local'] = []
-		self.gdic['tile32']['building'] = []
-		self.gdic['tile32']['sanctuary'] = []
-		self.gdic['tile32']['shop'] = []
-		self.gdic['tile32']['effect'] = []
-		self.gdic['tile32']['elfish'] = []
-		self.gdic['tile32']['orcish'] = []
-		
-		self.gdic['tile1']['global'] = []
-		self.gdic['tile1']['cave'] = []
-		self.gdic['tile1']['functional'] = []
-		self.gdic['tile1']['misc'] = []
-		self.gdic['tile1']['unknown'] = []
-		self.gdic['tile1']['local'] = []
-		self.gdic['tile1']['building'] = []
-		self.gdic['tile1']['sanctuary'] = []
-		self.gdic['tile1']['shop'] = []
-		self.gdic['tile1']['effect'] = []
-		self.gdic['tile1']['elfish'] = []
-		self.gdic['tile1']['orcish'] = []
-		
-		self.gdic['monster']['overworld'] = []
-		self.gdic['monster']['civilian'] = []
-		self.gdic['monster']['cave'] = []
-		self.gdic['monster']['grot'] = []
-		self.gdic['monster']['orcish_mines'] = []
-		self.gdic['monster']['elfish'] = []
-		self.gdic['monster']['lava_cave'] = []
-		self.gdic['monster']['special'] = []
-		
-		t32_path = basic_path + os.sep + 'GRAPHIC' + os.sep + 'TILE32' + os.sep
-		t1_path = basic_path + os.sep + 'GRAPHIC' + os.sep + 'TILE1' + os.sep
-		char_path = basic_path +os.sep + 'GRAPHIC' + os.sep + 'CHAR' + os.sep
-		display_path = basic_path +os.sep + 'GRAPHIC' + os.sep + 'DISPLAY' + os.sep
-		built_path = basic_path +os.sep + 'GRAPHIC' + os.sep + 'BUILT' + os.sep
-		monster_path = basic_path +os.sep + 'GRAPHIC' + os.sep + 'MONSTER' + os.sep
-		
-		#chars
-		
-		gender_list = {'MALE', 'FEMALE'}
-		amo_list = ('helmet', 'armor', 'cuisse', 'shoes')
-		weapon_list = ('spear' , 'sword' , 'axe', 'hammer', 'rune', 'wand', 'rune staff', 'artefact', 'pickaxe')
-		weapon_list2 = ('spear' , 'sword' , 'axe', 'hammer', 'rune', 'wand', 'runestaff', 'artefact', 'pickaxe')
-		material_list = ('wooden', 'tin', 'copper', 'steel', 'titan', 'magnicum')
-		other_list = ('SKIN', 'HAIR')
-		
-		for h in gender_list:
-			for j in amo_list:
-				for k in material_list:
-					
-					key_string = h + '_' + k + '_'+ j
-					load_string =  char_path + h + os.sep + 'ARMOR' + os.sep + k +'_' + j + '.png'
-		
-					i_name = load_string
-					i = pygame.image.load(i_name)
-					i.set_colorkey((255,0,255),pygame.RLEACCEL)
-					i = i.convert_alpha()
-					self.gdic['char'][key_string] = i
-					
-		for k in other_list:			
-			for h in gender_list:
-				for j in range (1,5):
-				
-					key_string = k + '_' + h + '_' + str(j)
-					load_string =  char_path + h + os.sep + k + os.sep + str(j) + '.png'
-	
-					i_name = load_string
-					i = pygame.image.load(i_name)
-					i.set_colorkey((255,0,255),pygame.RLEACCEL)
-					i = i.convert_alpha()
-					self.gdic['char'][key_string] = i
-					
-		for h in range (0, len(weapon_list)):
-			for j in material_list:
-				 
-				key_string = 'WEAPONS_' + j + '_' + weapon_list[h]
-				load_string =  char_path + 'WEAPONS' + os.sep + j +'_' + weapon_list2[h] + '.png'
-				
-				i_name = load_string
-				i = pygame.image.load(i_name)
-				i.set_colorkey((255,0,255),pygame.RLEACCEL)
-				i = i.convert_alpha()
-				self.gdic['char'][key_string] = i
-				
-#############################################################################
-
-		#display stuff
-		
-		i_name = display_path + 'gui.png'
-		i = pygame.image.load(i_name)
-		i.set_colorkey((255,0,255),pygame.RLEACCEL)
-		i = i.convert_alpha()
-		self.gdic['display'].append(i)  #0
-		
-		i_name = display_path + 'game_menu_bg.png'
-		i = pygame.image.load(i_name)
-		i.set_colorkey((255,0,255),pygame.RLEACCEL)
-		i = i.convert_alpha()
-		self.gdic['display'].append(i)  #1
-		
-		i_name = display_path + 'tab_unmarked.png'
-		i = pygame.image.load(i_name)
-		i.set_colorkey((255,0,255),pygame.RLEACCEL)
-		i = i.convert_alpha()
-		self.gdic['display'].append(i)  #2
-		
-		i_name = display_path + 'tab_marked.png'
-		i = pygame.image.load(i_name)
-		i.set_colorkey((255,0,255),pygame.RLEACCEL)
-		i = i.convert_alpha()
-		self.gdic['display'].append(i)  #3
-		
-		i_name = display_path + 'marker.png'
-		i = pygame.image.load(i_name)
-		i.set_colorkey((255,0,255),pygame.RLEACCEL)
-		i = i.convert_alpha()
-		self.gdic['display'].append(i)  #4
-
-		i_name = display_path + 'gui_transparent.png'
-		i = pygame.image.load(i_name)
-		i.set_colorkey((255,0,255),pygame.RLEACCEL)
-		i = i.convert_alpha()
-		self.gdic['display'].append(i)  #5
-		
-		i_name = display_path + 'dark.png'
-		i = pygame.image.load(i_name)
-		i.set_colorkey((255,0,255),pygame.RLEACCEL)
-		i = i.convert_alpha()
-		self.gdic['display'].append(i)  #6
-		
-		i_name = display_path + 'unknown_monster.png'
-		i = pygame.image.load(i_name)
-		i.set_colorkey((255,0,255),pygame.RLEACCEL)
-		i = i.convert_alpha()
-		self.gdic['display'].append(i)  #7
-		
-		i_name = display_path + 'mouse_pad.png'
-		i = pygame.image.load(i_name)
-		i.set_colorkey((255,0,255),pygame.RLEACCEL)
-		i = i.convert_alpha()
-		self.gdic['display'].append(i)  #8
-		
-#############################################################################
-
-		#tiles
-		
-		i_name = t32_path + 'caveground.png'
-		i = pygame.image.load(i_name)
-		self.gdic['tile32']['cave'].append(i)
-		
-		i_name = t32_path + 'worn_rock.png'
-		i = pygame.image.load(i_name)
-		self.gdic['tile32']['cave'].append(i)
-		
-		i_name = t32_path + 'soft_soil.png'
-		i = pygame.image.load(i_name)
-		self.gdic['tile32']['cave'].append(i)
-		
-		i_name = t32_path + 'hard_rock.png'
-		i = pygame.image.load(i_name)
-		self.gdic['tile32']['cave'].append(i)
-		
-		i_name = t32_path + 'lava.png'
-		i = pygame.image.load(i_name)
-		self.gdic['tile32']['cave'].append(i)
-		
-		i_name = t32_path + 'border.png'
-		i = pygame.image.load(i_name)
-		self.gdic['tile32']['functional'].append(i)
-		
-		i_name = t32_path + 'stair_down.png'
-		i = pygame.image.load(i_name)
-		self.gdic['tile32']['functional'].append(i)
-		
-		i_name = t32_path + 'stair_up.png'
-		i = pygame.image.load(i_name)
-		self.gdic['tile32']['functional'].append(i)
-		
-		i_name = t32_path + 'chest_empty.png'
-		i = pygame.image.load(i_name)
-		i.set_colorkey((255,0,255),pygame.RLEACCEL)
-		i = i.convert_alpha()
-		self.gdic['tile32']['functional'].append(i)
-		
-		i_name = t32_path + 'chest.png'
-		i = pygame.image.load(i_name)
-		i.set_colorkey((255,0,255),pygame.RLEACCEL)
-		i = i.convert_alpha()
-		self.gdic['tile32']['functional'].append(i)
-		
-		i_name = t32_path + 'stack.png'
-		i = pygame.image.load(i_name)
-		i.set_colorkey((255,0,255),pygame.RLEACCEL)
-		i = i.convert_alpha()
-		self.gdic['tile32']['functional'].append(i)
-		
-		i_name = t32_path + 'remains.png'
-		i = pygame.image.load(i_name)
-		i.set_colorkey((255,0,255),pygame.RLEACCEL)
-		i = i.convert_alpha()
-		self.gdic['tile32']['functional'].append(i)
-		
-		i_name = t32_path + 'fontain.png'
-		i = pygame.image.load(i_name)
-		i.set_colorkey((255,0,255),pygame.RLEACCEL)
-		i = i.convert_alpha()
-		self.gdic['tile32']['functional'].append(i)
-		
-		i_name = t32_path + 'bed.png'
-		i = pygame.image.load(i_name)
-		i.set_colorkey((255,0,255),pygame.RLEACCEL)
-		i = i.convert_alpha()
-		self.gdic['tile32']['functional'].append(i)
-		
-		i_name = t32_path + 'carpenters_workbench.png'
-		i = pygame.image.load(i_name)
-		i.set_colorkey((255,0,255),pygame.RLEACCEL)
-		i = i.convert_alpha()
-		self.gdic['tile32']['functional'].append(i)
-		
-		i_name = t32_path + 'carvers_workbench.png'
-		i = pygame.image.load(i_name)
-		i.set_colorkey((255,0,255),pygame.RLEACCEL)
-		i = i.convert_alpha()
-		self.gdic['tile32']['functional'].append(i)
-		
-		i_name = t32_path + 'stonecutters_workbench.png'
-		i = pygame.image.load(i_name)
-		i.set_colorkey((255,0,255),pygame.RLEACCEL)
-		i = i.convert_alpha()
-		self.gdic['tile32']['functional'].append(i)
-		
-		i_name = t32_path + 'forgers_workbench.png'
-		i = pygame.image.load(i_name)
-		i.set_colorkey((255,0,255),pygame.RLEACCEL)
-		i = i.convert_alpha()
-		self.gdic['tile32']['functional'].append(i)
-		
-		i_name = t32_path + 'alchemists_workshop.png'
-		i = pygame.image.load(i_name)
-		i.set_colorkey((255,0,255),pygame.RLEACCEL)
-		i = i.convert_alpha()
-		self.gdic['tile32']['functional'].append(i)
-		
-		i_name = t32_path + 'furnace.png'
-		i = pygame.image.load(i_name)
-		i.set_colorkey((255,0,255),pygame.RLEACCEL)
-		i = i.convert_alpha()
-		self.gdic['tile32']['functional'].append(i)
-		
-		i_name = t32_path + 'altar.png'
-		i = pygame.image.load(i_name)
-		i.set_colorkey((255,0,255),pygame.RLEACCEL)
-		i = i.convert_alpha()
-		self.gdic['tile32']['functional'].append(i)
-		
-		i_name = t32_path + 'table.png'
-		i = pygame.image.load(i_name)
-		i.set_colorkey((255,0,255),pygame.RLEACCEL)
-		i = i.convert_alpha()
-		self.gdic['tile32']['functional'].append(i)
-		
-		i_name = t32_path + 'seat_wood.png'
-		i = pygame.image.load(i_name)
-		i.set_colorkey((255,0,255),pygame.RLEACCEL)
-		i = i.convert_alpha()
-		self.gdic['tile32']['functional'].append(i)
-		
-		i_name = t32_path + 'seat_stone.png'
-		i = pygame.image.load(i_name)
-		i.set_colorkey((255,0,255),pygame.RLEACCEL)
-		i = i.convert_alpha()
-		self.gdic['tile32']['functional'].append(i)
-		
-		i_name = t32_path + 'bookshelf.png'
-		i = pygame.image.load(i_name)
-		i.set_colorkey((255,0,255),pygame.RLEACCEL)
-		i = i.convert_alpha()
-		self.gdic['tile32']['functional'].append(i)
-		
-		i_name = t32_path + 'divine_gift.png'
-		i = pygame.image.load(i_name)
-		i.set_colorkey((255,0,255),pygame.RLEACCEL)
-		i = i.convert_alpha()
-		self.gdic['tile32']['functional'].append(i)
-		
-		i_name = t32_path + 'animal_remains.png'
-		i = pygame.image.load(i_name)
-		i.set_colorkey((255,0,255),pygame.RLEACCEL)
-		i = i.convert_alpha()
-		self.gdic['tile32']['functional'].append(i)
-		
-		i_name = t32_path + 'pilar.png'
-		i = pygame.image.load(i_name)
-		i.set_colorkey((255,0,255),pygame.RLEACCEL)
-		i = i.convert_alpha()
-		self.gdic['tile32']['functional'].append(i)
-		
-		i_name = t32_path + 'master_forge.png'
-		i = pygame.image.load(i_name)
-		i.set_colorkey((255,0,255),pygame.RLEACCEL)
-		i = i.convert_alpha()
-		self.gdic['tile32']['functional'].append(i)
-		
-		i_name = t32_path + 'low_water.png'
-		i = pygame.image.load(i_name)
-		self.gdic['tile32']['misc'].append(i)
-		
-		i_name = t32_path + 'caveground_mud.png'
-		i = pygame.image.load(i_name)
-		self.gdic['tile32']['misc'].append(i)
-		
-		i_name = t32_path + 'caveground_hot.png'
-		i = pygame.image.load(i_name)
-		self.gdic['tile32']['misc'].append(i)
-		
-		i_name = t32_path + 'water.png'
-		i = pygame.image.load(i_name)
-		self.gdic['tile32']['misc'].append(i)
-		
-		i_name = t32_path + 'ore.png'
-		i = pygame.image.load(i_name)
-		self.gdic['tile32']['misc'].append(i)
-		
-		i_name = t32_path + 'gem.png'
-		i = pygame.image.load(i_name)
-		self.gdic['tile32']['misc'].append(i)
-		
-		i_name = t32_path + 'mushroom_blue.png'
-		i = pygame.image.load(i_name)
-		i.set_colorkey((255,0,255),pygame.RLEACCEL)
-		i = i.convert_alpha()
-		self.gdic['tile32']['misc'].append(i)
-		
-		i_name = t32_path + 'mushroom_brown.png'
-		i = pygame.image.load(i_name)
-		i.set_colorkey((255,0,255),pygame.RLEACCEL)
-		i = i.convert_alpha()
-		self.gdic['tile32']['misc'].append(i)
-		
-		i_name = t32_path + 'mushroom_purple.png'
-		i = pygame.image.load(i_name)
-		i.set_colorkey((255,0,255),pygame.RLEACCEL)
-		i = i.convert_alpha()
-		self.gdic['tile32']['misc'].append(i)
-		
-		i_name = t32_path + 'lost_gem.png'
-		i = pygame.image.load(i_name)
-		i.set_colorkey((255,0,255),pygame.RLEACCEL)
-		i = i.convert_alpha()
-		self.gdic['tile32']['misc'].append(i)
-		
-		i_name = t32_path + 'water_lily.png'
-		i = pygame.image.load(i_name)
-		i.set_colorkey((255,0,255),pygame.RLEACCEL)
-		i = i.convert_alpha()
-		self.gdic['tile32']['misc'].append(i)
-		
-		i_name = t32_path + 'lost_ore.png'
-		i = pygame.image.load(i_name)
-		i.set_colorkey((255,0,255),pygame.RLEACCEL)
-		i = i.convert_alpha()
-		self.gdic['tile32']['misc'].append(i)
-		
-		i_name = t32_path + 'present.png'
-		i = pygame.image.load(i_name)
-		i.set_colorkey((255,0,255),pygame.RLEACCEL)
-		i = i.convert_alpha()
-		self.gdic['tile32']['misc'].append(i)
-		
-		i_name = t32_path + 'water_lily_blossom.png'
-		i = pygame.image.load(i_name)
-		i.set_colorkey((255,0,255),pygame.RLEACCEL)
-		i = i.convert_alpha()
-		self.gdic['tile32']['misc'].append(i)
-		
-		i_name = t32_path + 'giant_mushroom.png'
-		i = pygame.image.load(i_name)
-		i.set_colorkey((255,0,255),pygame.RLEACCEL)
-		i = i.convert_alpha()
-		self.gdic['tile32']['misc'].append(i)
-		
-		i_name = t32_path + 'unknown.png'
-		i = pygame.image.load(i_name)
-		self.gdic['tile32']['unknown'].append(i)
-		
-		i_name = t32_path + 'grass.png'
-		i = pygame.image.load(i_name)
-		self.gdic['tile32']['local'].append(i)
-		
-		i_name = t32_path + 'scrub.png'
-		i = pygame.image.load(i_name)
-		i.set_colorkey((255,0,255),pygame.RLEACCEL)
-		i = i.convert_alpha()
-		self.gdic['tile32']['local'].append(i)
-		
-		i_name = t32_path + 'scrub_red_berry.png'
-		i = pygame.image.load(i_name)
-		i.set_colorkey((255,0,255),pygame.RLEACCEL)
-		i = i.convert_alpha()
-		self.gdic['tile32']['local'].append(i)
-		
-		i_name = t32_path + 'scrub_buds.png'
-		i = pygame.image.load(i_name)
-		i.set_colorkey((255,0,255),pygame.RLEACCEL)
-		i = i.convert_alpha()
-		self.gdic['tile32']['local'].append(i)
-		
-		i_name = t32_path + 'scrub_blossom.png'
-		i = pygame.image.load(i_name)
-		i.set_colorkey((255,0,255),pygame.RLEACCEL)
-		i = i.convert_alpha()
-		self.gdic['tile32']['local'].append(i)
-		
-		i_name = t32_path + 'scrub_scruffy_berry.png'
-		i = pygame.image.load(i_name)
-		i.set_colorkey((255,0,255),pygame.RLEACCEL)
-		i = i.convert_alpha()
-		self.gdic['tile32']['local'].append(i)
-		
-		i_name = t32_path + 'scrub_seed.png'
-		i = pygame.image.load(i_name)
-		i.set_colorkey((255,0,255),pygame.RLEACCEL)
-		i = i.convert_alpha()
-		self.gdic['tile32']['local'].append(i)
-		
-		i_name = t32_path + 'scrub_sepling.png'
-		i = pygame.image.load(i_name)
-		i.set_colorkey((255,0,255),pygame.RLEACCEL)
-		i = i.convert_alpha()
-		self.gdic['tile32']['local'].append(i)
-		
-		i_name = t32_path + 'scrub_small.png'
-		i = pygame.image.load(i_name)
-		i.set_colorkey((255,0,255),pygame.RLEACCEL)
-		i = i.convert_alpha()
-		self.gdic['tile32']['local'].append(i)
-		
-		i_name = t32_path + 'scrub_dead.png'
-		i = pygame.image.load(i_name)
-		i.set_colorkey((255,0,255),pygame.RLEACCEL)
-		i = i.convert_alpha()
-		self.gdic['tile32']['local'].append(i)
-		
-		i_name = t32_path + 'tree_sepling.png'
-		i = pygame.image.load(i_name)
-		i.set_colorkey((255,0,255),pygame.RLEACCEL)
-		i = i.convert_alpha()
-		self.gdic['tile32']['local'].append(i)
-		
-		i_name = t32_path + 'tree_young.png'
-		i = pygame.image.load(i_name)
-		i.set_colorkey((255,0,255),pygame.RLEACCEL)
-		i = i.convert_alpha()
-		self.gdic['tile32']['local'].append(i)
-		
-		i_name = t32_path + 'tree.png'
-		i = pygame.image.load(i_name)
-		i.set_colorkey((255,0,255),pygame.RLEACCEL)
-		i = i.convert_alpha()
-		self.gdic['tile32']['local'].append(i)
-		
-		i_name = t32_path + 'tree_dead.png'
-		i = pygame.image.load(i_name)
-		i.set_colorkey((255,0,255),pygame.RLEACCEL)
-		i = i.convert_alpha()
-		self.gdic['tile32']['local'].append(i)
-		
-		i_name = t32_path + 'rock.png'
-		i = pygame.image.load(i_name)
-		i.set_colorkey((255,0,255),pygame.RLEACCEL)
-		i = i.convert_alpha()
-		self.gdic['tile32']['local'].append(i)
-		
-		i_name = t32_path + 'herbs.png'
-		i = pygame.image.load(i_name)
-		i.set_colorkey((255,0,255),pygame.RLEACCEL)
-		i = i.convert_alpha()
-		self.gdic['tile32']['local'].append(i)
-		
-		i_name = t32_path + 'herbs_flower.png'
-		i = pygame.image.load(i_name)
-		i.set_colorkey((255,0,255),pygame.RLEACCEL)
-		i = i.convert_alpha()
-		self.gdic['tile32']['local'].append(i)
-		
-		i_name = t32_path + 'scrub_blue_berry.png'
-		i = pygame.image.load(i_name)
-		i.set_colorkey((255,0,255),pygame.RLEACCEL)
-		i = i.convert_alpha()
-		self.gdic['tile32']['local'].append(i)
-		
-		i_name = t32_path + 'scrub_yellow_berry.png'
-		i = pygame.image.load(i_name)
-		i.set_colorkey((255,0,255),pygame.RLEACCEL)
-		i = i.convert_alpha()
-		self.gdic['tile32']['local'].append(i)
-		
-		i_name = t32_path + 'floor.png'
-		i = pygame.image.load(i_name)
-		self.gdic['tile32']['building'].append(i)
-
-		i_name = t32_path + 'wall.png'
-		i = pygame.image.load(i_name)
-		self.gdic['tile32']['building'].append(i)
-
-		i_name = t32_path + 'door_open.png'
-		i = pygame.image.load(i_name)
-		self.gdic['tile32']['building'].append(i)
-		
-		i_name = t32_path + 'door_close.png'
-		i = pygame.image.load(i_name)
-		self.gdic['tile32']['building'].append(i)
-		
-		i_name = t32_path + 'agriculture.png'
-		i = pygame.image.load(i_name)
-		self.gdic['tile32']['building'].append(i)
-		
-		i_name = t32_path + 'agriculture_budded_overworld.png'
-		i = pygame.image.load(i_name)
-		self.gdic['tile32']['building'].append(i)
-		
-		i_name = t32_path + 'agriculture_budded_caves.png'
-		i = pygame.image.load(i_name)
-		self.gdic['tile32']['building'].append(i)
-		
-		i_name = t32_path + 'agriculture_crops.png'
-		i = pygame.image.load(i_name)
-		self.gdic['tile32']['building'].append(i)
-		
-		i_name = t32_path + 'agriculture_mushroom.png'
-		i = pygame.image.load(i_name)
-		self.gdic['tile32']['building'].append(i)
-		
-		i_name = t32_path + 'floor_blue.png'
-		i = pygame.image.load(i_name)
-		self.gdic['tile32']['building'].append(i)
-		
-		i_name = t32_path + 'wall_blue.png'
-		i = pygame.image.load(i_name)
-		self.gdic['tile32']['building'].append(i)
-		
-		i_name = t32_path + 'floor_green.png'
-		i = pygame.image.load(i_name)
-		self.gdic['tile32']['building'].append(i)
-		
-		i_name = t32_path + 'wall_green.png'
-		i = pygame.image.load(i_name)
-		self.gdic['tile32']['building'].append(i)
-		
-		i_name = t32_path + 'floor_red.png'
-		i = pygame.image.load(i_name)
-		self.gdic['tile32']['building'].append(i)
-		
-		i_name = t32_path + 'wall_red.png'
-		i = pygame.image.load(i_name)
-		self.gdic['tile32']['building'].append(i)
-		
-		i_name = t32_path + 'floor_orange.png'
-		i = pygame.image.load(i_name)
-		self.gdic['tile32']['building'].append(i)
-		
-		i_name = t32_path + 'wall_orange.png'
-		i = pygame.image.load(i_name)
-		self.gdic['tile32']['building'].append(i)
-		
-		i_name = t32_path + 'floor_purple.png'
-		i = pygame.image.load(i_name)
-		self.gdic['tile32']['building'].append(i)
-		
-		i_name = t32_path + 'wall_purple.png'
-		i = pygame.image.load(i_name)
-		self.gdic['tile32']['building'].append(i)
-		
-		i_name = t32_path + 'mine_floor.png'
-		i = pygame.image.load(i_name)
-		self.gdic['tile32']['building'].append(i)
-		
-		i_name = t32_path + 'mine_wall.png'
-		i = pygame.image.load(i_name)
-		self.gdic['tile32']['building'].append(i)
-		
-		i_name = t32_path + 'noble_floor.png'
-		i = pygame.image.load(i_name)
-		self.gdic['tile32']['building'].append(i)
-		
-		i_name = t32_path + 'shop_wall.png'
-		i = pygame.image.load(i_name)
-		self.gdic['tile32']['building'].append(i)
-		
-		i_name = t32_path + 'sanctuary_floor.png'
-		i = pygame.image.load(i_name)
-		self.gdic['tile32']['sanctuary'].append(i)
-		
-		i_name = t32_path + 'sanctuary_pilar.png'
-		i = pygame.image.load(i_name)
-		self.gdic['tile32']['sanctuary'].append(i)
-		
-		i_name = t32_path + 'sanctuary_spawn.png'
-		i = pygame.image.load(i_name)
-		self.gdic['tile32']['sanctuary'].append(i)
-		
-		i_name = t32_path + 'sanctuary_portal_dark_off.png'
-		i = pygame.image.load(i_name)
-		self.gdic['tile32']['sanctuary'].append(i)
-		
-		i_name = t32_path + 'sanctuary_portal_dark_on.png'
-		i = pygame.image.load(i_name)
-		self.gdic['tile32']['sanctuary'].append(i)
-		
-		i_name = t32_path + 'sanctuary_portal_light_off.png'
-		i = pygame.image.load(i_name)
-		self.gdic['tile32']['sanctuary'].append(i)
-		
-		i_name = t32_path + 'sanctuary_portal_light_on.png'
-		i = pygame.image.load(i_name)
-		self.gdic['tile32']['sanctuary'].append(i)
-		
-		i_name = t32_path + 'shopkeeper_elfish.png'
-		i = pygame.image.load(i_name)
-		self.gdic['tile32']['shop'].append(i)
-		
-		i_name = t32_path + 'shopkeeper_orc.png'
-		i = pygame.image.load(i_name)
-		self.gdic['tile32']['shop'].append(i)
-		
-		i_name = t32_path + 'shopkeeper_naga.png'
-		i = pygame.image.load(i_name)
-		self.gdic['tile32']['shop'].append(i)
-		
-		i_name = t32_path + 'bomb3.png'
-		i = pygame.image.load(i_name)
-		i.set_colorkey((255,0,255),pygame.RLEACCEL)
-		i = i.convert_alpha()
-		self.gdic['tile32']['effect'].append(i)
-		
-		i_name = t32_path + 'bomb2.png'
-		i = pygame.image.load(i_name)
-		i.set_colorkey((255,0,255),pygame.RLEACCEL)
-		i = i.convert_alpha()
-		self.gdic['tile32']['effect'].append(i)
-		
-		i_name = t32_path + 'bomb1.png'
-		i = pygame.image.load(i_name)
-		i.set_colorkey((255,0,255),pygame.RLEACCEL)
-		i = i.convert_alpha()
-		self.gdic['tile32']['effect'].append(i)
-		
-		i_name = t32_path + 'boom.png'
-		i = pygame.image.load(i_name)
-		i.set_colorkey((255,0,255),pygame.RLEACCEL)
-		i = i.convert_alpha()
-		self.gdic['tile32']['effect'].append(i)
-		
-		i_name = t32_path + 'flame.png'
-		i = pygame.image.load(i_name)
-		i.set_colorkey((255,0,255),pygame.RLEACCEL)
-		i = i.convert_alpha()
-		self.gdic['tile32']['effect'].append(i)
-		
-		i_name = t32_path + 'healing_aura.png'
-		i = pygame.image.load(i_name)
-		i.set_colorkey((255,0,255),pygame.RLEACCEL)
-		i = i.convert_alpha()
-		self.gdic['tile32']['effect'].append(i)
-		
-		i_name = t32_path + 'elfish_floor_indoor.png'
-		i = pygame.image.load(i_name)
-		i.set_colorkey((255,0,255),pygame.RLEACCEL)
-		i = i.convert_alpha()
-		self.gdic['tile32']['elfish'].append(i)
-		
-		i_name = t32_path + 'elfish_floor_outdoor.png'
-		i = pygame.image.load(i_name)
-		i.set_colorkey((255,0,255),pygame.RLEACCEL)
-		i = i.convert_alpha()
-		self.gdic['tile32']['elfish'].append(i)
-		
-		i_name = t32_path + 'elfish_agriculture.png'
-		i = pygame.image.load(i_name)
-		i.set_colorkey((255,0,255),pygame.RLEACCEL)
-		i = i.convert_alpha()
-		self.gdic['tile32']['elfish'].append(i)
-		
-		i_name = t32_path + 'elfish_wall.png'
-		i = pygame.image.load(i_name)
-		i.set_colorkey((255,0,255),pygame.RLEACCEL)
-		i = i.convert_alpha()
-		self.gdic['tile32']['elfish'].append(i)
-		
-		i_name = t32_path + 'blood_moss.png'
-		i = pygame.image.load(i_name)
-		self.gdic['tile32']['orcish'].append(i)
-		
-		########
-		
-		i_name = t1_path + 'light_brown.png'#caveground
-		i = pygame.image.load(i_name)
-		self.gdic['tile1']['cave'].append(i)
-		
-		i_name = t1_path + 'grey.png'#worn rock
-		i = pygame.image.load(i_name)
-		self.gdic['tile1']['cave'].append(i)
-		
-		i_name = t1_path + 'brown.png'#soil
-		i = pygame.image.load(i_name)
-		self.gdic['tile1']['cave'].append(i)
-		
-		i_name = t1_path + 'grey.png'#hard rock
-		i = pygame.image.load(i_name)
-		self.gdic['tile1']['cave'].append(i)
-		
-		i_name = t1_path + 'red.png'#lava
-		i = pygame.image.load(i_name)
-		self.gdic['tile1']['cave'].append(i)
-		
-		i_name = t1_path + 'white.png'#cave
-		i = pygame.image.load(i_name)
-		self.gdic['tile1']['functional'].append(i)
-		
-		i_name = t1_path + 'white.png'#stair down
-		i = pygame.image.load(i_name)
-		self.gdic['tile1']['functional'].append(i)
-		
-		i_name = t1_path + 'white.png'#stair up
-		i = pygame.image.load(i_name)
-		self.gdic['tile1']['functional'].append(i)
-		
-		i_name = t1_path + 'white.png'#chest empty
-		i = pygame.image.load(i_name)
-		self.gdic['tile1']['functional'].append(i)
-		
-		i_name = t1_path + 'white.png'#chest
-		i = pygame.image.load(i_name)
-		self.gdic['tile1']['functional'].append(i)
-		
-		i_name = t1_path + 'white.png'#stack
-		i = pygame.image.load(i_name)
-		self.gdic['tile1']['functional'].append(i)
-		
-		i_name = t1_path + 'white.png'#remains(humanoid)
-		i = pygame.image.load(i_name)
-		self.gdic['tile1']['functional'].append(i)
-		
-		i_name = t1_path + 'blue.png'#fountain
-		i = pygame.image.load(i_name)
-		self.gdic['tile1']['functional'].append(i)
-		
-		i_name = t1_path + 'red.png'#bed
-		i = pygame.image.load(i_name)
-		self.gdic['tile1']['functional'].append(i)
-		
-		i_name = t1_path + 'red.png'#carpenter's workbench
-		i = pygame.image.load(i_name)
-		self.gdic['tile1']['functional'].append(i)
-		
-		i_name = t1_path + 'red.png'#carver's workbench
-		i = pygame.image.load(i_name)
-		self.gdic['tile1']['functional'].append(i)
-		
-		i_name = t1_path + 'red.png'#stonecutter's workbench
-		i = pygame.image.load(i_name)
-		self.gdic['tile1']['functional'].append(i)
-		
-		i_name = t1_path + 'red.png'#forger's workbench
-		i = pygame.image.load(i_name)
-		self.gdic['tile1']['functional'].append(i)
-		
-		i_name = t1_path + 'red.png'#alchemists's workshop
-		i = pygame.image.load(i_name)
-		self.gdic['tile1']['functional'].append(i)
-		
-		i_name = t1_path + 'red.png'#furnace
-		i = pygame.image.load(i_name)
-		self.gdic['tile1']['functional'].append(i)
-		
-		i_name = t1_path + 'red.png'#altar
-		i = pygame.image.load(i_name)
-		self.gdic['tile1']['functional'].append(i)
-		
-		i_name = t1_path + 'brown.png'#table
-		i = pygame.image.load(i_name)
-		self.gdic['tile1']['functional'].append(i)
-		
-		i_name = t1_path + 'brown.png'#wooden seat
-		i = pygame.image.load(i_name)
-		self.gdic['tile1']['functional'].append(i)
-		
-		i_name = t1_path + 'brown.png'#stone seat
-		i = pygame.image.load(i_name)
-		self.gdic['tile1']['functional'].append(i)
-		
-		i_name = t1_path + 'brown.png'#bookshelf
-		i = pygame.image.load(i_name)
-		self.gdic['tile1']['functional'].append(i)
-		
-		i_name = t1_path + 'white.png'#divine gift
-		i = pygame.image.load(i_name)
-		self.gdic['tile1']['functional'].append(i)
-		
-		i_name = t1_path + 'red.png'#animal remains
-		i = pygame.image.load(i_name)
-		self.gdic['tile1']['functional'].append(i)
-		
-		i_name = t1_path + 'grey.png'#pilar
-		i = pygame.image.load(i_name)
-		self.gdic['tile1']['functional'].append(i)
-		
-		i_name = t1_path + 'light_purple.png'#master forge
-		i = pygame.image.load(i_name)
-		self.gdic['tile1']['functional'].append(i)
-		
-		i_name = t1_path + 'light_blue.png'#low water
-		i = pygame.image.load(i_name)
-		self.gdic['tile1']['misc'].append(i)
-		
-		i_name = t1_path + 'brown.png'#caveground mud
-		i = pygame.image.load(i_name)
-		self.gdic['tile1']['misc'].append(i)
-		
-		i_name = t1_path + 'light_red.png'#caveground hot
-		i = pygame.image.load(i_name)
-		self.gdic['tile1']['misc'].append(i)
-		
-		i_name = t1_path + 'blue.png'#water
-		i = pygame.image.load(i_name)
-		self.gdic['tile1']['misc'].append(i)
-		
-		i_name = t1_path + 'red.png'#ore
-		i = pygame.image.load(i_name)
-		self.gdic['tile1']['misc'].append(i)
-		
-		i_name = t1_path + 'light_blue.png'#gem
-		i = pygame.image.load(i_name)
-		self.gdic['tile1']['misc'].append(i)
-		
-		i_name = t1_path + 'blue.png'#blue mushroom
-		i = pygame.image.load(i_name)
-		self.gdic['tile1']['misc'].append(i)
-		
-		i_name = t1_path + 'red.png'#brown mushroom
-		i = pygame.image.load(i_name)
-		self.gdic['tile1']['misc'].append(i)
-		
-		i_name = t1_path + 'light_purple.png'#purple mushroom
-		i = pygame.image.load(i_name)
-		self.gdic['tile1']['misc'].append(i)
-		
-		i_name = t1_path + 'light_blue.png'#lost gem
-		i = pygame.image.load(i_name)
-		self.gdic['tile1']['misc'].append(i)
-		
-		i_name = t1_path + 'green.png'#water lily
-		i = pygame.image.load(i_name)
-		self.gdic['tile1']['misc'].append(i)
-		
-		i_name = t1_path + 'red.png'#lost ore
-		i = pygame.image.load(i_name)
-		self.gdic['tile1']['misc'].append(i)
-		
-		i_name = t1_path + 'purple.png'#present
-		i = pygame.image.load(i_name)
-		self.gdic['tile1']['misc'].append(i)
-		
-		i_name = t1_path + 'white.png'#water lily with blossom
-		i = pygame.image.load(i_name)
-		self.gdic['tile1']['misc'].append(i)
-		
-		i_name = t1_path + 'black.png'#giant mushroom
-		i = pygame.image.load(i_name)
-		self.gdic['tile1']['misc'].append(i)
-		
-		i_name = t1_path + 'black.png'#unknown
-		i = pygame.image.load(i_name)
-		self.gdic['tile1']['unknown'].append(i)
-		
-		i_name = t1_path + 'white.png'#player
-		i = pygame.image.load(i_name)
-		self.gdic['tile1']['unknown'].append(i)
-		
-		i_name = t1_path + 'light_green.png'#grass
-		i = pygame.image.load(i_name)
-		self.gdic['tile1']['local'].append(i)
-		
-		i_name = t1_path + 'green.png'#scrub
-		i = pygame.image.load(i_name)
-		self.gdic['tile1']['local'].append(i)
-		
-		i_name = t1_path + 'light_red.png'#scrub berrys
-		i = pygame.image.load(i_name)
-		self.gdic['tile1']['local'].append(i)
-		
-		i_name = t1_path + 'green.png'#scrub buds
-		i = pygame.image.load(i_name)
-		self.gdic['tile1']['local'].append(i)
-		
-		i_name = t1_path + 'green.png'#scrub blossom
-		i = pygame.image.load(i_name)
-		self.gdic['tile1']['local'].append(i)
-		
-		i_name = t1_path + 'light_red.png'#scrub scruffy berrys
-		i = pygame.image.load(i_name)
-		self.gdic['tile1']['local'].append(i)
-		
-		i_name = t1_path + 'light_green.png'#scrub seeds
-		i = pygame.image.load(i_name)
-		self.gdic['tile1']['local'].append(i)
-		
-		i_name = t1_path + 'light_green.png'#scrub sepling
-		i = pygame.image.load(i_name)
-		self.gdic['tile1']['local'].append(i)
-		
-		i_name = t1_path + 'light_green.png'#scrub small
-		i = pygame.image.load(i_name)
-		self.gdic['tile1']['local'].append(i)
-		
-		i_name = t1_path + 'brown.png'#scrub dead
-		i = pygame.image.load(i_name)
-		self.gdic['tile1']['local'].append(i)
-		
-		i_name = t1_path + 'green.png'#tree sepling
-		i = pygame.image.load(i_name)
-		self.gdic['tile1']['local'].append(i)
-		
-		i_name = t1_path + 'green.png'#tree young
-		i = pygame.image.load(i_name)
-		self.gdic['tile1']['local'].append(i)
-		
-		i_name = t1_path + 'green.png'#tree
-		i = pygame.image.load(i_name)
-		self.gdic['tile1']['local'].append(i)
-		
-		i_name = t1_path + 'brown.png'#tree dead
-		i = pygame.image.load(i_name)
-		self.gdic['tile1']['local'].append(i)
-		
-		i_name = t1_path + 'light_grey.png'#rock
-		i = pygame.image.load(i_name)
-		self.gdic['tile1']['local'].append(i)
-		
-		i_name = t1_path + 'light_green.png'#herb
-		i = pygame.image.load(i_name)
-		self.gdic['tile1']['local'].append(i)
-		
-		i_name = t1_path + 'white.png'#flowering herb
-		i = pygame.image.load(i_name)
-		self.gdic['tile1']['local'].append(i)
-		
-		i_name = t1_path + 'light_blue.png'#herb
-		i = pygame.image.load(i_name)
-		self.gdic['tile1']['local'].append(i)
-		
-		i_name = t1_path + 'light_yellow.png'#herb
-		i = pygame.image.load(i_name)
-		self.gdic['tile1']['local'].append(i)
-		
-		i_name = t1_path + 'brown.png'#floor
-		i = pygame.image.load(i_name)
-		self.gdic['tile1']['building'].append(i)
-		
-		i_name = t1_path + 'grey.png'#wall
-		i = pygame.image.load(i_name)
-		self.gdic['tile1']['building'].append(i)
-		
-		i_name = t1_path + 'brown.png'#door open
-		i = pygame.image.load(i_name)
-		self.gdic['tile1']['building'].append(i)
-		
-		i_name = t1_path + 'brown.png'#door close
-		i = pygame.image.load(i_name)
-		self.gdic['tile1']['building'].append(i)
-		
-		i_name = t1_path + 'brown.png'#agriculture
-		i = pygame.image.load(i_name)
-		self.gdic['tile1']['building'].append(i)
-		
-		i_name = t1_path + 'green.png'#budded agriculture (o)
-		i = pygame.image.load(i_name)
-		self.gdic['tile1']['building'].append(i)
-		
-		i_name = t1_path + 'grey.png'#budded agriculture (u)
-		i = pygame.image.load(i_name)
-		self.gdic['tile1']['building'].append(i)
-		
-		i_name = t1_path + 'yellow.png'#crops
-		i = pygame.image.load(i_name)
-		self.gdic['tile1']['building'].append(i)
-		
-		i_name = t1_path + 'grey.png'#cultivated mushroom
-		i = pygame.image.load(i_name)
-		self.gdic['tile1']['building'].append(i)
-		
-		i_name = t1_path + 'light_blue.png'#blue floor
-		i = pygame.image.load(i_name)
-		self.gdic['tile1']['building'].append(i)
-		
-		i_name = t1_path + 'blue.png'#blue wall
-		i = pygame.image.load(i_name)
-		self.gdic['tile1']['building'].append(i)
-		
-		i_name = t1_path + 'light_green.png'#green floor
-		i = pygame.image.load(i_name)
-		self.gdic['tile1']['building'].append(i)
-		
-		i_name = t1_path + 'green.png'#green wall
-		i = pygame.image.load(i_name)
-		self.gdic['tile1']['building'].append(i)
-		
-		i_name = t1_path + 'light_red.png'#red floor
-		i = pygame.image.load(i_name)
-		self.gdic['tile1']['building'].append(i)
-		
-		i_name = t1_path + 'red.png'#red wall
-		i = pygame.image.load(i_name)
-		self.gdic['tile1']['building'].append(i)
-		
-		i_name = t1_path + 'light_yellow.png'# orang floor
-		i = pygame.image.load(i_name)
-		self.gdic['tile1']['building'].append(i)
-		
-		i_name = t1_path + 'yellow.png'#orange wall
-		i = pygame.image.load(i_name)
-		self.gdic['tile1']['building'].append(i)
-		
-		i_name = t1_path + 'light_purple.png'#purple floor
-		i = pygame.image.load(i_name)
-		self.gdic['tile1']['building'].append(i)
-		
-		i_name = t1_path + 'purple.png'#purple wall
-		i = pygame.image.load(i_name)
-		self.gdic['tile1']['building'].append(i)
-		
-		i_name = t1_path + 'light_red.png'#orc floor
-		i = pygame.image.load(i_name)
-		self.gdic['tile1']['building'].append(i)
-		
-		i_name = t1_path + 'red.png'#orc wall
-		i = pygame.image.load(i_name)
-		self.gdic['tile1']['building'].append(i)
-		
-		i_name = t1_path + 'light_grey.png'#orc floor
-		i = pygame.image.load(i_name)
-		self.gdic['tile1']['building'].append(i)
-		
-		i_name = t1_path + 'grey.png'#orc wall
-		i = pygame.image.load(i_name)
-		self.gdic['tile1']['building'].append(i)
-		
-		i_name = t1_path + 'light_purple.png'#sanctuary floor
-		i = pygame.image.load(i_name)
-		self.gdic['tile1']['sanctuary'].append(i)
-		
-		i_name = t1_path + 'purple.png'#sanctuary pilar
-		i = pygame.image.load(i_name)
-		self.gdic['tile1']['sanctuary'].append(i)
-		
-		i_name = t1_path + 'purple.png'#sanctuary spawn point
-		i = pygame.image.load(i_name)
-		self.gdic['tile1']['sanctuary'].append(i)
-		
-		i_name = t1_path + 'black.png'#sanctuary dark portal off
-		i = pygame.image.load(i_name)
-		self.gdic['tile1']['sanctuary'].append(i)
-		
-		i_name = t1_path + 'black.png'#sanctuary dark portal on
-		i = pygame.image.load(i_name)
-		self.gdic['tile1']['sanctuary'].append(i)
-		
-		i_name = t1_path + 'white.png'#sanctuary light portal off
-		i = pygame.image.load(i_name)
-		self.gdic['tile1']['sanctuary'].append(i)
-		
-		i_name = t1_path + 'white.png'#sanctuary light portal on
-		i = pygame.image.load(i_name)
-		self.gdic['tile1']['sanctuary'].append(i)
-		
-		i_name = t1_path + 'blue.png'#elfish shopkeeper
-		i = pygame.image.load(i_name)
-		self.gdic['tile1']['shop'].append(i)
-		
-		i_name = t1_path + 'blue.png'#orcish shopkeeper
-		i = pygame.image.load(i_name)
-		self.gdic['tile1']['shop'].append(i)
-		
-		i_name = t1_path + 'blue.png'#naga shopkeeper
-		i = pygame.image.load(i_name)
-		self.gdic['tile1']['shop'].append(i)
-		
-		i_name = t1_path + 'red.png'#bomb3
-		i = pygame.image.load(i_name)
-		self.gdic['tile1']['effect'].append(i)
-		
-		i_name = t1_path + 'red.png'#bomb2
-		i = pygame.image.load(i_name)
-		self.gdic['tile1']['effect'].append(i)
-		
-		i_name = t1_path + 'red.png'#bomb1
-		i = pygame.image.load(i_name)
-		self.gdic['tile1']['effect'].append(i)
-		
-		i_name = t1_path + 'red.png'#boom
-		i = pygame.image.load(i_name)
-		self.gdic['tile1']['effect'].append(i)
-		
-		i_name = t1_path + 'red.png'#flame
-		i = pygame.image.load(i_name)
-		self.gdic['tile1']['effect'].append(i)
-		
-		i_name = t1_path + 'light_blue.png'#boom
-		i = pygame.image.load(i_name)
-		self.gdic['tile1']['effect'].append(i)
-		
-		i_name = t1_path + 'light_purple.png'#elfish floor indoor
-		i = pygame.image.load(i_name)
-		self.gdic['tile1']['elfish'].append(i)
-		
-		i_name = t1_path + 'grey.png'#elfish floor outdoor
-		i = pygame.image.load(i_name)
-		self.gdic['tile1']['elfish'].append(i)
-		
-		i_name = t1_path + 'brown.png'#elfish agriculture
-		i = pygame.image.load(i_name)
-		self.gdic['tile1']['elfish'].append(i)
-		
-		i_name = t1_path + 'purple.png'#elfish wall
-		i = pygame.image.load(i_name)
-		self.gdic['tile1']['elfish'].append(i)
-		
-		i_name = t1_path + 'light_brown.png'#blood moss
-		i = pygame.image.load(i_name)
-		self.gdic['tile1']['orcish'].append(i)
-		
-		###############################################################
-		
-		#built
-		
-		i_name = built_path + 'wall_false.png'
-		i = pygame.image.load(i_name)
-		i.set_colorkey((255,0,255),pygame.RLEACCEL)
-		i = i.convert_alpha()
-		self.gdic['built'].append(i) #0
-		
-		i_name = built_path + 'wall_true.png'
-		i = pygame.image.load(i_name)
-		i.set_colorkey((255,0,255),pygame.RLEACCEL)
-		i = i.convert_alpha()
-		self.gdic['built'].append(i) #1
-		
-		i_name = built_path + 'door_false.png'
-		i = pygame.image.load(i_name)
-		i.set_colorkey((255,0,255),pygame.RLEACCEL)
-		i = i.convert_alpha()
-		self.gdic['built'].append(i) #2
-		
-		i_name = built_path + 'door_true.png'
-		i = pygame.image.load(i_name)
-		i.set_colorkey((255,0,255),pygame.RLEACCEL)
-		i = i.convert_alpha()
-		self.gdic['built'].append(i) #3
-		
-		i_name = built_path + 'floor_false.png'
-		i = pygame.image.load(i_name)
-		i.set_colorkey((255,0,255),pygame.RLEACCEL)
-		i = i.convert_alpha()
-		self.gdic['built'].append(i) #4
-		
-		i_name = built_path + 'floor_true.png'
-		i = pygame.image.load(i_name)
-		i.set_colorkey((255,0,255),pygame.RLEACCEL)
-		i = i.convert_alpha()
-		self.gdic['built'].append(i) #5
-		
-		i_name = built_path + 'wall_over.png'
-		i = pygame.image.load(i_name)
-		i.set_colorkey((255,0,255),pygame.RLEACCEL)
-		i = i.convert_alpha()
-		self.gdic['built'].append(i) #6
-		
-		i_name = built_path + 'floor_over.png'
-		i = pygame.image.load(i_name)
-		i.set_colorkey((255,0,255),pygame.RLEACCEL)
-		i = i.convert_alpha()
-		self.gdic['built'].append(i) #7
-		
-		i_name = built_path + 'door_over.png'
-		i = pygame.image.load(i_name)
-		i.set_colorkey((255,0,255),pygame.RLEACCEL)
-		i = i.convert_alpha()
-		self.gdic['built'].append(i) #8
-		
-		i_name = built_path + 'remove.png'
-		i = pygame.image.load(i_name)
-		i.set_colorkey((255,0,255),pygame.RLEACCEL)
-		i = i.convert_alpha()
-		self.gdic['built'].append(i) #9
-		
-		i_name = built_path + 'stairup_true.png'
-		i = pygame.image.load(i_name)
-		i.set_colorkey((255,0,255),pygame.RLEACCEL)
-		i = i.convert_alpha()
-		self.gdic['built'].append(i) #10
-		
-		i_name = built_path + 'stairup_false.png'
-		i = pygame.image.load(i_name)
-		i.set_colorkey((255,0,255),pygame.RLEACCEL)
-		i = i.convert_alpha()
-		self.gdic['built'].append(i) #11
-		
-		i_name = built_path + 'stairdown_true.png'
-		i = pygame.image.load(i_name)
-		i.set_colorkey((255,0,255),pygame.RLEACCEL)
-		i = i.convert_alpha()
-		self.gdic['built'].append(i) #12
-		
-		i_name = built_path + 'stairdown_false.png'
-		i = pygame.image.load(i_name)
-		i.set_colorkey((255,0,255),pygame.RLEACCEL)
-		i = i.convert_alpha()
-		self.gdic['built'].append(i) #13
-		
-		i_name = built_path + 'agriculture_false.png'
-		i = pygame.image.load(i_name)
-		i.set_colorkey((255,0,255),pygame.RLEACCEL)
-		i = i.convert_alpha()
-		self.gdic['built'].append(i) #14
-		
-		i_name = built_path + 'agriculture_true.png'
-		i = pygame.image.load(i_name)
-		i.set_colorkey((255,0,255),pygame.RLEACCEL)
-		i = i.convert_alpha()
-		self.gdic['built'].append(i) #15
-		
-		i_name = built_path + 'agriculture_over.png'
-		i = pygame.image.load(i_name)
-		i.set_colorkey((255,0,255),pygame.RLEACCEL)
-		i = i.convert_alpha()
-		self.gdic['built'].append(i) #16
-
-		#######################################################
-		
-		#monsters
-		
-		i_name = monster_path + 'angry_dryade.png'
-		i = pygame.image.load(i_name)
-		i.set_colorkey((255,0,255),pygame.RLEACCEL)
-		i = i.convert_alpha()
-		self.gdic['monster']['overworld'].append(i)
-		
-		i_name = monster_path + 'grassland_snake.png'
-		i = pygame.image.load(i_name)
-		i.set_colorkey((255,0,255),pygame.RLEACCEL)
-		i = i.convert_alpha()
-		self.gdic['monster']['overworld'].append(i)
-		
-		i_name = monster_path + 'rabbit.png'
-		i = pygame.image.load(i_name)
-		i.set_colorkey((255,0,255),pygame.RLEACCEL)
-		i = i.convert_alpha()
-		self.gdic['monster']['overworld'].append(i)
-		
-		i_name = monster_path + 'green_blob.png'
-		i = pygame.image.load(i_name)
-		i.set_colorkey((255,0,255),pygame.RLEACCEL)
-		i = i.convert_alpha()
-		self.gdic['monster']['overworld'].append(i)
-		
-		i_name = monster_path + 'hill_orc.png'
-		i = pygame.image.load(i_name)
-		i.set_colorkey((255,0,255),pygame.RLEACCEL)
-		i = i.convert_alpha()
-		self.gdic['monster']['overworld'].append(i)
-		
-		i_name = monster_path + 'dryade.png'
-		i = pygame.image.load(i_name)
-		i.set_colorkey((255,0,255),pygame.RLEACCEL)
-		i = i.convert_alpha()
-		self.gdic['monster']['civilian'].append(i)
-		
-		i_name = monster_path + 'tame_orc.png'
-		i = pygame.image.load(i_name)
-		i.set_colorkey((255,0,255),pygame.RLEACCEL)
-		i = i.convert_alpha()
-		self.gdic['monster']['civilian'].append(i)
-		
-		i_name = monster_path + 'golden_naga.png'
-		i = pygame.image.load(i_name)
-		i.set_colorkey((255,0,255),pygame.RLEACCEL)
-		i = i.convert_alpha()
-		self.gdic['monster']['civilian'].append(i)
-		
-		i_name = monster_path + 'wood_elf.png'
-		i = pygame.image.load(i_name)
-		i.set_colorkey((255,0,255),pygame.RLEACCEL)
-		i = i.convert_alpha()
-		self.gdic['monster']['civilian'].append(i)
-		
-		i_name = monster_path + 'cave_orc.png'
-		i = pygame.image.load(i_name)
-		i.set_colorkey((255,0,255),pygame.RLEACCEL)
-		i = i.convert_alpha()
-		self.gdic['monster']['cave'].append(i)
-		
-		i_name = monster_path + 'blue_blob.png'
-		i = pygame.image.load(i_name)
-		i.set_colorkey((255,0,255),pygame.RLEACCEL)
-		i = i.convert_alpha()
-		self.gdic['monster']['cave'].append(i)
-		
-		i_name = monster_path + 'bat.png'
-		i = pygame.image.load(i_name)
-		i.set_colorkey((255,0,255),pygame.RLEACCEL)
-		i = i.convert_alpha()
-		self.gdic['monster']['cave'].append(i)
-		
-		i_name = monster_path + 'soil_spirit.png'
-		i = pygame.image.load(i_name)
-		i.set_colorkey((255,0,255),pygame.RLEACCEL)
-		i = i.convert_alpha()
-		self.gdic['monster']['cave'].append(i)
-		
-		i_name = monster_path + 'orc_warlord.png'
-		i = pygame.image.load(i_name)
-		i.set_colorkey((255,0,255),pygame.RLEACCEL)
-		i = i.convert_alpha()
-		self.gdic['monster']['orcish_mines'].append(i)
-		
-		i_name = monster_path + 'orc_hag.png'
-		i = pygame.image.load(i_name)
-		i.set_colorkey((255,0,255),pygame.RLEACCEL)
-		i = i.convert_alpha()
-		self.gdic['monster']['orcish_mines'].append(i)
-		
-		i_name = monster_path + 'orc_digger.png'
-		i = pygame.image.load(i_name)
-		i.set_colorkey((255,0,255),pygame.RLEACCEL)
-		i = i.convert_alpha()
-		self.gdic['monster']['orcish_mines'].append(i)
-		
-		i_name = monster_path + 'elf_male.png'
-		i = pygame.image.load(i_name)
-		i.set_colorkey((255,0,255),pygame.RLEACCEL)
-		i = i.convert_alpha()
-		self.gdic['monster']['elfish'].append(i)
-		
-		i_name = monster_path + 'elf_female.png'
-		i = pygame.image.load(i_name)
-		i.set_colorkey((255,0,255),pygame.RLEACCEL)
-		i = i.convert_alpha()
-		self.gdic['monster']['elfish'].append(i)
-		
-		i_name = monster_path + 'blue_naga.png'
-		i = pygame.image.load(i_name)
-		i.set_colorkey((255,0,255),pygame.RLEACCEL)
-		i = i.convert_alpha()
-		self.gdic['monster']['grot'].append(i)
-		
-		i_name = monster_path + 'red_naga.png'
-		i = pygame.image.load(i_name)
-		i.set_colorkey((255,0,255),pygame.RLEACCEL)
-		i = i.convert_alpha()
-		self.gdic['monster']['grot'].append(i)
-		
-		i_name = monster_path + 'purple_blob.png'
-		i = pygame.image.load(i_name)
-		i.set_colorkey((255,0,255),pygame.RLEACCEL)
-		i = i.convert_alpha()
-		self.gdic['monster']['grot'].append(i)
-		
-		i_name = monster_path + 'water_spirit.png'
-		i = pygame.image.load(i_name)
-		i.set_colorkey((255,0,255),pygame.RLEACCEL)
-		i = i.convert_alpha()
-		self.gdic['monster']['grot'].append(i)
-		
-		i_name = monster_path + 'lava_monster.png'
-		i = pygame.image.load(i_name)
-		i.set_colorkey((255,0,255),pygame.RLEACCEL)
-		i = i.convert_alpha()
-		self.gdic['monster']['lava_cave'].append(i)
-		
-		i_name = monster_path + 'flame_spirit.png'
-		i = pygame.image.load(i_name)
-		i.set_colorkey((255,0,255),pygame.RLEACCEL)
-		i = i.convert_alpha()
-		self.gdic['monster']['lava_cave'].append(i)
-		
-		i_name = monster_path + 'red_blob.png'
-		i = pygame.image.load(i_name)
-		i.set_colorkey((255,0,255),pygame.RLEACCEL)
-		i = i.convert_alpha()
-		self.gdic['monster']['lava_cave'].append(i)
-		
-		i_name = monster_path + 'fire_bat.png'
-		i = pygame.image.load(i_name)
-		i.set_colorkey((255,0,255),pygame.RLEACCEL)
-		i = i.convert_alpha()
-		self.gdic['monster']['lava_cave'].append(i)
-		
-		i_name = monster_path + 'vase.png'
-		i = pygame.image.load(i_name)
-		i.set_colorkey((255,0,255),pygame.RLEACCEL)
-		i = i.convert_alpha()
-		self.gdic['monster']['special'].append(i)
-		
-		i_name = monster_path + 'vase_monster.png'
-		i = pygame.image.load(i_name)
-		i.set_colorkey((255,0,255),pygame.RLEACCEL)
-		i = i.convert_alpha()
-		self.gdic['monster']['special'].append(i)
-		
-		i_name = monster_path + 'sleeping_mimic.png'
-		i = pygame.image.load(i_name)
-		i.set_colorkey((255,0,255),pygame.RLEACCEL)
-		i = i.convert_alpha()
-		self.gdic['monster']['special'].append(i)
-		
-		i_name = monster_path + 'mimic.png'
-		i = pygame.image.load(i_name)
-		i.set_colorkey((255,0,255),pygame.RLEACCEL)
-		i = i.convert_alpha()
-		self.gdic['monster']['special'].append(i)
 		
 class g_screen():
 	
@@ -1526,9 +91,7 @@ class g_screen():
 		
 		winstyle = pygame.FULLSCREEN
 		
-		if device == 'Mobile':
-			self.screen = pygame.display.set_mode((self.displayx,self.displayy))
-		elif self.win_mode == 1:  
+		if self.win_mode == 1:  
 			self.screen = pygame.display.set_mode((self.displayx,self.displayy),winstyle)
 		else:
 			self.screen = pygame.display.set_mode((640,360))
@@ -1536,12 +99,9 @@ class g_screen():
 			self.displayy = 360
 		
 		pygame.display.set_caption('RogueBox Adventures')
-		if device != 'Mobile':
-			font_path = basic_path + os.sep + 'FONT' + os.sep + 'PressStart2P.ttf'
-			self.font = pygame.font.Font(font_path,8)
-		else:
-			font_path = basic_path + os.sep + 'FONT' + os.sep + 'DejaVuSansMono.ttf'
-			self.font = pygame.font.Font(font_path,14)
+		
+		font_path = basic_path + os.sep + 'FONT' + os.sep + 'PressStart2P.ttf'
+		self.font = pygame.font.Font(font_path,8)
 		
 		if show_logo == True:
 			display_path = basic_path +os.sep + 'GRAPHIC' + os.sep + 'DISPLAY' + os.sep
@@ -1600,38 +160,40 @@ class g_screen():
 				distance = ((x-player.pos[0])**2 + (y-player.pos[1])**2)**0.5
 
 				try:
-					t_cat = world.maplist[player.pos[2]][player.on_map].tilemap[y][x].tile_category
-					t_num = world.maplist[player.pos[2]][player.on_map].tilemap[y][x].tile_num
+					t_pos = world.maplist[player.pos[2]][player.on_map].tilemap[y][x].tile_pos
 					t_known = world.maplist[player.pos[2]][player.on_map].known[y][x]
 					t_replace = world.maplist[player.pos[2]][player.on_map].tilemap[y][x].replace
 						
 					if t_known == 1:
 						if t_replace == None:
-							s.blit(gra_files.gdic['tile32'][t_cat][t_num],(start_pos+((x-player.pos[0])*32),start_pos+((y-player.pos[1])*32)))
+							s.blit(gra_files.gdic['tile32'][t_pos[1]][t_pos[0]],(start_pos+((x-player.pos[0])*32),start_pos+((y-player.pos[1])*32)))
 						else:
 							#render the replaced tile under the replacing one. eg.: for stacks
-							tr_cat = t_replace.tile_category
-							tr_num = t_replace.tile_num
-							s.blit(gra_files.gdic['tile32'][tr_cat][tr_num],(start_pos+((x-player.pos[0])*32),start_pos+((y-player.pos[1])*32)))
-							s.blit(gra_files.gdic['tile32'][t_cat][t_num],(start_pos+((x-player.pos[0])*32),start_pos+((y-player.pos[1])*32)))
+							s.blit(gra_files.gdic['tile32'][t_replace.tile_pos[1]][t_replace.tile_pos[0]],(start_pos+((x-player.pos[0])*32),start_pos+((y-player.pos[1])*32)))
+							s.blit(gra_files.gdic['tile32'][t_pos[1]][t_pos[0]],(start_pos+((x-player.pos[0])*32),start_pos+((y-player.pos[1])*32)))
 							
 						if distance > radius:
-							 s.blit(gra_files.gdic['display'][6],(start_pos+((x-player.pos[0])*32),start_pos+((y-player.pos[1])*32)))
+							s.blit(gra_files.gdic['display'][6],(start_pos+((x-player.pos[0])*32),start_pos+((y-player.pos[1])*32)))
 							
 						if world.maplist[player.pos[2]][player.on_map].npcs[y][x] != 0:#render monsters
-							cat = world.maplist[player.pos[2]][player.on_map].npcs[y][x].sprite_category
-							num = world.maplist[player.pos[2]][player.on_map].npcs[y][x].sprite_num
+							pos = world.maplist[player.pos[2]][player.on_map].npcs[y][x].sprite_pos
 							if distance <= radius:
-								s.blit(gra_files.gdic['monster'][cat][num],(start_pos+((x-player.pos[0])*32),start_pos+((y-player.pos[1])*32)))
+								s.blit(gra_files.gdic['monster'][pos[1]][pos[0]],(start_pos+((x-player.pos[0])*32),start_pos+((y-player.pos[1])*32)))
 							else:
 								ran = random.randint(0,1)
+								if world.maplist[player.pos[2]][player.on_map].npcs[y][x].techID == ml.mlist['special'][0].techID or world.maplist[player.pos[2]][player.on_map].npcs[y][x].techID == ml.mlist['special'][1].techID or world.maplist[player.pos[2]][player.on_map].npcs[y][x].techID == ml.mlist['special'][3].techID:
+									#if this is a vase, a monster vase or a sleepng mimic show them like they would be tile ojects
+									s.blit(gra_files.gdic['monster'][pos[1]][pos[0]],(start_pos+((x-player.pos[0])*32),start_pos+((y-player.pos[1])*32)))
+									ran = 0
 								if ran == 1:
 									s.blit(gra_files.gdic['display'][7],(start_pos+((x-player.pos[0])*32),start_pos+((y-player.pos[1])*32)))
+								else:
+									s.blit(gra_files.gdic['display'][6],(start_pos+((x-player.pos[0])*32),start_pos+((y-player.pos[1])*32)))
 					
 					elif t_known == 0:
-						s.blit(gra_files.gdic['tile32']['unknown'][0],(start_pos+((x-player.pos[0])*32),start_pos+((y-player.pos[1])*32)))
+						s.blit(gra_files.gdic['tile32'][0][3],(start_pos+((x-player.pos[0])*32),start_pos+((y-player.pos[1])*32)))
 					else:
-						s.blit(gra_files.gdic['tile32']['unknown'][0],(start_pos+((x-player.pos[0])*32),start_pos+((y-player.pos[1])*32)))
+						s.blit(gra_files.gdic['tile32'][0][3],(start_pos+((x-player.pos[0])*32),start_pos+((y-player.pos[1])*32)))
 						
 					if x == player.pos[0] and y == player.pos[1]:
 						
@@ -1652,7 +214,7 @@ class g_screen():
 						if player.inventory.wearing['Legs'] != player.inventory.nothing:
 							cuissestring = player.gender + '_' + player.inventory.wearing['Legs'].material + '_' + player.inventory.wearing['Legs'].classe
 							s.blit(gra_files.gdic['char'][cuissestring],(start_pos+((x-player.pos[0])*32),start_pos+((y-player.pos[1])*32)))
-						
+					
 						if player.inventory.wearing['Feet'] != player.inventory.nothing:
 							shoestring = player.gender + '_' + player.inventory.wearing['Feet'].material + '_' + player.inventory.wearing['Feet'].classe
 							s.blit(gra_files.gdic['char'][shoestring],(start_pos+((x-player.pos[0])*32),start_pos+((y-player.pos[1])*32)))
@@ -1679,7 +241,9 @@ class g_screen():
 		s.blit(depth_image,(300,50))
 					 
 		s.blit(gra_files.gdic['display'][0],(0,0)) #render gui
-		s.blit(gra_files.gdic['display'][8],(480,0)) #render mouse pad
+		
+		if game_options.mousepad == 1:
+			s.blit(gra_files.gdic['display'][8],(480,0)) #render mouse pad
 		
 		#render buffs
 		
@@ -1770,6 +334,12 @@ class g_screen():
 		text_image2 = self.font.render(text_string2,1,(255,255,255))
 		s.blit(text_image1,(0,305))
 		s.blit(text_image2,(0,335))
+		
+		if game_options.mousepad == 0:
+			s_help = pygame.Surface((640,360))
+			s_help.fill((48,48,48))
+			s_help.blit(s,(80,0))
+			s = s_help
 		
 		s = pygame.transform.scale(s,(self.displayx,self.displayy))
 		self.screen.blit(s,(0,0))
@@ -2054,7 +624,7 @@ class g_screen():
 			else: 
 				built_here = 0
 						
-			if world.maplist[player.pos[2]][player.on_map].tilemap[player.pos[1]+ymin][player.pos[0]+xmin] == tl.tlist['functional'][1] or world.maplist[player.pos[2]][player.on_map].tilemap[player.pos[1]+ymin][player.pos[0]+xmin] == tl.tlist['functional'][2]:#there are stairs here
+			if world.maplist[player.pos[2]][player.on_map].tilemap[player.pos[1]+ymin][player.pos[0]+xmin].build_here == False:
 				if built_here == 1:
 					price -= 2 
 				elif built_here == 2:
@@ -2130,7 +700,7 @@ class g_screen():
 
 			if player.pos[2] > 0:
 					
-				if world.maplist[player.pos[2]][player.on_map].tilemap[player.pos[1]+ymin][player.pos[0]+xmin].replace == None and world.maplist[player.pos[2]-1][player.on_map].tilemap[player.pos[1]+ymin][player.pos[0]+xmin].build_here == True and world.maplist[player.pos[2]][player.on_map].tilemap[player.pos[1]+ymin][player.pos[0]+xmin].move == True and world.maplist[player.pos[2]][player.on_map].tilemap[player.pos[1]+ymin][player.pos[0]+xmin].damage == False:
+				if world.maplist[player.pos[2]][player.on_map].tilemap[player.pos[1]+ymin][player.pos[0]+xmin].replace == None and world.maplist[player.pos[2]-1][player.on_map].tilemap[player.pos[1]+ymin][player.pos[0]+xmin].build_here == True and world.maplist[player.pos[2]][player.on_map].tilemap[player.pos[1]+ymin][player.pos[0]+xmin].build_here == True and world.maplist[player.pos[2]][player.on_map].tilemap[player.pos[1]+ymin][player.pos[0]+xmin].move == True and world.maplist[player.pos[2]][player.on_map].tilemap[player.pos[1]+ymin][player.pos[0]+xmin].damage == False:
 					build_here = 0
 				else: 
 					build_here = 1
@@ -2202,7 +772,7 @@ class g_screen():
 			
 			if player.pos[2] < 15:
 				
-				if world.maplist[player.pos[2]][player.on_map].tilemap[player.pos[1]+ymin][player.pos[0]+xmin].replace == None and world.maplist[player.pos[2]+1][player.on_map].tilemap[player.pos[1]+ymin][player.pos[0]+xmin].build_here == True and world.maplist[player.pos[2]][player.on_map].tilemap[player.pos[1]+ymin][player.pos[0]+xmin].move == True and world.maplist[player.pos[2]][player.on_map].tilemap[player.pos[1]+ymin][player.pos[0]+xmin].damage == False:
+				if world.maplist[player.pos[2]][player.on_map].tilemap[player.pos[1]+ymin][player.pos[0]+xmin].replace == None and world.maplist[player.pos[2]+1][player.on_map].tilemap[player.pos[1]+ymin][player.pos[0]+xmin].build_here == True and world.maplist[player.pos[2]][player.on_map].tilemap[player.pos[1]+ymin][player.pos[0]+xmin].build_here == True and world.maplist[player.pos[2]][player.on_map].tilemap[player.pos[1]+ymin][player.pos[0]+xmin].move == True and world.maplist[player.pos[2]][player.on_map].tilemap[player.pos[1]+ymin][player.pos[0]+xmin].damage == False:
 					build_here = 0
 				else: 
 					build_here = 1
@@ -2360,7 +930,7 @@ class g_screen():
 						s.blit(gra_files.gdic['built'][9],(start_pos+(x*32),start_pos+(y*32))) #remove icon here
 					else:
 						None
-		
+			
 			s.blit(gra_files.gdic['display'][5],(0,0)) #render gui_transparent over gui
 		
 			# render mode name
@@ -2396,7 +966,12 @@ class g_screen():
 			
 			wood_need = 0
 			stone_need = 0
-			
+		
+		if game_options.mousepad == 0:
+			s_help = pygame.Surface((640,360))
+			s_help.fill((255,0,255))
+			s_help.blit(s,(80,0))
+			s = s_help
 			
 		s.set_colorkey((255,0,255),pygame.RLEACCEL)	
 		s = s.convert_alpha()
@@ -2442,6 +1017,12 @@ class g_screen():
 		
 		s.blit(line3_image,(posx,posy))
 		
+		if game_options.mousepad == 0:
+			s_help = pygame.Surface((640,360))
+			s_help.fill((255,0,255))
+			s_help.blit(s,(80,0))
+			s = s_help
+		
 		s.set_colorkey((255,0,255),pygame.RLEACCEL)	
 		s = s.convert_alpha()
 		s = pygame.transform.scale(s,(self.displayx,self.displayy))
@@ -2460,27 +1041,24 @@ class g_screen():
 			for y in range(0,max_map_size):
 				for x in range(0,max_map_size):
 					
-					try:
-						t_cat = world.maplist[level][player.on_map].tilemap[y][x].tile_category
-						t_num = world.maplist[level][player.on_map].tilemap[y][x].tile_num
+					t_col = world.maplist[level][player.on_map].tilemap[y][x].tile_color
 					
-						if x > player.pos[0]-2 and x < player.pos[0]+2 and y > player.pos[1]-2 and y < player.pos[1]+2 and level == player.pos[2]: #mark players pos
-							m.blit(gra_files.gdic['tile1']['unknown'][1],(x,y))
+					if x > player.pos[0]-2 and x < player.pos[0]+2 and y > player.pos[1]-2 and y < player.pos[1]+2 and level == player.pos[2]: #mark players pos
+						m.blit(gra_files.gdic['tile1']['white'],(x,y))
+					else:
+						if world.maplist[level][player.on_map].known[y][x] == 1:
+							m.blit(gra_files.gdic['tile1'][t_col],(x,y))
+						elif world.maplist[level][player.on_map].known[y][x] == 0:
+							m.blit(gra_files.gdic['tile1']['black'],(x,y))
 						else:
-							if world.maplist[level][player.on_map].known[y][x] == 1:
-								m.blit(gra_files.gdic['tile1'][t_cat][t_num],(x,y))
-							elif world.maplist[level][player.on_map].known[y][x] == 0:
-								m.blit(gra_files.gdic['tile1']['unknown'][0],(x,y))
-							else:
-								m.blit(gra_files.gdic['tile1']['unknown'][0],(x,y))
-					except:
-						None
+							m.blit(gra_files.gdic['tile1']['black'],(x,y))
 						
 			m = pygame.transform.scale(m,(270,270))
 			
 			s = pygame.Surface((640,360))
 			s.blit(gra_files.gdic['display'][1],(0,0)) #render background
-			s.blit(gra_files.gdic['display'][8],(480,0)) #render mouse pad
+			if game_options.mousepad == 1:
+				s.blit(gra_files.gdic['display'][8],(480,0)) #render mouse pad
 			
 			text_image = screen.font.render('~*~ Map ~*~        [Press [x] to leave]',1,(255,255,255))
 			s.blit(text_image,(5,2))#menue title
@@ -2494,12 +1072,18 @@ class g_screen():
 			
 			s.blit(m,(25,55))
 			
+			if game_options.mousepad == 0:
+				s_help = pygame.Surface((640,360))
+				s_help.fill((48,48,48))
+				s_help.blit(s,(80,0))
+				s = s_help
+			
 			s = pygame.transform.scale(s,(self.displayx,self.displayy))
 			self.screen.blit(s,(0,0))
 			
 			pygame.display.flip()
 			
-			ui = getch(screen.displayx,screen.displayy,game_options.sfxmode,game_options.turnmode)
+			ui = getch(screen.displayx,screen.displayy,game_options.sfxmode,game_options.turnmode,mouse=game_options.mousepad)
 			
 			if ui == 's':
 				if level < len(world.maplist)-1:
@@ -2518,7 +1102,8 @@ class g_screen():
 			
 			s = pygame.Surface((640,360))
 			s.blit(gra_files.gdic['display'][1],(0,0)) #render background
-			s.blit(gra_files.gdic['display'][8],(480,0)) #render mouse pad
+			if game_options.mousepad == 1:
+				s.blit(gra_files.gdic['display'][8],(480,0)) #render mouse pad
 			
 			text_image = screen.font.render('~*~ Credits ~*~        [Press [x] to leave]',1,(255,255,255))
 			s.blit(text_image,(5,2))#menue title
@@ -2529,13 +1114,19 @@ class g_screen():
 			
 				text_image = screen.font.render(credit_items[i],1,(0,0,0))
 				s.blit(text_image,(21,120+i*25))#blit credit_items
+			
+			if game_options.mousepad == 0:
+				s_help = pygame.Surface((640,360))
+				s_help.fill((48,48,48))
+				s_help.blit(s,(80,0))
+				s = s_help
 				
 			s = pygame.transform.scale(s,(self.displayx,self.displayy))
 			self.screen.blit(s,(0,0))
 			
 			pygame.display.flip()
 			
-			ui = getch(screen.displayx,screen.displayy,game_options.sfxmode,game_options.turnmode)
+			ui = getch(screen.displayx,screen.displayy,game_options.sfxmode,game_options.turnmode,mouse=game_options.mousepad)
 			
 			if ui == 'x':
 				run = False
@@ -2555,36 +1146,33 @@ class g_screen():
 			else:
 				winm = 'Screenmode: Windowed'
 				
-			if device == 'Mobile':
-				winm = 'Not for Android'
 			
 			if game_options.bgmmode == 1:
 				audiom = 'BGM: ON'
 			else:
 				audiom = 'BGM: OFF'
 				
-			if device == 'Mobile':
-				audiom = 'Not for Android'
-				
 			if game_options.sfxmode == 1:
 				sfxm = 'SFX: ON'
 			else:
 				sfxm = 'SFX: OFF'
 			
-			if device == 'Mobile':
-				sfxm = 'Not for Android'
-			
 			if game_options.turnmode == 1:
 				turnm = 'Gamemode: Semi-Realtime'
 			else:
 				turnm = 'Gamemode: Turnbased'
+				
+			if game_options.mousepad == 1:
+				mousem = 'Use Mouse: yes'
+			else:
+				mousem = 'Use Mouse: no'
 			
 			s.blit(gra_files.gdic['display'][1],(0,0)) #render background
 		
 			text_image = screen.font.render('~*~ Options ~*~        [Press [e] to choose]',1,(255,255,255))
 			s.blit(text_image,(5,2))#menue title
 		
-			menu_items = (winm, audiom, sfxm,turnm ,'Done')
+			menu_items = (winm,audiom,sfxm,turnm,mousem,'Done')
 		
 			for i in range (0,len(menu_items)):
 			
@@ -2593,14 +1181,21 @@ class g_screen():
 			
 			s.blit(gra_files.gdic['display'][4],(0,112+num*25))#blit marker
 		
-			s.blit(gra_files.gdic['display'][8],(480,0)) #render mouse pad
+			if game_options.mousepad == 1:
+				s.blit(gra_files.gdic['display'][8],(480,0)) #render mouse pad
+			
+			if game_options.mousepad == 0:
+				s_help = pygame.Surface((640,360))
+				s_help.fill((48,48,48))
+				s_help.blit(s,(80,0))
+				s = s_help
 			
 			s = pygame.transform.scale(s,(self.displayx,self.displayy))
 			self.screen.blit(s,(0,0))
 			
 			pygame.display.flip()
 			
-			ui = getch(screen.displayx,screen.displayy,game_options.sfxmode,game_options.turnmode)
+			ui = getch(screen.displayx,screen.displayy,game_options.sfxmode,game_options.turnmode,mouse=game_options.mousepad)
 		
 			if ui == 'w':
 				num -= 1
@@ -2618,29 +1213,26 @@ class g_screen():
 			if ui == 'e':
 				
 				if num == 0:
-					if device != 'Mobile':
-						screen.re_init()
-						pygame.display.flip()
-						game_options.save()
+					screen.re_init()
+					pygame.display.flip()
+					game_options.save()
 					
 				if num == 1:
-					if device != 'Mobile':
-						if game_options.bgmmode == 1:
-							game_options.bgmmode = 0
-							pygame.mixer.music.pause()
-						else:
-							game_options.bgmmode = 1
-							pygame.mixer.music.unpause()
-							bgm.check_for_song()
+					if game_options.bgmmode == 1:
+						game_options.bgmmode = 0
+						pygame.mixer.music.pause()
+					else:
+						game_options.bgmmode = 1
+						pygame.mixer.music.unpause()
+						bgm.check_for_song()
 						
-						game_options.save()
+					game_options.save()
 						
 				if num == 2:
-					if device != 'Mobile':
-						if game_options.sfxmode == 1:
-							game_options.sfxmode = 0
-						else:
-							game_options.sfxmode = 1
+					if game_options.sfxmode == 1:
+						game_options.sfxmode = 0
+					else:
+						game_options.sfxmode = 1
 						
 					game_options.save()
 				
@@ -2649,8 +1241,16 @@ class g_screen():
 						game_options.turnmode = 0
 					else:
 						game_options.turnmode = 1
-					
+				
 				if num == 4:
+					if game_options.mousepad == 1:
+						game_options.mousepad = 0
+					else:
+						game_options.mousepad = 1
+						
+					game_options.save()
+					
+				if num == 5:
 					run = False
 					
 			
@@ -2677,15 +1277,22 @@ class g_screen():
 				s.blit(text_image,(21,120+i*25))#blit menu_items
 			
 			s.blit(gra_files.gdic['display'][4],(0,112+num*25))#blit marker
-		
-			s.blit(gra_files.gdic['display'][8],(480,0)) #render mouse pad
+			
+			if game_options.mousepad == 1:
+				s.blit(gra_files.gdic['display'][8],(480,0)) #render mouse pad
+				
+			if game_options.mousepad == 0:
+				s_help = pygame.Surface((640,360))
+				s_help.fill((48,48,48))
+				s_help.blit(s,(80,0))
+				s = s_help
 			
 			s = pygame.transform.scale(s,(self.displayx,self.displayy))
 			self.screen.blit(s,(0,0))
 			
 			pygame.display.flip()
 		
-			ui = getch(screen.displayx,screen.displayy,game_options.sfxmode,game_options.turnmode)
+			ui = getch(screen.displayx,screen.displayy,game_options.sfxmode,game_options.turnmode,mouse=game_options.mousepad)
 		
 			if ui == 'w':
 				num -= 1
@@ -2750,15 +1357,22 @@ class g_screen():
 							s.blit(text_image,(21,120+i*25))#blit menu_items
 			
 						s.blit(gra_files.gdic['display'][4],(0,112+num2*25))#blit marker
-		
-						s.blit(gra_files.gdic['display'][8],(480,0)) #render mouse pad
+						
+						if game_options.mousepad == 1:
+							s.blit(gra_files.gdic['display'][8],(480,0)) #render mouse pad
+						
+						if game_options.mousepad == 0:
+							s_help = pygame.Surface((640,360))
+							s_help.fill((48,48,48))
+							s_help.blit(s,(80,0))
+							s = s_help
 						
 						s = pygame.transform.scale(s,(screen.displayx,screen.displayy))
 						screen.screen.blit(s,(0,0))
 						
 						pygame.display.flip()
 						
-						ui = getch(screen.displayx,screen.displayy,game_options.sfxmode,game_options.turnmode)
+						ui = getch(screen.displayx,screen.displayy,game_options.sfxmode,game_options.turnmode,mouse=game_options.mousepad)
 		
 						if ui == 'w':
 							num2 -= 1
@@ -2840,15 +1454,22 @@ class g_screen():
 				s.blit(text_image,(5,335))
 			
 			s.blit(gra_files.gdic['display'][4],(0,112+num*25))#blit marker
-		
-			s.blit(gra_files.gdic['display'][8],(480,0)) #render mouse pad
+			
+			if game_options.mousepad == 1:
+				s.blit(gra_files.gdic['display'][8],(480,0)) #render mouse pad
+				
+			if game_options.mousepad == 0:
+				s_help = pygame.Surface((640,360))
+				s_help.fill((48,48,48))
+				s_help.blit(s,(80,0))
+				s = s_help
 			
 			s = pygame.transform.scale(s,(screen.displayx,screen.displayy))
 			screen.screen.blit(s,(0,0))
 			
 			pygame.display.flip()
 		
-			ui = getch(screen.displayx,screen.displayy,game_options.sfxmode,game_options.turnmode)
+			ui = getch(screen.displayx,screen.displayy,game_options.sfxmode,game_options.turnmode,mouse=game_options.mousepad)
 		
 			if ui == 'w':
 				num -= 1
@@ -2910,18 +1531,25 @@ class g_screen():
 						char_image = screen.font.render(char_field[i][j],1,(0,0,0))
 							
 					s.blit(char_image,(55+(j*20),150+(i*20)))
-						
-			s.blit(gra_files.gdic['display'][8],(480,0)) #render mouse pad
+			
+			if game_options.mousepad == 1:			
+				s.blit(gra_files.gdic['display'][8],(480,0)) #render mouse pad
 				
 			text_image = screen.font.render('[e] - Add Char [b] - Done [x] - Reset',1,(255,255,255))
 			s.blit(text_image,(5,335))
+			
+			if game_options.mousepad == 0:
+				s_help = pygame.Surface((640,360))
+				s_help.fill((48,48,48))
+				s_help.blit(s,(80,0))
+				s = s_help
 			
 			s = pygame.transform.scale(s,(screen.displayx,screen.displayy))
 			screen.screen.blit(s,(0,0))
 				
 			pygame.display.flip()
 						
-			ui = getch(screen.displayx,screen.displayy,game_options.sfxmode,game_options.turnmode)
+			ui = getch(screen.displayx,screen.displayy,game_options.sfxmode,game_options.turnmode,mouse=game_options.mousepad)
 		
 			if ui == 'w':
 				y -= 1
@@ -2979,14 +1607,21 @@ class g_screen():
 			choose_image = screen.font.render(choose_string,1,(255,255,255))
 			s.blit(choose_image,(125,200))
 			
-			s.blit(gra_files.gdic['display'][8],(480,0)) #render mouse pad
+			if game_options.mousepad == 1:
+				s.blit(gra_files.gdic['display'][8],(480,0)) #render mouse pad
+			
+			if game_options.mousepad == 0:
+				s_help = pygame.Surface((640,360))
+				s_help.fill((48,48,48))
+				s_help.blit(s,(80,0))
+				s = s_help
 			
 			s = pygame.transform.scale(s,(screen.displayx,screen.displayy))
 			screen.screen.blit(s,(0,0))
 			
 			pygame.display.flip()
 		
-			ui = getch(screen.displayx,screen.displayy,game_options.sfxmode,game_options.turnmode)
+			ui = getch(screen.displayx,screen.displayy,game_options.sfxmode,game_options.turnmode,mouse=game_options.mousepad)
 		
 			if ui == 'e' and player.difficulty != 3:
 				player.respawn()
@@ -5158,17 +3793,23 @@ class world_class():
 				
 			entry_image = screen.font.render(messages[num],1,(255,255,255))
 			s.blit(entry_image,(5,335))#render message
-			s.blit(gra_files.gdic['display'][8],(480,0)) #render mouse pad
+			if game_options.mousepad == 1:
+				s.blit(gra_files.gdic['display'][8],(480,0)) #render mouse pad
+			
+			if game_options.mousepad == 0:
+				s_help = pygame.Surface((640,360))
+				s_help.fill((48,48,48))
+				s_help.blit(s,(80,0))
+				s = s_help
 			
 			s = pygame.transform.scale(s,(screen.displayx,screen.displayy))
-			
 			screen.screen.blit(s,(0,0))
 			
 			pygame.display.flip()
 			
 		#Step 2: Choose
 		
-			ui = getch(screen.displayx,screen.displayy,game_options.sfxmode,game_options.turnmode)
+			ui = getch(screen.displayx,screen.displayy,game_options.sfxmode,game_options.turnmode,mouse=game_options.mousepad)
 		
 			if ui == 'w':
 			
@@ -5354,8 +3995,8 @@ class mob():
 					None
 		if player.lp <= 0:
 			screen.render_dead()
-		if device != 'Mobile':			
-			bgm.check_for_song()
+		
+		bgm.check_for_song()
 					
 	def enter(self):
 		
@@ -5520,7 +4161,7 @@ class mob():
 				else:
 					screen.render_request('[e] - produce something (-10 Wood)', '[b] -      XXXXXXXXXXXX   ', '[x] - leave')
 					
-				ui = getch(screen.displayx,screen.displayy,game_options.sfxmode,game_options.turnmode)
+				ui = getch(screen.displayx,screen.displayy,game_options.sfxmode,game_options.turnmode,mouse=game_options.mousepad)
 				
 				if ui == 'e':
 					test = False
@@ -5583,7 +4224,7 @@ class mob():
 				else:
 					screen.render_request('[e] - produce something (-5 Wood)', '[b] -      XXXXXXXXXXXX   ', '[x] - leave')
 					
-				ui = getch(screen.displayx,screen.displayy,game_options.sfxmode,game_options.turnmode)
+				ui = getch(screen.displayx,screen.displayy,game_options.sfxmode,game_options.turnmode,mouse=game_options.mousepad)
 				
 				if ui == 'e':
 					test = False
@@ -5655,7 +4296,7 @@ class mob():
 				else:
 					screen.render_request('[e] - produce something (-10 Stone)', '[b] -      XXXXXXXXXXXX   ', '[x] - leave')
 					
-				ui = getch(screen.displayx,screen.displayy,game_options.sfxmode,game_options.turnmode)
+				ui = getch(screen.displayx,screen.displayy,game_options.sfxmode,game_options.turnmode,mouse=game_options.mousepad)
 				
 				if ui == 'e':
 					test = False
@@ -5725,7 +4366,7 @@ class mob():
 					string = '[e] - produce something (-' + str(price) + ' Ore)', '[b] -      XXXXXXXXXXXX   ', '[x] - leave'
 					screen.render_request(string)
 					
-				ui = getch(screen.displayx,screen.displayy,game_options.sfxmode,game_options.turnmode)
+				ui = getch(screen.displayx,screen.displayy,game_options.sfxmode,game_options.turnmode,mouse=game_options.mousepad)
 				
 				if ui == 'e':
 					test = False
@@ -5799,7 +4440,7 @@ class mob():
 				else:
 					screen.render_request('[e] - brew a potion (-5 Herbs)', '[b] -      XXXXXXXXXXXX   ', '[x] - leave')
 					
-				ui = getch(screen.displayx,screen.displayy,game_options.sfxmode,game_options.turnmode)
+				ui = getch(screen.displayx,screen.displayy,game_options.sfxmode,game_options.turnmode,mouse=game_options.mousepad)
 				
 				if ui == 'e':
 					test = False
@@ -5863,7 +4504,7 @@ class mob():
 				
 				screen.render_request('[e] - fire up the furnace (-10 wood)', ' ', '[x] - leave')
 					
-				ui = getch(screen.displayx,screen.displayy,game_options.sfxmode,game_options.turnmode)
+				ui = getch(screen.displayx,screen.displayy,game_options.sfxmode,game_options.turnmode,mouse=game_options.mousepad)
 				
 				if ui == 'e':
 					
@@ -5922,7 +4563,7 @@ class mob():
 				
 				screen.render_request('[e] - pray', '[b] - identify ', '[x] - leave')
 					
-				ui = getch(screen.displayx,screen.displayy,game_options.sfxmode,game_options.turnmode)
+				ui = getch(screen.displayx,screen.displayy,game_options.sfxmode,game_options.turnmode,mouse=game_options.mousepad)
 				
 				if ui == 'e':
 					
@@ -6068,7 +4709,7 @@ class mob():
 				pickaxe = item_wear('pickaxe',11,0)
 				items = (il.ilist['misc'][33],il.ilist['misc'][42],pickaxe,axe,il.ilist['food'][5],il.ilist['misc'][44])
 			elif world.maplist[self.pos[2]][self.on_map].map_type == 'elfish_fortress':
-				list_items = ('Scroll of Return(1 Gem)','Mysterious Blue Crystal(10 Gem)','Steel Pickaxe(5 Gem)','Steel Axe(5 Gem)', 'Berries(1 Gem)', 'Torch(1 Gem)')
+				list_items = ('Scroll of Return(1 Gem)','Mysterious Blue Crystal(10 Gem)','Steel Pickaxe(5 Gem)','Steel Axe(5 Gem)', 'Red Berries(1 Gem)', 'Torch(1 Gem)')
 				prices = (1,10,5,5,1,1)
 				axe = item_wear('axe',15,0)
 				pickaxe = item_wear('pickaxe',15,0)
@@ -6179,15 +4820,22 @@ class player_class(mob):
 					
 					text_image = screen.font.render('[e] Choose',1,(255,255,255))
 					s.blit(text_image,(5,335))
-					s.blit(gra_files.gdic['display'][8],(480,0)) #render mouse pad
+					
+					if game_options.mousepad == 1:
+						s.blit(gra_files.gdic['display'][8],(480,0)) #render mouse pad
+					
+					if game_options.mousepad == 0:
+						s_help = pygame.Surface((640,360))
+						s_help.fill((48,48,48))
+						s_help.blit(s,(80,0))
+						s = s_help
 					
 					s = pygame.transform.scale(s,(screen.displayx,screen.displayy))
-					
 					screen.screen.blit(s,(0,0))
 					
 					pygame.display.flip()
 					
-					ui = getch(screen.displayx,screen.displayy,game_options.sfxmode,game_options.turnmode)
+					ui = getch(screen.displayx,screen.displayy,game_options.sfxmode,game_options.turnmode,mouse=game_options.mousepad)
 				
 					if ui == 's':
 						num += 1
@@ -6224,15 +4872,22 @@ class player_class(mob):
 					
 					text_image = screen.font.render('[e] Choose',1,(255,255,255))
 					s.blit(text_image,(5,335))
-					s.blit(gra_files.gdic['display'][8],(480,0)) #render mouse pad
+					
+					if game_options.mousepad == 1:
+						s.blit(gra_files.gdic['display'][8],(480,0)) #render mouse pad
+					
+					if game_options.mousepad == 0:
+						s_help = pygame.Surface((640,360))
+						s_help.fill((48,48,48))
+						s_help.blit(s,(80,0))
+						s = s_help
 					
 					s = pygame.transform.scale(s,(screen.displayx,screen.displayy))
-					
 					screen.screen.blit(s,(0,0))
 					
 					pygame.display.flip()
 				
-					ui = getch(screen.displayx,screen.displayy,game_options.sfxmode,game_options.turnmode)
+					ui = getch(screen.displayx,screen.displayy,game_options.sfxmode,game_options.turnmode,mouse=game_options.mousepad)
 				
 					if ui == 's':
 						num2 += 1
@@ -6272,15 +4927,22 @@ class player_class(mob):
 					
 						text_image = screen.font.render(description_list[num3],1,(255,255,255))
 						s.blit(text_image,(5,335))
-					s.blit(gra_files.gdic['display'][8],(480,0)) #render mouse pad
+						
+					if game_options.mousepad == 1:
+						s.blit(gra_files.gdic['display'][8],(480,0)) #render mouse pad
+					
+					if game_options.mousepad == 0:
+						s_help = pygame.Surface((640,360))
+						s_help.fill((48,48,48))
+						s_help.blit(s,(80,0))
+						s = s_help
 					
 					s = pygame.transform.scale(s,(screen.displayx,screen.displayy))
-					
 					screen.screen.blit(s,(0,0))
 					
 					pygame.display.flip()
 					
-					ui = getch(screen.displayx,screen.displayy,game_options.sfxmode,game_options.turnmode)
+					ui = getch(screen.displayx,screen.displayy,game_options.sfxmode,game_options.turnmode,mouse=game_options.mousepad)
 				
 					if ui == 's':
 						num3 += 1
@@ -6338,15 +5000,22 @@ class player_class(mob):
 					
 					text_image = screen.font.render('[e] Choose',1,(255,255,255))
 					s.blit(text_image,(5,335))
-					s.blit(gra_files.gdic['display'][8],(480,0)) #render mouse pad
+					
+					if game_options.mousepad == 1:
+						s.blit(gra_files.gdic['display'][8],(480,0)) #render mouse pad
+					
+					if game_options.mousepad == 0:
+						s_help = pygame.Surface((640,360))
+						s_help.fill((48,48,48))
+						s_help.blit(s,(80,0))
+						s = s_help
 					
 					s = pygame.transform.scale(s,(screen.displayx,screen.displayy))
-					
 					screen.screen.blit(s,(0,0))
 					
 					pygame.display.flip()
 					
-					ui = getch(screen.displayx,screen.displayy,game_options.sfxmode,game_options.turnmode)
+					ui = getch(screen.displayx,screen.displayy,game_options.sfxmode,game_options.turnmode,mouse=game_options.mousepad)
 				
 					if ui == 's':
 						num4 += 1
@@ -6396,7 +5065,7 @@ class player_class(mob):
 		
 	def user_input(self):
 		
-		ui = getch(screen.displayx,screen.displayy,game_options.sfxmode,game_options.turnmode)
+		ui = getch(screen.displayx,screen.displayy,game_options.sfxmode,game_options.turnmode,mouse=game_options.mousepad)
 		
 		if ui == 'w':
 			self.move(0,-1)
@@ -6451,7 +5120,7 @@ class player_class(mob):
 			
 			res_need = screen.render_built(xmin,xmax,ymin,ymax,style)
 			
-			ui = getch(screen.displayx,screen.displayy,game_options.sfxmode,game_options.turnmode)
+			ui = getch(screen.displayx,screen.displayy,game_options.sfxmode,game_options.turnmode,mouse=game_options.mousepad)
 			
 			if ui == 'w':
 				
@@ -6607,7 +5276,7 @@ class player_class(mob):
 						else: 
 							built_here = False
 								
-						if world.maplist[player.pos[2]][player.on_map].tilemap[player.pos[1]+ymin][player.pos[0]+xmin] == tl.tlist['functional'][1] or world.maplist[player.pos[2]][player.on_map].tilemap[player.pos[1]+ymin][player.pos[0]+xmin] == tl.tlist['functional'][2]:#there are stairs here
+						if world.maplist[player.pos[2]][player.on_map].tilemap[player.pos[1]+ymin][player.pos[0]+xmin].build_here == False:
 							built_here = False
 								
 						if built_here == True:
@@ -6621,7 +5290,7 @@ class player_class(mob):
 					if res_need[0] <= player.inventory.materials.wood and res_need[1] <= player.inventory.materials.stone:
 						if player.pos[2] > 0:
 					
-							if world.maplist[player.pos[2]][player.on_map].tilemap[player.pos[1]+ymin][player.pos[0]+xmin].replace == None and world.maplist[player.pos[2]-1][player.on_map].tilemap[player.pos[1]+ymin][player.pos[0+ymin]].build_here == True and world.maplist[player.pos[2]][player.on_map].tilemap[player.pos[1]+ymin][player.pos[0]+xmin].move == True and world.maplist[player.pos[2]][player.on_map].tilemap[player.pos[1]+ymin][player.pos[0]+xmin].damage == False:
+							if world.maplist[player.pos[2]][player.on_map].tilemap[player.pos[1]+ymin][player.pos[0]+xmin].replace == None and world.maplist[player.pos[2]-1][player.on_map].tilemap[player.pos[1]+ymin][player.pos[0+xmin]].build_here == True and world.maplist[player.pos[2]][player.on_map].tilemap[player.pos[1]+ymin][player.pos[0]+xmin].build_here == True and world.maplist[player.pos[2]][player.on_map].tilemap[player.pos[1]+ymin][player.pos[0]+xmin].move == True and world.maplist[player.pos[2]][player.on_map].tilemap[player.pos[1]+ymin][player.pos[0]+xmin].damage == False:
 								build_here = 0
 							else: 
 								build_here = 1
@@ -6643,7 +5312,7 @@ class player_class(mob):
 					if res_need[0] <= player.inventory.materials.wood and res_need[1] <= player.inventory.materials.stone:
 						if player.pos[2] < 15:
 							
-							if world.maplist[player.pos[2]][player.on_map].tilemap[player.pos[1]+ymin][player.pos[0]+xmin].replace == None and world.maplist[player.pos[2]+1][player.on_map].tilemap[player.pos[1]][player.pos[0]].build_here == True and world.maplist[player.pos[2]][player.on_map].tilemap[player.pos[1]][player.pos[0]].move == True and world.maplist[player.pos[2]][player.on_map].tilemap[player.pos[1]][player.pos[0]].damage == False:
+							if world.maplist[player.pos[2]][player.on_map].tilemap[player.pos[1]+ymin][player.pos[0]+xmin].replace == None and world.maplist[player.pos[2]+1][player.on_map].tilemap[player.pos[1]+ymin][player.pos[0]+xmin].build_here == True and world.maplist[player.pos[2]][player.on_map].tilemap[player.pos[1]+ymin][player.pos[0]+xmin].build_here == True and world.maplist[player.pos[2]][player.on_map].tilemap[player.pos[1]][player.pos[0]].move == True and world.maplist[player.pos[2]][player.on_map].tilemap[player.pos[1]][player.pos[0]].damage == False:
 								build_here = 0
 							else: 
 								build_here = 1
@@ -7132,15 +5801,22 @@ class messager():
 				
 			text_image = screen.font.render('[w,a] - Page up [s,d] - Page down [x] - leave',1,(255,255,255))
 			s.blit(text_image,(5,335))
-				
-			s.blit(gra_files.gdic['display'][8],(480,0)) #render mouse pad
+			
+			if game_options.mousepad == 1:	
+				s.blit(gra_files.gdic['display'][8],(480,0)) #render mouse pad
+			
+			if game_options.mousepad == 0:
+				s_help = pygame.Surface((640,360))
+				s_help.fill((48,48,48))
+				s_help.blit(s,(80,0))
+				s = s_help
 			
 			s = pygame.transform.scale(s,(screen.displayx,screen.displayy))
 			screen.screen.blit(s,(0,0))
 			
 			pygame.display.flip()
 			
-			ui = getch(screen.displayx,screen.displayy,game_options.sfxmode,game_options.turnmode)
+			ui = getch(screen.displayx,screen.displayy,game_options.sfxmode,game_options.turnmode,mouse=game_options.mousepad)
 			
 			if ui == 'w' or ui == 'a':
 				page -= 1
@@ -7844,7 +6520,14 @@ class inventory():
 		s.blit(text_image,(5,335))
 		self.inv_mes = '~*~'
 		
-		s.blit(gra_files.gdic['display'][8],(480,0)) #render mouse pad
+		if game_options.mousepad == 1:
+			s.blit(gra_files.gdic['display'][8],(480,0)) #render mouse pad
+		
+		if game_options.mousepad == 0:
+			s_help = pygame.Surface((640,360))
+			s_help.fill((48,48,48))
+			s_help.blit(s,(80,0))
+			s = s_help
 		
 		s = pygame.transform.scale(s,(screen.displayx,screen.displayy))
 		screen.screen.blit(s,(0,0))
@@ -7861,7 +6544,7 @@ class inventory():
 			
 			self.render(category, slot)
 			
-			ui = getch(screen.displayx,screen.displayy,game_options.sfxmode,game_options.turnmode)
+			ui = getch(screen.displayx,screen.displayy,game_options.sfxmode,game_options.turnmode,mouse=game_options.mousepad)
 			
 			if ui == 'd':	
 				slot = 0
@@ -8043,14 +6726,21 @@ class container():
 				
 				text_image = screen.font.render(self.con_mes,1,(255,255,255))
 				s.blit(text_image,(5,335))
-				s.blit(gra_files.gdic['display'][8],(480,0)) #render mouse pad
+				if game_options.mousepad == 1:
+					s.blit(gra_files.gdic['display'][8],(480,0)) #render mouse pad
+				
+				if game_options.mousepad == 0:
+					s_help = pygame.Surface((640,360))
+					s_help.fill((48,48,48))
+					s_help.blit(s,(80,0))
+					s = s_help
 				
 				s = pygame.transform.scale(s,(screen.displayx,screen.displayy))
 				screen.screen.blit(s,(0,0))
 				
 				pygame.display.flip()
 			
-				ui = getch(screen.displayx,screen.displayy,game_options.sfxmode,game_options.turnmode)
+				ui = getch(screen.displayx,screen.displayy,game_options.sfxmode,game_options.turnmode,mouse=game_options.mousepad)
 			
 				if ui == 'x':
 					running = False
@@ -8336,11 +7026,8 @@ class bgM():
 		if game_options.bgmmode == 1 and play_menu_sound == False:
 			self.song_played_now = world.maplist[player.pos[2]][player.on_map].map_type
 		else:
-			if device == 'Mobile':
-				#android.mixer.music.stop()
-				None
-			else:
-				pygame.mixer.music.stop()
+			
+			pygame.mixer.music.stop()
 		
 		if self.song_played_now != self.last_song and play_menu_sound == False:
 			
@@ -8348,29 +7035,18 @@ class bgM():
 				pygame.mixer.music.stop()
 			except:
 				None
-				#if device == 'Mobile':
-				#	android.mixer.music.stop()
 				
 			track = music_path + self.song_played_now + '.ogg'
-			if device == 'Mobile':
-				None
-				#android.mixer.music.load(track)
-				#android.mixer.music.periodic()
-			else:
-				pygame.mixer.music.load(track)
-				pygame.mixer.music.play(-1)
+			
+			pygame.mixer.music.load(track)
+			pygame.mixer.music.play(-1)
 		
 		elif play_menu_sound == True and game_options.bgmmode == 1:
 			
 			track = music_path + 'menu.ogg'
 			
-			if device == 'Mobile':
-				None
-				#android.mixer.music.load(track)
-				#android.mixer.music.periodic()
-			else:
-				pygame.mixer.music.load(track)
-				pygame.mixer.music.play(-1)
+			pygame.mixer.music.load(track)
+			pygame.mixer.music.play(-1)
 		
 		self.last_song = self.song_played_now
 
@@ -8413,11 +7089,6 @@ def main():
 	
 	while running:
 		
-		#if device == 'Mobile':
-		#	if android.check_pause():
-		#		save(world,player,time,gods,basic_path,os.sep)
-		#		exit(0)
-		
 		world.maplist[player.pos[2]][player.on_map].time_pass() #make the changes of passing time every new day 
 		
 		if len(message.mes_list) > 1:
@@ -8426,7 +7097,7 @@ def main():
 				a=screen.render(i)
 				
 				if a == False:
-					getch(screen.displayx,screen.displayy,game_options.sfxmode,game_options.turnmode)
+					getch(screen.displayx,screen.displayy,game_options.sfxmode,game_options.turnmode,mouse=game_options.mousepad)
 			
 		else: 
 			screen.render(0) 
@@ -8443,7 +7114,7 @@ def main():
 				move_border += 1
 				
 		if player.buffs.immobilized > 0:
-			ui = getch(screen.displayx,screen.displayy,game_options.sfxmode,game_options.turnmode)
+			ui = getch(screen.displayx,screen.displayy,game_options.sfxmode,game_options.turnmode,mouse=game_options.mousepad)
 			if ui == 'x':
 				screen.render_brake()
 		else:

@@ -1,24 +1,16 @@
 import pygame
 import time
 import os
-try:
-	import android
-	android.init()
-	device = 'Mobile'
-except:
-	device = 'Desktop'
 	
 basic_path = os.path.dirname(os.path.realpath('getch.py')) #just get the execution path for resources
 basic_path = basic_path.replace('/LIB','')
 sfx_path = basic_path + os.sep + 'AUDIO' + os.sep + 'SFX' + os.sep
 pygame.init()
 clock = pygame.time.Clock()
-if device != 'Mobile':
-	sfxlist = {'wasd': pygame.mixer.Sound(sfx_path + 'wasd.ogg'), 'e' : pygame.mixer.Sound(sfx_path + 'e.ogg'), 'b' : pygame.mixer.Sound(sfx_path + 'b.ogg'), 'i' : pygame.mixer.Sound(sfx_path + 'i.ogg'), 'x' : pygame.mixer.Sound(sfx_path + 'x.ogg')}
-else:
-	sfxlist = 'foo'
+sfxlist = {'wasd': pygame.mixer.Sound(sfx_path + 'wasd.ogg'), 'e' : pygame.mixer.Sound(sfx_path + 'e.ogg'), 'b' : pygame.mixer.Sound(sfx_path + 'b.ogg'), 'i' : pygame.mixer.Sound(sfx_path + 'i.ogg'), 'x' : pygame.mixer.Sound(sfx_path + 'x.ogg')}
 
-def getch(x=640,y=360,sfx=0,mode=0):#x and y are the resolution of the surface
+
+def getch(x=640,y=360,sfx=0,mode=0,mouse=1):#x and y are the resolution of the surface
 	
 	g = 'foo'
 	run = 0
@@ -90,33 +82,35 @@ def getch(x=640,y=360,sfx=0,mode=0):#x and y are the resolution of the surface
 				
 				if event.key == pygame.K_x or event.key == pygame.K_ESCAPE:
 					g='x'
-					
-			mouse_pos = pygame.mouse.get_pos()
-			mouse_press = pygame.mouse.get_pressed()
-				
-			if mouse_pos[0] > (534*x)/640 and mouse_pos[0] < (586*x)/640 and mouse_pos[1] > (0*y)/360 and mouse_pos[1] < (52*y)/360 and mouse_press[0] == True:
-				g='w'
 			
-			if mouse_pos[0] > (483*x)/640 and mouse_pos[0] < (533*x)/640 and mouse_pos[1] > (53*y)/360 and mouse_pos[1] < (104*y)/360 and mouse_press[0] == True:
-				g='a'
+			if mouse == 1:
+					
+				mouse_pos = pygame.mouse.get_pos()
+				mouse_press = pygame.mouse.get_pressed()
 				
-			if mouse_pos[0] > (586*x)/640 and mouse_pos[0] < (638*x/640) and mouse_pos[1] > (53*y)/360 and mouse_pos[1] < (104*y)/360 and mouse_press[0] == True:
-				g='d'
+				if mouse_pos[0] > (534*x)/640 and mouse_pos[0] < (586*x)/640 and mouse_pos[1] > (0*y)/360 and mouse_pos[1] < (52*y)/360 and mouse_press[0] == True:
+					g='w'
+			
+				if mouse_pos[0] > (483*x)/640 and mouse_pos[0] < (533*x)/640 and mouse_pos[1] > (53*y)/360 and mouse_pos[1] < (104*y)/360 and mouse_press[0] == True:
+					g='a'
 				
-			if mouse_pos[0] > (534*x)/640 and mouse_pos[0] < (586*x)/640 and mouse_pos[1] > (105*y)/360 and mouse_pos[1] < (157*y)/360 and mouse_press[0] == True:
-				g='s'
+				if mouse_pos[0] > (586*x)/640 and mouse_pos[0] < (638*x/640) and mouse_pos[1] > (53*y)/360 and mouse_pos[1] < (104*y)/360 and mouse_press[0] == True:
+					g='d'
 				
-			if mouse_pos[0] > (483*x)/640 and mouse_pos[0] < (533*x)/640 and mouse_pos[1] > (202*y)/360 and mouse_pos[1] < (254*y)/360 and mouse_press[0] == True:
-				g='e'
+				if mouse_pos[0] > (534*x)/640 and mouse_pos[0] < (586*x)/640 and mouse_pos[1] > (105*y)/360 and mouse_pos[1] < (157*y)/360 and mouse_press[0] == True:
+					g='s'
 				
-			if mouse_pos[0] > (534*x)/640 and mouse_pos[0] < (585*x)/640 and mouse_pos[1] > (202*y)/360 and mouse_pos[1] < (254*y)/360 and mouse_press[0] == True:
-				g='b'
+				if mouse_pos[0] > (483*x)/640 and mouse_pos[0] < (533*x)/640 and mouse_pos[1] > (202*y)/360 and mouse_pos[1] < (254*y)/360 and mouse_press[0] == True:
+					g='e'
 				
-			if mouse_pos[0] > (586*x)/640 and mouse_pos[0] < (638*x)/640 and mouse_pos[1] > (202*y)/360 and mouse_pos[1] < (254*y)/360 and mouse_press[0] == True:
-				g='i'
+				if mouse_pos[0] > (534*x)/640 and mouse_pos[0] < (585*x)/640 and mouse_pos[1] > (202*y)/360 and mouse_pos[1] < (254*y)/360 and mouse_press[0] == True:
+					g='b'
 				
-			if mouse_pos[0] > (534*x)/640 and mouse_pos[0] < (585*x)/640 and mouse_pos[1] > (255*y)/360 and mouse_pos[1] < (307*y)/360 and mouse_press[0] == True:
-				g='x'
+				if mouse_pos[0] > (586*x)/640 and mouse_pos[0] < (638*x)/640 and mouse_pos[1] > (202*y)/360 and mouse_pos[1] < (254*y)/360 and mouse_press[0] == True:
+					g='i'
+				
+				if mouse_pos[0] > (534*x)/640 and mouse_pos[0] < (585*x)/640 and mouse_pos[1] > (255*y)/360 and mouse_pos[1] < (307*y)/360 and mouse_press[0] == True:
+					g='x'
 					
 		if run > 59:
 			if mode == 1:
@@ -128,14 +122,11 @@ def getch(x=640,y=360,sfx=0,mode=0):#x and y are the resolution of the surface
 				file_name = 'wasd'
 			else:
 				file_name = g
-				
-			if device == 'Mobile':
-				None
-			else:
-				if g != 'none' and g != 'foo':
-					try:
-						sfxlist[file_name].play(maxtime=1000)
-					except:
-						None
+						
+			if g != 'none' and g != 'foo':
+				try:
+					sfxlist[file_name].play(maxtime=1000)
+				except:
+					None
 					
 	return g

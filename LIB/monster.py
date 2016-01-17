@@ -2,7 +2,7 @@
 # It has: 
 # a techID to identify the specific monster
 # a name
-# a sprite category and number to pick the right image when rendering
+# a sprite_pos to pick the right image when rendering
 # a value of move border between 0 and 9: 0 means the monster can move every turn 9 means the monster can move never
 # a attribute object
 # a AI_style that says how the monster acts toward the player. possible styles are: 'hostile', 'flee' and 'ignore'
@@ -18,12 +18,11 @@
 
 class monster():
 	
-	def __init__(self,techID, name, sprite_category, sprite_num, move_border, attribute, AI_style, corps_style, corps_lvl, ignore_damage, ignore_water, behavior, attack_were, possible_effect, effect_duration, effect_probability, message):
+	def __init__(self,techID, name, sprite_pos, move_border, attribute, AI_style, corps_style, corps_lvl, ignore_damage, ignore_water, behavior, attack_were, possible_effect, effect_duration, effect_probability, message):
 		
 		self.techID = techID
 		self.name = name
-		self.sprite_category = sprite_category
-		self.sprite_num = sprite_num
+		self.sprite_pos = sprite_pos
 		self.move_border = move_border
 		self.attribute = attribute
 		self.lp = self.attribute.max_lp
