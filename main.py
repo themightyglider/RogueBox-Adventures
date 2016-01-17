@@ -126,7 +126,7 @@ class g_screen():
 		
 	def render(self,mes_num, simulate = False):
 		
-		radius = 5
+		radius = 6
 		
 		if player.pos[2] > 0:
 			radius = 2
@@ -135,7 +135,7 @@ class g_screen():
 				radius = 2 
 			
 		if player.buffs.light > 0:
-			radius = 5
+			radius = 6
 		
 		s = pygame.Surface((640,360))
 		
@@ -157,8 +157,10 @@ class g_screen():
 		for y in range(ymin,ymax):
 			for x in range(xmin,xmax):
 				
-				distance = ((x-player.pos[0])**2 + (y-player.pos[1])**2)**0.5
-
+				rx = x-player.pos[0]
+				ry = y-player.pos[1]
+				
+				distance = ((rx)**2+(ry)**2)**0.5
 				try:
 					t_pos = world.maplist[player.pos[2]][player.on_map].tilemap[y][x].tile_pos
 					t_known = world.maplist[player.pos[2]][player.on_map].known[y][x]
@@ -172,60 +174,100 @@ class g_screen():
 							s.blit(gra_files.gdic['tile32'][t_replace.tile_pos[1]][t_replace.tile_pos[0]],(start_pos+((x-player.pos[0])*32),start_pos+((y-player.pos[1])*32)))
 							s.blit(gra_files.gdic['tile32'][t_pos[1]][t_pos[0]],(start_pos+((x-player.pos[0])*32),start_pos+((y-player.pos[1])*32)))
 							
-						if distance > radius:
-							s.blit(gra_files.gdic['display'][6],(start_pos+((x-player.pos[0])*32),start_pos+((y-player.pos[1])*32)))
-							
-						if world.maplist[player.pos[2]][player.on_map].npcs[y][x] != 0:#render monsters
-							pos = world.maplist[player.pos[2]][player.on_map].npcs[y][x].sprite_pos
-							if distance <= radius:
-								s.blit(gra_files.gdic['monster'][pos[1]][pos[0]],(start_pos+((x-player.pos[0])*32),start_pos+((y-player.pos[1])*32)))
-							else:
-								ran = random.randint(0,1)
-								if world.maplist[player.pos[2]][player.on_map].npcs[y][x].techID == ml.mlist['special'][0].techID or world.maplist[player.pos[2]][player.on_map].npcs[y][x].techID == ml.mlist['special'][1].techID or world.maplist[player.pos[2]][player.on_map].npcs[y][x].techID == ml.mlist['special'][3].techID:
-									#if this is a vase, a monster vase or a sleepng mimic show them like they would be tile ojects
-									s.blit(gra_files.gdic['monster'][pos[1]][pos[0]],(start_pos+((x-player.pos[0])*32),start_pos+((y-player.pos[1])*32)))
-									ran = 0
-								if ran == 1:
-									s.blit(gra_files.gdic['display'][7],(start_pos+((x-player.pos[0])*32),start_pos+((y-player.pos[1])*32)))
-								else:
-									s.blit(gra_files.gdic['display'][6],(start_pos+((x-player.pos[0])*32),start_pos+((y-player.pos[1])*32)))
+						
+						s.blit(gra_files.gdic['display'][6],(start_pos+((x-player.pos[0])*32),start_pos+((y-player.pos[1])*32)))
 					
+						if world.maplist[player.pos[2]][player.on_map].npcs[y][x] != 0:	
+							ran = random.randint(0,1)
+							if world.maplist[player.pos[2]][player.on_map].npcs[y][x].techID == ml.mlist['special'][0].techID or world.maplist[player.pos[2]][player.on_map].npcs[y][x].techID == ml.mlist['special'][1].techID or world.maplist[player.pos[2]][player.on_map].npcs[y][x].techID == ml.mlist['special'][3].techID:
+								#if this is a vase, a monster vase or a sleepng mimic show them like they would be tile ojects
+								s.blit(gra_files.gdic['monster'][pos[1]][pos[0]],(start_pos+((x-player.pos[0])*32),start_pos+((y-player.pos[1])*32)))
+								ran = 0
+						
+							if ran == 1:
+								s.blit(gra_files.gdic['display'][7],(start_pos+((x-player.pos[0])*32),start_pos+((y-player.pos[1])*32)))
+							else:
+								s.blit(gra_files.gdic['display'][6],(start_pos+((x-player.pos[0])*32),start_pos+((y-player.pos[1])*32)))
+						
+						if round(distance) <= radius+1 or round(distance) >= radius-1:
+							
+							run = True
+							c = 0
+							
+							while run:
+								
+								try:
+									yy = ((ry*c)/round(distance))
+								except:
+									yy = 1
+						
+								try:
+									xx = ((rx*c)/round(distance))
+								except:
+									xx = 1
+								
+								view_x = int(xx) + player.pos[0]
+								view_y = int(yy) + player.pos[1]
+								
+								t_pos = world.maplist[player.pos[2]][player.on_map].tilemap[view_y][view_x].tile_pos
+								t_known = world.maplist[player.pos[2]][player.on_map].known[view_y][view_x]
+								t_replace = world.maplist[player.pos[2]][player.on_map].tilemap[view_y][view_x].replace	
+								
+								if t_known == 1:
+									if t_replace == None:
+										s.blit(gra_files.gdic['tile32'][t_pos[1]][t_pos[0]],(start_pos+((view_x-player.pos[0])*32),start_pos+((view_y-player.pos[1])*32)))
+									else:
+										#render the replaced tile under the replacing one. eg.: for stacks
+										s.blit(gra_files.gdic['tile32'][t_replace.tile_pos[1]][t_replace.tile_pos[0]],(start_pos+((view_x-player.pos[0])*32),start_pos+((view_y-player.pos[1])*32)))
+										s.blit(gra_files.gdic['tile32'][t_pos[1]][t_pos[0]],(start_pos+((view_x-player.pos[0])*32),start_pos+((view_y-player.pos[1])*32)))
+							
+									if world.maplist[player.pos[2]][player.on_map].npcs[view_y][view_x] != 0:#render monsters
+										pos = world.maplist[player.pos[2]][player.on_map].npcs[view_y][view_x].sprite_pos
+										s.blit(gra_files.gdic['monster'][pos[1]][pos[0]],(start_pos+((view_x-player.pos[0])*32),start_pos+((view_y-player.pos[1])*32)))
+								
+									if view_x == player.pos[0] and view_y == player.pos[1]:
+						
+										skinstring = 'SKIN_' + player.gender + '_' + str(player.style +1)
+										s.blit(gra_files.gdic['char'][skinstring],(start_pos+((view_x-player.pos[0])*32),start_pos+((view_y-player.pos[1])*32)))
+						
+										if player.inventory.wearing['Head'] == player.inventory.nothing:
+											hairstring = 'HAIR_' + player.gender + '_' + str(player.style +1)
+											s.blit(gra_files.gdic['char'][hairstring],(start_pos+((view_x-player.pos[0])*32),start_pos+((view_y-player.pos[1])*32)))
+										else:
+											helmetstring = player.gender + '_' + player.inventory.wearing['Head'].material + '_' + player.inventory.wearing['Head'].classe
+											s.blit(gra_files.gdic['char'][helmetstring],(start_pos+((view_x-player.pos[0])*32),start_pos+((view_y-player.pos[1])*32)))
+							
+										if player.inventory.wearing['Body'] != player.inventory.nothing:
+											armorstring = player.gender + '_' + player.inventory.wearing['Body'].material + '_' + player.inventory.wearing['Body'].classe
+											s.blit(gra_files.gdic['char'][armorstring],(start_pos+((view_x-player.pos[0])*32),start_pos+((view_y-player.pos[1])*32)))
+									
+										if player.inventory.wearing['Legs'] != player.inventory.nothing:
+											cuissestring = player.gender + '_' + player.inventory.wearing['Legs'].material + '_' + player.inventory.wearing['Legs'].classe
+											s.blit(gra_files.gdic['char'][cuissestring],(start_pos+((view_x-player.pos[0])*32),start_pos+((view_y-player.pos[1])*32)))
+								
+										if player.inventory.wearing['Feet'] != player.inventory.nothing:
+											shoestring = player.gender + '_' + player.inventory.wearing['Feet'].material + '_' + player.inventory.wearing['Feet'].classe
+											s.blit(gra_files.gdic['char'][shoestring],(start_pos+((view_x-player.pos[0])*32),start_pos+((view_y-player.pos[1])*32)))
+						
+										if player.inventory.wearing['Hold'] != player.inventory.nothing:
+											weaponstring = 'WEAPONS_' + player.inventory.wearing['Hold'].material + '_' + player.inventory.wearing['Hold'].classe
+											s.blit(gra_files.gdic['char'][weaponstring],(start_pos+((view_x-player.pos[0])*32),start_pos+((view_y-player.pos[1])*32)))
+								
+								if c >= radius or world.maplist[player.pos[2]][player.on_map].tilemap[view_y][view_x].transparency == False:
+									run = False
+								else:
+									c+=1
+						
 					elif t_known == 0:
 						s.blit(gra_files.gdic['tile32'][0][3],(start_pos+((x-player.pos[0])*32),start_pos+((y-player.pos[1])*32)))
 					else:
 						s.blit(gra_files.gdic['tile32'][0][3],(start_pos+((x-player.pos[0])*32),start_pos+((y-player.pos[1])*32)))
 						
-					if x == player.pos[0] and y == player.pos[1]:
-						
-						skinstring = 'SKIN_' + player.gender + '_' + str(player.style +1)
-						s.blit(gra_files.gdic['char'][skinstring],(start_pos+((x-player.pos[0])*32),start_pos+((y-player.pos[1])*32)))
-						
-						if player.inventory.wearing['Head'] == player.inventory.nothing:
-							hairstring = 'HAIR_' + player.gender + '_' + str(player.style +1)
-							s.blit(gra_files.gdic['char'][hairstring],(start_pos+((x-player.pos[0])*32),start_pos+((y-player.pos[1])*32)))
-						else:
-							helmetstring = player.gender + '_' + player.inventory.wearing['Head'].material + '_' + player.inventory.wearing['Head'].classe
-							s.blit(gra_files.gdic['char'][helmetstring],(start_pos+((x-player.pos[0])*32),start_pos+((y-player.pos[1])*32)))
-							
-						if player.inventory.wearing['Body'] != player.inventory.nothing:
-							armorstring = player.gender + '_' + player.inventory.wearing['Body'].material + '_' + player.inventory.wearing['Body'].classe
-							s.blit(gra_files.gdic['char'][armorstring],(start_pos+((x-player.pos[0])*32),start_pos+((y-player.pos[1])*32)))
-							
-						if player.inventory.wearing['Legs'] != player.inventory.nothing:
-							cuissestring = player.gender + '_' + player.inventory.wearing['Legs'].material + '_' + player.inventory.wearing['Legs'].classe
-							s.blit(gra_files.gdic['char'][cuissestring],(start_pos+((x-player.pos[0])*32),start_pos+((y-player.pos[1])*32)))
-					
-						if player.inventory.wearing['Feet'] != player.inventory.nothing:
-							shoestring = player.gender + '_' + player.inventory.wearing['Feet'].material + '_' + player.inventory.wearing['Feet'].classe
-							s.blit(gra_files.gdic['char'][shoestring],(start_pos+((x-player.pos[0])*32),start_pos+((y-player.pos[1])*32)))
-						
-						if player.inventory.wearing['Hold'] != player.inventory.nothing:
-							weaponstring = 'WEAPONS_' + player.inventory.wearing['Hold'].material + '_' + player.inventory.wearing['Hold'].classe
-							s.blit(gra_files.gdic['char'][weaponstring],(start_pos+((x-player.pos[0])*32),start_pos+((y-player.pos[1])*32)))
-						
 				except:
 					None	
-		 
+					 
+		s.blit(gra_files.gdic['display'][0],(0,0)) #render gui
+		
 		#render lvl info
 		
 		lvl_string = 'LVL: ' + str(player.lvl)
@@ -239,11 +281,13 @@ class g_screen():
 		depth_string = 'Depth: ' + str(player.pos[2])
 		depth_image = self.font.render(depth_string,1,(200,200,200))
 		s.blit(depth_image,(300,50))
-					 
-		s.blit(gra_files.gdic['display'][0],(0,0)) #render gui
 		
 		if game_options.mousepad == 1:
 			s.blit(gra_files.gdic['display'][8],(480,0)) #render mouse pad
+		else:
+			s_help = pygame.Surface((160,360))
+			s_help.fill((48,48,48))
+			s.blit(s_help,(480,0))
 		
 		#render buffs
 		
@@ -1059,6 +1103,10 @@ class g_screen():
 			s.blit(gra_files.gdic['display'][1],(0,0)) #render background
 			if game_options.mousepad == 1:
 				s.blit(gra_files.gdic['display'][8],(480,0)) #render mouse pad
+			else:
+				s_help = pygame.Surface((160,360))
+				s_help.fill((48,48,48))
+				s.blit(s_help,(480,0))
 			
 			text_image = screen.font.render('~*~ Map ~*~        [Press [x] to leave]',1,(255,255,255))
 			s.blit(text_image,(5,2))#menue title
@@ -1104,6 +1152,10 @@ class g_screen():
 			s.blit(gra_files.gdic['display'][1],(0,0)) #render background
 			if game_options.mousepad == 1:
 				s.blit(gra_files.gdic['display'][8],(480,0)) #render mouse pad
+			else:
+				s_help = pygame.Surface((160,360))
+				s_help.fill((48,48,48))
+				s.blit(s_help,(480,0))
 			
 			text_image = screen.font.render('~*~ Credits ~*~        [Press [x] to leave]',1,(255,255,255))
 			s.blit(text_image,(5,2))#menue title
@@ -1183,6 +1235,10 @@ class g_screen():
 		
 			if game_options.mousepad == 1:
 				s.blit(gra_files.gdic['display'][8],(480,0)) #render mouse pad
+			else:
+				s_help = pygame.Surface((160,360))
+				s_help.fill((48,48,48))
+				s.blit(s_help,(480,0))
 			
 			if game_options.mousepad == 0:
 				s_help = pygame.Surface((640,360))
@@ -1280,6 +1336,10 @@ class g_screen():
 			
 			if game_options.mousepad == 1:
 				s.blit(gra_files.gdic['display'][8],(480,0)) #render mouse pad
+			else:
+				s_help = pygame.Surface((160,360))
+				s_help.fill((48,48,48))
+				s.blit(s_help,(480,0))
 				
 			if game_options.mousepad == 0:
 				s_help = pygame.Surface((640,360))
@@ -1360,6 +1420,10 @@ class g_screen():
 						
 						if game_options.mousepad == 1:
 							s.blit(gra_files.gdic['display'][8],(480,0)) #render mouse pad
+						else:
+							s_help = pygame.Surface((160,360))
+							s_help.fill((48,48,48))
+							s.blit(s_help,(480,0))
 						
 						if game_options.mousepad == 0:
 							s_help = pygame.Surface((640,360))
@@ -1457,7 +1521,11 @@ class g_screen():
 			
 			if game_options.mousepad == 1:
 				s.blit(gra_files.gdic['display'][8],(480,0)) #render mouse pad
-				
+			else:
+				s_help = pygame.Surface((160,360))
+				s_help.fill((48,48,48))
+				s.blit(s_help,(480,0))
+			
 			if game_options.mousepad == 0:
 				s_help = pygame.Surface((640,360))
 				s_help.fill((48,48,48))
@@ -1534,7 +1602,11 @@ class g_screen():
 			
 			if game_options.mousepad == 1:			
 				s.blit(gra_files.gdic['display'][8],(480,0)) #render mouse pad
-				
+			else:
+				s_help = pygame.Surface((160,360))
+				s_help.fill((48,48,48))
+				s.blit(s_help,(480,0))
+			
 			text_image = screen.font.render('[e] - Add Char [b] - Done [x] - Reset',1,(255,255,255))
 			s.blit(text_image,(5,335))
 			
@@ -1609,6 +1681,10 @@ class g_screen():
 			
 			if game_options.mousepad == 1:
 				s.blit(gra_files.gdic['display'][8],(480,0)) #render mouse pad
+			else:
+				s_help = pygame.Surface((160,360))
+				s_help.fill((48,48,48))
+				s.blit(s_help,(480,0))
 			
 			if game_options.mousepad == 0:
 				s_help = pygame.Surface((640,360))
@@ -3795,6 +3871,10 @@ class world_class():
 			s.blit(entry_image,(5,335))#render message
 			if game_options.mousepad == 1:
 				s.blit(gra_files.gdic['display'][8],(480,0)) #render mouse pad
+			else:
+				s_help = pygame.Surface((160,360))
+				s_help.fill((48,48,48))
+				s.blit(s_help,(480,0))
 			
 			if game_options.mousepad == 0:
 				s_help = pygame.Surface((640,360))
@@ -3986,13 +4066,42 @@ class mob():
 			if self.lp < self.attribute.max_lp:	
 				self.lp = self.lp - world.maplist[self.pos[2]][self.on_map].tilemap[self.pos[1]][self.pos[0]].damage
 				
-		for y in range (-radius,radius+1):
+		for y in range (-radius,radius+1):#line of sight
 			for x in range (-radius,radius+1):
 				try:
-					if self.pos[0]+x >= 0 and self.pos[1]+y >= 0:
-						world.maplist[self.pos[2]][self.on_map].known[self.pos[1]+y][self.pos[0]+x] = 1
+				
+					dist = ((x)**2+(y)**2)**0.5
+				
+					if dist <= radius+1 or dist >= radius-1:
+						
+						run = True
+						c = 0
+						
+						while run:
+						
+							try:
+								yy = ((y*c)/dist)
+							except:
+								yy = 1
+						
+							try:
+								xx = ((x*c)/dist)
+							except:
+								xx = 1
+							
+							view_x = int(xx) + self.pos[0]
+							view_y = int(yy) + self.pos[1]
+							
+							world.maplist[self.pos[2]][self.on_map].known[view_y][view_x] = 1
+							
+							
+							if world.maplist[self.pos[2]][self.on_map].tilemap[view_y][view_x].transparency == True and c < radius:
+								c+=1
+							else:
+								run = False
 				except:
 					None
+					
 		if player.lp <= 0:
 			screen.render_dead()
 		
@@ -4823,6 +4932,10 @@ class player_class(mob):
 					
 					if game_options.mousepad == 1:
 						s.blit(gra_files.gdic['display'][8],(480,0)) #render mouse pad
+					else:
+						s_help = pygame.Surface((160,360))
+						s_help.fill((48,48,48))
+						s.blit(s_help,(480,0))
 					
 					if game_options.mousepad == 0:
 						s_help = pygame.Surface((640,360))
@@ -4875,6 +4988,10 @@ class player_class(mob):
 					
 					if game_options.mousepad == 1:
 						s.blit(gra_files.gdic['display'][8],(480,0)) #render mouse pad
+					else:
+						s_help = pygame.Surface((160,360))
+						s_help.fill((48,48,48))
+						s.blit(s_help,(480,0))
 					
 					if game_options.mousepad == 0:
 						s_help = pygame.Surface((640,360))
@@ -4930,6 +5047,10 @@ class player_class(mob):
 						
 					if game_options.mousepad == 1:
 						s.blit(gra_files.gdic['display'][8],(480,0)) #render mouse pad
+					else:
+						s_help = pygame.Surface((160,360))
+						s_help.fill((48,48,48))
+						s.blit(s_help,(480,0))
 					
 					if game_options.mousepad == 0:
 						s_help = pygame.Surface((640,360))
@@ -5003,6 +5124,10 @@ class player_class(mob):
 					
 					if game_options.mousepad == 1:
 						s.blit(gra_files.gdic['display'][8],(480,0)) #render mouse pad
+					else:
+						s_help = pygame.Surface((160,360))
+						s_help.fill((48,48,48))
+						s.blit(s_help,(480,0))
 					
 					if game_options.mousepad == 0:
 						s_help = pygame.Surface((640,360))
@@ -5804,6 +5929,10 @@ class messager():
 			
 			if game_options.mousepad == 1:	
 				s.blit(gra_files.gdic['display'][8],(480,0)) #render mouse pad
+			else:
+				s_help = pygame.Surface((160,360))
+				s_help.fill((48,48,48))
+				s.blit(s_help,(480,0))
 			
 			if game_options.mousepad == 0:
 				s_help = pygame.Surface((640,360))
@@ -6522,6 +6651,10 @@ class inventory():
 		
 		if game_options.mousepad == 1:
 			s.blit(gra_files.gdic['display'][8],(480,0)) #render mouse pad
+		else:
+			s_help = pygame.Surface((160,360))
+			s_help.fill((48,48,48))
+			s.blit(s_help,(480,0))
 		
 		if game_options.mousepad == 0:
 			s_help = pygame.Surface((640,360))
@@ -6728,6 +6861,10 @@ class container():
 				s.blit(text_image,(5,335))
 				if game_options.mousepad == 1:
 					s.blit(gra_files.gdic['display'][8],(480,0)) #render mouse pad
+				else:
+					s_help = pygame.Surface((160,360))
+					s_help.fill((48,48,48))
+					s.blit(s_help,(480,0))
 				
 				if game_options.mousepad == 0:
 					s_help = pygame.Surface((640,360))

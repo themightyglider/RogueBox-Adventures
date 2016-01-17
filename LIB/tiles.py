@@ -18,10 +18,10 @@ tl[0].append(t)
 t=tile(techID,'Water','blue',False,0,'None', None,tile_pos=(1,2))
 techID+=1
 tl[0].append(t)
-t=tile(techID,'Ore','light_red',False, 0,'You brake some ore out of the solid rock here.', None, 2, None,tile_pos=(0,2))
+t=tile(techID,'Ore','light_red',False, 0,'You brake some ore out of the solid rock here.', None, 2, None,tile_pos=(0,2),transparency= False)
 techID+=1
 tl[0].append(t)
-t=tile(techID,'Gem','light_blue',False, 0,'You brake a gem out of the solid rock here.', None, 4, None,tile_pos=(5,1))
+t=tile(techID,'Gem','light_blue',False, 0,'You brake a gem out of the solid rock here.', None, 4, None,tile_pos=(5,1),transparency= False)
 techID+=1
 tl[0].append(t)
 t=tile(techID,'Blue Mushroom','white', True, 0, 'A blue mushroom grows here.', None, False, None,tile_pos=(1,6))
@@ -48,7 +48,7 @@ tl[0].append(t)
 t=tile(techID,'Water Lily with Blossom','white', True, 0, 'A water lily with a beautiful blossom grows here.', None, False, None,tile_pos=(1,0))
 techID+=1
 tl[0].append(t)
-t=tile(techID,'Giant Mushroom','white', False, 0, 'There is a giant mushroom here.', None, False, None,tile_pos=(6,0))
+t=tile(techID,'Giant Mushroom','white', False, 0, 'There is a giant mushroom here.', None, False, None,tile_pos=(6,0),transparency= False)
 techID+=1
 tl[0].append(t)
 
@@ -61,7 +61,7 @@ tl.append([])
 t=tile(techID,'Orcish Mine Floor','light_red', True, 0, 'You Walk over dry mine ground.', None,tile_pos=(0,5))
 techID+=1
 tl[1].append(t)
-t=tile(techID,'Orcisch Mine Wall','red', False, 0, 'You crack your way trough this wall.', None, 2, tl[1][0],tile_pos=(0,4))
+t=tile(techID,'Orcisch Mine Wall','red', False, 0, 'You crack your way trough this wall.', None, 2, tl[1][0],tile_pos=(0,4),transparency= False)
 techID+=1
 tl[1].append(t)
 t=tile(techID,'Blood Moss','red', True, 0, 'Here some blood moss grows on the ground.', None,tile_pos=(8,5))
@@ -77,13 +77,13 @@ tl.append([])
 t=tile(techID,'Cave ground','light_brown', True, 0, 'A dark cave surrounds you.', None,tile_pos=(9,0))
 techID+=1
 tl[2].append(t)
-t=tile(techID,'Worn Rock','light_grey', False, 0, 'You crack your way trough worn rocks.', None, 2, tl[2][0],tile_pos=(0,0))
+t=tile(techID,'Worn Rock','light_grey', False, 0, 'You crack your way trough worn rocks.', None, 2, tl[2][0],tile_pos=(0,0),transparency= False)
 techID+=1
 tl[2].append(t)
-t=tile(techID,'Soft Soil' ,'brown', False, 0, 'You dig trough soft soil.', None, 1, tl[2][0],tile_pos=(0,1))
+t=tile(techID,'Soft Soil' ,'brown', False, 0, 'You dig trough soft soil.', None, 1, tl[2][0],tile_pos=(0,1),transparency= False)
 techID+=1
 tl[2].append(t)
-t=tile(techID,'Hard Rock','grey',False, 0,'You make your way trough the solid rock wall', None, 4, tl[2][0],tile_pos=(0,10))
+t=tile(techID,'Hard Rock','grey',False, 0,'You make your way trough the solid rock wall', None, 4, tl[2][0],tile_pos=(0,10),transparency= False)
 techID+=1
 tl[2].append(t)
 t=tile(techID,'Lava','red',True, 1, 'You stand in a hot stream of lava.', 'The lava burns your flesh.',tile_pos=(0,8))
@@ -96,7 +96,7 @@ f.close()
 
 #functional tiles
 tl.append([])
-t=tile(techID,'Border','white', False, 0, 'HERE BE DRAGONS', None,build_here = False,tile_pos=(9,1))
+t=tile(techID,'Border','white', False, 0, 'HERE BE DRAGONS', None,build_here = False,tile_pos=(9,1),transparency= False)
 techID+=1
 tl[3].append(t)
 t=tile(techID,'Stair down','white', True, 0, 'There is a down leading stairway here.', None, False, None, True, True, False, build_here=False,tile_pos=(3,4))
@@ -153,7 +153,7 @@ tl[3].append(t)
 t=tile(techID,'Stone seat','white', True, 0, 'Here is a confortable looking stone seat.', None, False, None, True, True, False,tile_pos=(3,7))
 techID+=1
 tl[3].append(t)
-t=tile(techID,'Bookshelf','white', False, 0, 'Here is a bookshelf', None, False, None, True, True, False,tile_pos=(9,2))
+t=tile(techID,'Bookshelf','white', False, 0, 'Here is a bookshelf', None, False, None, True, True, False,tile_pos=(9,2),transparency= False)
 techID+=1
 tl[3].append(t)
 t=tile(techID,'Divine gift','light_purple', True, -1, 'The gods blessed this world here.', None, False, None, True, True, False,build_here=False,tile_pos=(6,8))
@@ -162,7 +162,7 @@ tl[3].append(t)
 t=tile(techID,'Animal remains','white', True, 0, 'Here are some animal remains.', None, False, None, True, True, False,tile_pos=(8,7))
 techID+=1
 tl[3].append(t)
-t=tile(techID,'Pilar','white', False, 0, 'You stand in front of a pilar.', None, False, None, True, True, False,tile_pos=(5,9))
+t=tile(techID,'Pilar','white', False, 0, 'You stand in front of a pilar.', None, False, None, True, True, False,tile_pos=(5,9),transparency= False)
 techID+=1
 tl[3].append(t)
 t=tile(techID,'Master Forge','purple', True, 0, 'You stand in front of a legendary master forge.', None, False, None, build_here=False,tile_pos=(0,6))
@@ -212,10 +212,10 @@ tl[4].append(t)
 t=tile(techID,'Tree young','brown', False, 0, 'There is a young tree here.', None, False, None,tile_pos=(4,0))
 techID+=1
 tl[4].append(t)
-t=tile(techID,'Tree','brown', False, 0, 'There is a tree here.', None, False, None,tile_pos=(4,3))
+t=tile(techID,'Tree','brown', False, 0, 'There is a tree here.', None, False, None,tile_pos=(4,3),transparency= False)
 techID+=1
 tl[4].append(t)
-t=tile(techID,'Tree dead','brown', False, 0, 'There is a dead tree here.', None, False, None,tile_pos=(4,2))
+t=tile(techID,'Tree dead','brown', False, 0, 'There is a dead tree here.', None, False, None,tile_pos=(4,2),transparency= False)
 techID+=1
 tl[4].append(t)
 t=tile(techID,'Rock','grey', False, 0, 'You break a big rock.', None, 2, None,tl[4][0],tile_pos=(3,8))
@@ -244,13 +244,13 @@ tl.append([])
 t=tile(techID,'Floor','light_red', True, 0, 'You walk over a wooden floor.', None, False, None, True, True, False,tile_pos=(7,5))
 techID+=1
 tl[5].append(t)
-t=tile(techID,'Wall','red', False, 0, 'There is a wall here.', None, False, None, True, True, False,tile_pos=(2,5))
+t=tile(techID,'Wall','red', False, 0, 'There is a wall here.', None, False, None, True, True, False,tile_pos=(2,5),transparency= False)
 techID+=1
 tl[5].append(t)
 t=tile(techID,'Door open','white', True, 0, 'You walk trough a open door.', None, False, None, True, True, False, build_here=False,tile_pos=(7,10))
 techID+=1
 tl[5].append(t)
-t=tile(techID,'Door closed' ,'white', False, 0, 'The door swings open.', None, 1, tl[5][2], True, True, False,tile_pos=(6,6))
+t=tile(techID,'Door closed' ,'white', False, 0, 'The door swings open.', None, 1, tl[5][2], True, True, False,tile_pos=(6,6),transparency= False)
 techID+=1
 tl[5].append(t)
 t=tile(techID,'Agriculture','yellow', True, 0, 'You are walking on bare fields.', None, False, None, True, True, False,tile_pos=(9,7))
@@ -271,49 +271,49 @@ tl[5].append(t)
 t=tile(techID,'Blue Floor','light_red', True, 0, 'You walk over a blue floor.', None, False, None, True, True, False,tile_pos=(7,4))
 techID+=1
 tl[5].append(t)
-t=tile(techID,'Blue Wall','red', False, 0, 'There is a wall here.', None, False, None, True, True, False,tile_pos=(2,4))
+t=tile(techID,'Blue Wall','red', False, 0, 'There is a wall here.', None, False, None, True, True, False,tile_pos=(2,4),transparency= False)
 techID+=1
 tl[5].append(t)
 t=tile(techID,'Green Floor','light_red', True, 0, 'You walk over a green floor.', None, False, None, True, True, False,tile_pos=(7,3))
 techID+=1
 tl[5].append(t)
-t=tile(techID,'Green Wall','red', False, 0, 'There is a wall here.', None, False, None, True, True, False,tile_pos=(2,3))
+t=tile(techID,'Green Wall','red', False, 0, 'There is a wall here.', None, False, None, True, True, False,tile_pos=(2,3),transparency= False)
 techID+=1
 tl[5].append(t)
 t=tile(techID,'Red Floor','light_red', True, 0, 'You walk over a red floor.', None, False, None, True, True, False,tile_pos=(7,0))
 techID+=1
 tl[5].append(t)
-t=tile(techID,'Red Wall','red', False, 0, 'There is a wall here.', None, False, None, True, True, False,tile_pos=(2,0))
+t=tile(techID,'Red Wall','red', False, 0, 'There is a wall here.', None, False, None, True, True, False,tile_pos=(2,0),transparency= False)
 techID+=1
 tl[5].append(t)
 t=tile(techID,'Orange Floor','light_red', True, 0, 'You walk over a orange floor.', None, False, None, True, True, False,tile_pos=(7,2))
 techID+=1
 tl[5].append(t)
-t=tile(techID,'Orange Wall','red', False, 0, 'There is a wall here.', None, False, None, True, True, False,tile_pos=(2,2))
+t=tile(techID,'Orange Wall','red', False, 0, 'There is a wall here.', None, False, None, True, True, False,tile_pos=(2,2),transparency= False)
 techID+=1
 tl[5].append(t)
 t=tile(techID,'Purple Floor','light_red', True, 0, 'You walk over a purple floor.', None, False, None, True, True, False,tile_pos=(7,1))
 techID+=1
 tl[5].append(t)
-t=tile(techID,'Purple Wall','red', False, 0, 'There is a wall here.', None, False, None, True, True, False,tile_pos=(2,1))
+t=tile(techID,'Purple Wall','red', False, 0, 'There is a wall here.', None, False, None, True, True, False,tile_pos=(2,1),transparency= False)
 techID+=1
 tl[5].append(t)
 t=tile(techID,'Orcish Floor','light_red', True, 0, 'You walk over a hard soil.', None, False, None, True, True, False,tile_pos=(0,5))
 techID+=1
 tl[5].append(t)
-t=tile(techID,'Orcish Wall','red', False, 0, 'There is a wall here.', None, False, None, True, True, False,tile_pos=(0,4))
+t=tile(techID,'Orcish Wall','red', False, 0, 'There is a wall here.', None, False, None, True, True, False,tile_pos=(0,4),transparency= False)
 techID+=1
 tl[5].append(t)
 t=tile(techID,'Nobel Floor','light_red', True, 0, 'You walk over a floor made of stone.', None, False, None, True, True, False,tile_pos=(0,3))
 techID+=1
 tl[5].append(t)
-t=tile(techID,'Nobel Wall','red', False, 0, 'There is a wall here.', None, False, None, True, True, False,tile_pos=(2,6))
+t=tile(techID,'Nobel Wall','red', False, 0, 'There is a wall here.', None, False, None, True, True, False,tile_pos=(2,6),transparency= False)
 techID+=1
 tl[5].append(t)
 t=tile(techID,'Elfish Floor','light_red', True, 0, 'You walk over cobbled floor.', None, False, None, True, True, False,tile_pos=(7,8))
 techID+=1
 tl[5].append(t)
-t=tile(techID,'Elfish Wall','red', False, 0, 'There is a wall here.', None, False, None, True, True, False,tile_pos=(7,6))
+t=tile(techID,'Elfish Wall','red', False, 0, 'There is a wall here.', None, False, None, True, True, False,tile_pos=(7,6),transparency= False)
 techID+=1
 tl[5].append(t)
 
@@ -344,7 +344,7 @@ tl.append([])
 t=tile(techID,'Sanctuary Floor','light_purple', True, -1, 'You walk over holy ground.', 'Your wounds are cured.',build_here=False,tile_pos=(4,10))
 techID+=1
 tl[7].append(t)
-t=tile(techID,'Sanctuary Pilar','purple', False, 0, 'There is a pilar here.', None, False, None,build_here=False,tile_pos=(4,9))
+t=tile(techID,'Sanctuary Pilar','purple', False, 0, 'There is a pilar here.', None, False, None,build_here=False,tile_pos=(4,9),transparency= False)
 techID+=1
 tl[7].append(t)
 t=tile(techID,'Sanctuary Spawnpoint','white', True, -1, 'You walk over holy ground.', 'Your wounds are cured.',build_here=False,tile_pos=(2,10))
@@ -373,7 +373,7 @@ tl.append([])
 t=tile(techID,'Shop Floor','light_purple', True, 0, 'You are inside a shop.', 'None',build_here=False,tile_pos=(0,3))
 techID+=1
 tl[8].append(t)
-t=tile(techID,'Shop Wall','purple', False, 0, 'There is a wall here.', None, False, None,build_here=False,tile_pos=(2,6))
+t=tile(techID,'Shop Wall','purple', False, 0, 'There is a wall here.', None, False, None,build_here=False,tile_pos=(2,6),transparency= False)
 techID+=1
 tl[8].append(t)
 t=tile(techID,'Shop Door','white', True, 0, 'You are entering a shop.', 'Your wounds are cured.',build_here=False,tile_pos=(7,10))
@@ -432,7 +432,7 @@ tl[10].append(t)
 t=tile(techID,'Elfish Agricultur','light_green', True, 0, 'Some strange plants grow at this field.', None,tile_pos=(7,9))
 techID+=1
 tl[10].append(t)
-t=tile(techID,'Elfish Wall','purple', False, 0, 'There is a wall here.', None, build_here=False,tile_pos=(7,6))
+t=tile(techID,'Elfish Wall','purple', False, 0, 'There is a wall here.', None, build_here=False,tile_pos=(7,6),transparency= False)
 techID+=1
 tl[10].append(t)
 t=tile(techID,'help_active','black', False, 0, 'ACTIVE', None, build_here=False)
