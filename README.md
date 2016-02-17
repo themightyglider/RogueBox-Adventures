@@ -69,6 +69,7 @@
     i/BACKSPACE/gamepad Button4    : Open Inventory
     b/Space/gamepad Button3        : Open Build menu/Switch mode/Done/Drop
     x/ESCAPE/gamepad Button2       : Open main menu/Abrot/Back
+    f       /gamepad Button5       : Fire mode on/off
 
 5.) I've found a bug. I want to make a suggestion.
 
