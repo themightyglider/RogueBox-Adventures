@@ -7,24 +7,103 @@ techID = 0
 
 #grassland monster
 ml.append([])
-a = attribute(2,2,2,2,2,2,3,0,0,0,0)
-m=monster(techID,'angry dryade',(2,8),2,a,'hostile','dryade',1,False,True, 'attack_magic', ('Head','Body','Legs'), None, 0, 0, 'None')
+m=monster(techID = techID,
+		name = 'angry dryade',
+		sprite_pos = (2,8),
+		move_border = 2,
+		attribute_prev = (0,1,2,2,1),
+		worn_equipment = (0,1,0,0,0),
+		AI_style = 'hostile',
+		corps_style = 'dryade',
+		corps_lvl = 1,
+		ignore_damage = False,
+		ignore_water = True, 
+		behavior = 'attack_magic', 
+		attack_were = ('Head','Body','Legs'),
+		possible_effect = None, 
+		effect_duration = 0, 
+		effect_probability = 0, 
+		message = 'None')
 techID+=1
 ml[0].append(m)
-a = attribute(1,1,1,1,10,1,3,0,0,0,0)
-m=monster(techID,'grassland snake',(0,9),1,a,'hostile','animal',1,False,False, 'attack_melee', ('Legs', 'Feet'), 'poisoned', 10, 20, 'Poison runs trough your veins!')
+
+m=monster(techID = techID,
+		name = 'grassland snake',
+		sprite_pos = (0,9),
+		move_border = 1,
+		attribute_prev = (2,1,0,0,0),
+		worn_equipment = (0,0,0,0,0),
+		AI_style = 'hostile',
+		corps_style = 'animal',
+		corps_lvl = 1,
+		ignore_damage = False,
+		ignore_water = False, 
+		behavior = 'attack_melee', 
+		attack_were = ('Legs','Feet'),
+		possible_effect = 'poisoned', 
+		effect_duration = 20, 
+		effect_probability = 20, 
+		message = 'Poison runs trough your veins!')
 techID+=1
 ml[0].append(m)
-a = attribute(0,0,0,0,0,1,0,0,0,0,0)
-m=monster(techID,'rabbit',(1,4),0,a,'flee','animal',1,False,False, 'attack_melee', ('Feet'), None, 0, 0, 'None')
+
+m=monster(techID = techID,
+		name = 'rabbit',
+		sprite_pos = (1,4),
+		move_border = 0,
+		attribute_prev = (0,1,0,1,1),
+		worn_equipment = (0,0,0,0,0),
+		AI_style = 'flee',
+		corps_style = 'animal',
+		corps_lvl = 1,
+		ignore_damage = False,
+		ignore_water = False, 
+		behavior = 'attack_melee', 
+		attack_were = ('Feet'),
+		possible_effect = None, 
+		effect_duration = 0, 
+		effect_probability = 0, 
+		message = 'None')
 techID+=1
 ml[0].append(m)
-a = attribute(1,2,1,2,2,2,3,0,0,0,0)
-m=monster(techID,'green blob',(1,8),4,a,'hostile','vanish',5,False,False, 'attack_melee', ('Head','Body','Legs','Feet'), None, 0, 0, 'None')
+
+m=monster(techID = techID,
+		name = 'green blob',
+		sprite_pos = (1,8),
+		move_border = 4,
+		attribute_prev = (2,2,0,1,1),
+		worn_equipment = (0,0,0,0,0),
+		AI_style = 'hostile',
+		corps_style = 'vanish',
+		corps_lvl = 5,
+		ignore_damage = False,
+		ignore_water = False, 
+		behavior = 'attack_melee', 
+		attack_were = ('Legs','Feet'),
+		possible_effect = None, 
+		effect_duration = 0, 
+		effect_probability = 0, 
+		message = 'None')
 techID+=1
 ml[0].append(m)
-a = attribute(4,3,1,1,2,2,4,0,0,0,0)
-m=monster(techID,'hill orc',(1,7),2,a,'hostile','human',2,False,True, 'attack_melee', ('Head','Body','Legs','Feet'), None, 0, 0, 'None')
+
+m=monster(techID = techID,
+		name = 'hill orc',
+		sprite_pos = (1,7),
+		move_border = 2,
+		attribute_prev = (3,1,0,1,1),
+		worn_equipment = (1,0,1,0,0),
+		AI_style = 'hostile',
+		corps_style = 'human',
+		corps_lvl = 2,
+		ignore_damage = False,
+		ignore_water = True, 
+		behavior = 'attack_melee', 
+		attack_were = ('Head','Body','Legs','Feet'),
+		possible_effect = None, 
+		effect_duration = 0, 
+		effect_probability = 0, 
+		message = 'None')
 techID+=1
 ml[0].append(m)
 
@@ -34,20 +113,83 @@ f.close()
 
 #civilians
 ml.append([])
-a = attribute(0,0,0,0,0,1,0,0,0,0,0)
-m=monster(techID,'dryade',(2,2),0,a,'ignore','dryade',1,False,True, 'talk', ('Head','Body','Legs'), None, 0, 0, 'The dryade smiles mysterious.')
+m=monster(techID = techID,
+		name = 'dryade',
+		sprite_pos = (2,2),
+		move_border = 2,
+		attribute_prev = (0,1,2,2,1),
+		worn_equipment = (0,1,0,0,0),
+		AI_style = 'ignore',
+		corps_style = 'dryade',
+		corps_lvl = 1,
+		ignore_damage = False,
+		ignore_water = False, 
+		behavior = 'talk', 
+		attack_were = ('Feet'),
+		possible_effect = None, 
+		effect_duration = 0, 
+		effect_probability = 0, 
+		message = 'The dryade smiles mysterious.')
 techID+=1
 ml[1].append(m)
-a = attribute(0,0,0,0,0,1,0,0,0,0,0)
-m=monster(techID,'tame orc',(0,4),0,a,'ignore','human',1,False,True, 'talk', ('Head','Body','Legs'), None, 0, 0, 'The tame orc greets you.')
+
+m=monster(techID = techID,
+		name = 'tame orc',
+		sprite_pos = (0,4),
+		move_border = 2,
+		attribute_prev = (2,1,0,1,1),
+		worn_equipment = (1,0,1,0,0),
+		AI_style = 'ignore',
+		corps_style = 'human',
+		corps_lvl = 1,
+		ignore_damage = False,
+		ignore_water = False, 
+		behavior = 'talk', 
+		attack_were = ('Feet'),
+		possible_effect = None, 
+		effect_duration = 0, 
+		effect_probability = 0, 
+		message = 'The tame orc geets you.')
 techID+=1
 ml[1].append(m)
-a = attribute(0,0,0,0,0,1,0,0,0,0,0)
-m=monster(techID,'golden naga',(1,9),0,a,'ignore','human',1,False,True, 'talk', ('Head','Body','Legs'), None, 0, 0, 'The golden naga blinks.')
+
+m=monster(techID = techID,
+		name = 'golden naga',
+		sprite_pos = (1,9),
+		move_border = 2,
+		attribute_prev = (0,1,2,2,1),
+		worn_equipment = (0,1,0,1,1),
+		AI_style = 'ignore',
+		corps_style = 'human',
+		corps_lvl = 1,
+		ignore_damage = False,
+		ignore_water = True, 
+		behavior = 'talk', 
+		attack_were = ('Feet'),
+		possible_effect = None, 
+		effect_duration = 0, 
+		effect_probability = 0, 
+		message = 'The golden naga blinks.')
 techID+=1
 ml[1].append(m)
-a = attribute(0,0,0,0,0,1,0,0,0,0,0)
-m=monster(techID,'wood elf',(0,0),0,a,'ignore','human',1,False,True, 'talk', ('Head','Body','Legs'), None, 0, 0, 'The wood elf waves.')
+
+m=monster(techID = techID,
+		name = 'wood elf',
+		sprite_pos = (0,0),
+		move_border = 2,
+		attribute_prev = (0,2,0,2,1),
+		worn_equipment = (1,1,1,1,1),
+		AI_style = 'ignore',
+		corps_style = 'human',
+		corps_lvl = 1,
+		ignore_damage = False,
+		ignore_water = False, 
+		behavior = 'talk', 
+		attack_were = ('Feet'),
+		possible_effect = None, 
+		effect_duration = 0, 
+		effect_probability = 0, 
+		message = 'The wood elf waves.')
 techID+=1
 ml[1].append(m)
 
@@ -56,21 +198,85 @@ p.dump(ml[1],f)
 f.close()
 
 #cave
+
 ml.append([])
-a = attribute(5,4,1,1,4,5,0,0,0,0,0)
-m=monster(techID,'cave orc',(2,3),2,a,'hostile','human',2,False,True, 'attack_melee', ('Head','Body','Legs','Feet'), None, 0, 0, 'None')
+m=monster(techID = techID,
+		name = 'cave orc',
+		sprite_pos = (2,3),
+		move_border = 2,
+		attribute_prev = (2,2,0,1,2),
+		worn_equipment = (1,0,1,0,0),
+		AI_style = 'hostile',
+		corps_style = 'human',
+		corps_lvl = 1,
+		ignore_damage = False,
+		ignore_water = True, 
+		behavior = 'attack_melee', 
+		attack_were = ('Head','Body','Legs','Feet'),
+		possible_effect = None, 
+		effect_duration = 0, 
+		effect_probability = 0, 
+		message = 'None.')
 techID+=1
 ml[2].append(m)
-a = attribute(2,3,2,3,3,3,0,0,0,0,0)
-m=monster(techID,'blue blob',(2,5),4,a,'hostile','vanish',5,False,True, 'attack_melee', ('Legs','Feet'), None, 0, 0, 'None')
+
+m=monster(techID = techID,
+		name = 'blue blob',
+		sprite_pos = (2,5),
+		move_border = 4,
+		attribute_prev = (2,1,0,0,1),
+		worn_equipment = (0,0,0,0,0),
+		AI_style = 'hostile',
+		corps_style = 'vanish',
+		corps_lvl = 1,
+		ignore_damage = False,
+		ignore_water = False, 
+		behavior = 'attack_melee', 
+		attack_were = ('Legs','Feet'),
+		possible_effect = None, 
+		effect_duration = 0, 
+		effect_probability = 0, 
+		message = 'None.')
 techID+=1
 ml[2].append(m)
-a = attribute(0,0,0,0,1,1,0,0,0,0,0)
-m=monster(techID,'bat',(2,7),0,a,'flee','animal',1,True,True, 'attack_melee', ('Legs','Feet'), None, 0, 0, 'None')
+
+m=monster(techID = techID,
+		name = 'bat',
+		sprite_pos = (2,7),
+		move_border = 0,
+		attribute_prev = (0,2,0,2,2),
+		worn_equipment = (0,0,0,0,0),
+		AI_style = 'flee',
+		corps_style = 'human',
+		corps_lvl = 1,
+		ignore_damage = False,
+		ignore_water = True, 
+		behavior = 'attack_melee', 
+		attack_were = ('Head','Body','Legs','Feet'),
+		possible_effect = None, 
+		effect_duration = 0, 
+		effect_probability = 0, 
+		message = 'None.')
 techID+=1
 ml[2].append(m)
-a = attribute(3,3,3,3,3,3,3,0,0,0,0)
-m=monster(techID,'soil spirit',(1,0),2,a,'hostile','troll',1,False,False, 'attack_magic', ('Head','Body','Legs','Feet'), None, 0, 0, 'None')
+
+m=monster(techID = techID,
+		name = 'soil spirit',
+		sprite_pos = (1,0),
+		move_border = 2,
+		attribute_prev = (0,1,2,1,1),
+		worn_equipment = (0,1,0,0,0),
+		AI_style = 'hostile',
+		corps_style = 'troll',
+		corps_lvl = 1,
+		ignore_damage = False,
+		ignore_water = False, 
+		behavior = 'attack_magic', 
+		attack_were = ('Head','Body','Legs','Feet'),
+		possible_effect = None, 
+		effect_duration = 0, 
+		effect_probability = 0, 
+		message = 'None.')
 techID+=1
 ml[2].append(m)
 
@@ -81,20 +287,103 @@ f.close()
 #mine
 
 ml.append([])
-a = attribute(10,8,4,4,5,7,0,0,0,0,0)
-m=monster(techID,'orc warlord',(1,5),2,a,'hostile','human',3,False,True, 'attack_melee', ('Head','Body','Legs'), 'bleeding', 5, 20, 'The orc warlord tears you a bleeding wound')
+m=monster(techID = techID,
+		name = 'orc warlord',
+		sprite_pos = (1,5),
+		move_border = 2,
+		attribute_prev = (2,2,0,1,2),
+		worn_equipment = (1,0,1,0,1),
+		AI_style = 'hostile',
+		corps_style = 'human',
+		corps_lvl = 1,
+		ignore_damage = False,
+		ignore_water = True, 
+		behavior = 'attack_melee', 
+		attack_were = ('Head','Body','Legs'),
+		possible_effect = 'bleeding', 
+		effect_duration = 5, 
+		effect_probability = 20, 
+		message = 'The orc warlord tears you a bleeding wound.')
 techID+=1
 ml[3].append(m)
-a = attribute(4,4,10,8,5,7,3,0,0,0,0)
-m=monster(techID,'orcish hag',(0,6),2,a,'hostile','scrollkeeper',2,False,True, 'attack_magic', ('Head','Body','Legs','Feet'), 'hexed', 40, 20, 'The orcish hag puts a hex on you.')
+
+m=monster(techID = techID,
+		name = 'orc warlord',
+		sprite_pos = (1,5),
+		move_border = 2,
+		attribute_prev = (2,2,0,1,2),
+		worn_equipment = (1,0,1,0,1),
+		AI_style = 'hostile',
+		corps_style = 'human',
+		corps_lvl = 3,
+		ignore_damage = False,
+		ignore_water = True, 
+		behavior = 'attack_melee', 
+		attack_were = ('Head','Body','Legs'),
+		possible_effect = 'bleeding', 
+		effect_duration = 5, 
+		effect_probability = 20, 
+		message = 'The orc warlord tears you a bleeding wound.')
 techID+=1
 ml[3].append(m)
-a = attribute(7,7,3,3,3,3,5,0,0,0,0)
-m=monster(techID,'orcish digger',(1,6),2,a,'hostile','miner',2,False,True, 'attack_melee', ('Head','Body','Legs'), None, 0, 0, 'None')
+
+m=monster(techID = techID,
+		name = 'orcish hag',
+		sprite_pos = (0,6),
+		move_border = 2,
+		attribute_prev = (0,1,2,2,2),
+		worn_equipment = (0,1,0,1,1),
+		AI_style = 'hostile',
+		corps_style = 'scrollkeeper',
+		corps_lvl = 2,
+		ignore_damage = False,
+		ignore_water = True, 
+		behavior = 'attack_magic', 
+		attack_were = ('Head','Body','Legs','Feet'),
+		possible_effect = 'hexed', 
+		effect_duration = 40, 
+		effect_probability = 20, 
+		message = 'The orcish hag puts a hex on you.')
 techID+=1
 ml[3].append(m)
-a = attribute(5,5,5,5,15,3,5,0,0,0,0)
-m=monster(techID,'blood snake',(2,6),2,a,'hostile','animal',1,False,True, 'attack_melee', ('Legs','Feet'), 'poisoned' , 60, 45, 'Poison runs trough your veins!')
+
+m=monster(techID = techID,
+		name = 'orcish digger',
+		sprite_pos = (1,6),
+		move_border = 2,
+		attribute_prev = (1,2,0,1,1),
+		worn_equipment = (0,0,0,0,0),
+		AI_style = 'hostile',
+		corps_style = 'miner',
+		corps_lvl = 2,
+		ignore_damage = False,
+		ignore_water = True, 
+		behavior = 'attack_melee', 
+		attack_were = ('Head','Body','Legs','Feet'),
+		possible_effect = None, 
+		effect_duration = 0, 
+		effect_probability = 0, 
+		message = 'None')
+techID+=1
+ml[3].append(m)
+
+m=monster(techID = techID,
+		name = 'blood snake',
+		sprite_pos = (2,6),
+		move_border = 2,
+		attribute_prev = (2,2,0,0,1),
+		worn_equipment = (0,0,0,0,0),
+		AI_style = 'hostile',
+		corps_style = 'animal',
+		corps_lvl = 2,
+		ignore_damage = False,
+		ignore_water = True, 
+		behavior = 'attack_melee', 
+		attack_were = ('Legs','Feet'),
+		possible_effect = 'poisoned', 
+		effect_duration = 60,
+		effect_probability = 45,
+		message = 'Poison runs trough your veins!')
 techID+=1
 ml[3].append(m)
 
@@ -105,12 +394,43 @@ f.close()
 #elfish fortress
 
 ml.append([])
-a = attribute(1,1,1,1,1,1,0,0,0,0,0)
-m=monster(techID,'elf male',(2,0),0,a,'ignore','human',3,False,True, 'talk', ('Head','Body','Legs','Feet'), None, 0, 0, 'The male elf greets you friendly.')
+m=monster(techID = techID,
+		name = 'male elf',
+		sprite_pos = (2,0),
+		move_border = 0,
+		attribute_prev = (2,2,0,0,2),
+		worn_equipment = (1,0,1,0,0),
+		AI_style = 'ignore',
+		corps_style = 'human',
+		corps_lvl = 3,
+		ignore_damage = False,
+		ignore_water = True, 
+		behavior = 'talk', 
+		attack_were = ('Head','Body','Legs','Feet'),
+		possible_effect = None, 
+		effect_duration = 0, 
+		effect_probability = 0, 
+		message = 'The male elf greets you friendly.')
 techID+=1
 ml[4].append(m)
-a = attribute(1,1,1,1,1,1,0,0,0,0,0)
-m=monster(techID,'elf female',(2,1),0,a,'ignore','human',3,False,True, 'talk', ('Head','Body','Legs','Feet'), None, 0, 0, 'The female elf greets you friendly.')
+
+m=monster(techID = techID,
+		name = 'female elf',
+		sprite_pos = (2,1),
+		move_border = 0,
+		attribute_prev = (0,0,2,2,2),
+		worn_equipment = (0,1,0,1,1),
+		AI_style = 'ignore',
+		corps_style = 'human',
+		corps_lvl = 3,
+		ignore_damage = False,
+		ignore_water = True, 
+		behavior = 'talk', 
+		attack_were = ('Head','Body','Legs','Feet'),
+		possible_effect = None, 
+		effect_duration = 0, 
+		effect_probability = 0, 
+		message = 'The female elf greets you friendly.')
 techID+=1
 ml[4].append(m)
 
@@ -121,12 +441,44 @@ f.close()
 #elfish fortress
 
 ml.append([])
-a = attribute(10,10,10,10,10,10,0,0,0,0,0)
-m=monster(techID,'elf male',(2,0),0,a,'hostile','vanish',3,False,True, 'attack_melee', ('Head','Body','Legs','Feet'), None, 0, 0, 'The male elf greets you friendly.')
+ml.append([])
+m=monster(techID = techID,
+		name = 'male elf',
+		sprite_pos = (2,0),
+		move_border = 0,
+		attribute_prev = (2,2,0,1,2),
+		worn_equipment = (1,0,1,0,0),
+		AI_style = 'hostile',
+		corps_style = 'human',
+		corps_lvl = 3,
+		ignore_damage = False,
+		ignore_water = True, 
+		behavior = 'attack_melee', 
+		attack_were = ('Head','Body','Legs','Feet'),
+		possible_effect = None, 
+		effect_duration = 0, 
+		effect_probability = 0, 
+		message = 'None')
 techID+=1
 ml[5].append(m)
-a = attribute(10,10,10,10,10,10,0,0,0,0,0)
-m=monster(techID,'elf female',(2,1),0,a,'hostile','vanish',3,False,True, 'attack_magic', ('Head','Body','Legs','Feet'), 'hexed', 40, 40, 'The female elf puts a hex on you.')
+
+m=monster(techID = techID,
+		name = 'female elf',
+		sprite_pos = (2,1),
+		move_border = 0,
+		attribute_prev = (0,1,2,2,2),
+		worn_equipment = (0,1,0,1,1),
+		AI_style = 'hostile',
+		corps_style = 'human',
+		corps_lvl = 3,
+		ignore_damage = False,
+		ignore_water = True, 
+		behavior = 'attack_magic', 
+		attack_were = ('Head','Body','Legs','Feet'),
+		possible_effect = None, 
+		effect_duration = 0, 
+		effect_probability = 0, 
+		message = 'None')
 techID+=1
 ml[5].append(m)
 
@@ -137,20 +489,83 @@ f.close()
 #grot
 
 ml.append([])
-a = attribute(2,2,4,4,3,5,0,0,0,0,0)
-m=monster(techID,'blue naga',(2,4),3,a,'hostile','scrollkeeper',2,False,True, 'attack_magic', ('Head'),'hexed' , 30, 50, 'The blue naga puts a hex on you.')
+m=monster(techID = techID,
+		name = 'blue naga',
+		sprite_pos = (2,4),
+		move_border = 3,
+		attribute_prev = (0,1,2,2,2),
+		worn_equipment = (0,1,0,1,1),
+		AI_style = 'hostile',
+		corps_style = 'scrollkeeper',
+		corps_lvl = 2,
+		ignore_damage = False,
+		ignore_water = True, 
+		behavior = 'attack_magic', 
+		attack_were = ('Head'),
+		possible_effect = 'hexed', 
+		effect_duration = 30,
+		effect_probability = 50,
+		message = 'The blue naga puts a hex on you.')
 techID+=1
 ml[6].append(m)
-a = attribute(4,4,2,2,3,5,0,0,0,0,0)
-m=monster(techID,'red naga',(1,2),3,a,'hostile','human',1,False,True, 'attack_melee', ('Head','Body','Legs','Feet'), 'poisoned', 50, 40, 'Poison runs trough your veins!')
+
+m=monster(techID = techID,
+		name = 'red naga',
+		sprite_pos = (1,2),
+		move_border = 3,
+		attribute_prev = (2,2,0,1,2),
+		worn_equipment = (1,0,0,1,1),
+		AI_style = 'hostile',
+		corps_style = 'human',
+		corps_lvl = 1,
+		ignore_damage = False,
+		ignore_water = True, 
+		behavior = 'attack_melee', 
+		attack_were = ('Head','Body','Legs','Feet'),
+		possible_effect = 'poisoned', 
+		effect_duration = 50,
+		effect_probability = 40,
+		message = 'Poison runs trough your veins!')
 techID+=1
 ml[6].append(m)
-a = attribute(3,4,3,4,4,3,0,0,0,0,0)
-m=monster(techID,'purple blob',(0,5),4,a,'hostile','vanish',5,False,True, 'attack_melee', ('Legs','Feet'), None, 0, 0, 'None')
+
+m=monster(techID = techID,
+		name = 'purple blob',
+		sprite_pos = (0,5),
+		move_border = 4,
+		attribute_prev = (2,2,0,0,1),
+		worn_equipment = (0,0,0,0,0),
+		AI_style = 'hostile',
+		corps_style = 'vanish',
+		corps_lvl = 5,
+		ignore_damage = False,
+		ignore_water = True, 
+		behavior = 'attack_melee', 
+		attack_were = ('Legs','Feet'),
+		possible_effect = None, 
+		effect_duration = 0,
+		effect_probability = 0,
+		message = 'None')
 techID+=1
 ml[6].append(m)
-a = attribute(3,3,4,4,4,4,0,0,0,0,0)
-m=monster(techID,'water spirit',(0,1),2,a,'hostile','vanish',3,False,True, 'attack_melee', ('Legs','Feet'), 'confused', 60, 20, 'The water spirit confuses you.')
+
+m=monster(techID = techID,
+		name = 'water spirit',
+		sprite_pos = (0,1),
+		move_border = 2,
+		attribute_prev = (2,2,0,1,1),
+		worn_equipment = (1,0,0,0,0),
+		AI_style = 'hostile',
+		corps_style = 'vanish',
+		corps_lvl = 3,
+		ignore_damage = False,
+		ignore_water = True, 
+		behavior = 'attack_melee', 
+		attack_were = ('Head','Body','Legs','Feet'),
+		possible_effect = 'confused', 
+		effect_duration = 60,
+		effect_probability = 20,
+		message = 'The water sprit confuses you.')
 techID+=1
 ml[6].append(m)
 
@@ -161,20 +576,83 @@ f.close()
 #lava cave
 
 ml.append([])
-a = attribute(11,12,8,8,10,5,0,0,0,0,0)
-m=monster(techID,'lava monster',(0,8),0,a,'hostile','vanish',2,True,True, 'attack_melee', ('Head','Body','Feet'),None , 0, 0, 'None')
+m=monster(techID = techID,
+		name = 'lava monster',
+		sprite_pos = (0,8),
+		move_border = 2,
+		attribute_prev = (2,2,0,2,2),
+		worn_equipment = (1,0,0,0,0),
+		AI_style = 'hostile',
+		corps_style = 'vanish',
+		corps_lvl = 2,
+		ignore_damage = True,
+		ignore_water = True, 
+		behavior = 'attack_melee', 
+		attack_were = ('Body','Legs','Feet'),
+		possible_effect = None, 
+		effect_duration = 0,
+		effect_probability = 0,
+		message = 'None')
 techID+=1
 ml[7].append(m)
-a = attribute(7,7,10,13,10,6,0,0,0,0,0)
-m=monster(techID,'flame spirit',(0,10),0,a,'hostile','vanish',2,True,True, 'attack_magic', ('Head','Body','Feet'),'immobilized' , 4, 30, 'You can\'t move!')
+
+m=monster(techID = techID,
+		name = 'flame spirit',
+		sprite_pos = (0,10),
+		move_border = 0,
+		attribute_prev = (0,0,2,2,2),
+		worn_equipment = (0,0,0,0,0),
+		AI_style = 'hostile',
+		corps_style = 'vanish',
+		corps_lvl = 2,
+		ignore_damage = True,
+		ignore_water = True, 
+		behavior = 'attack_magic', 
+		attack_were = ('Body','Legs','Feet'),
+		possible_effect = 'immobilized', 
+		effect_duration = 4,
+		effect_probability = 30,
+		message = 'You can\'t move!')
 techID+=1
 ml[7].append(m)
-a = attribute(10,10,7,7,10,5,0,0,0,0,0)
-m=monster(techID,'red blob',(1,3),4,a,'hostile','vanish',5,True,True, 'attack_melee', ('Legs','Feet'),None, 0, 0, 'None')
+
+m=monster(techID = techID,
+		name = 'red blob',
+		sprite_pos = (1,3),
+		move_border = 4,
+		attribute_prev = (2,2,0,0,2),
+		worn_equipment = (0,0,0,0,0),
+		AI_style = 'hostile',
+		corps_style = 'vanish',
+		corps_lvl = 5,
+		ignore_damage = True,
+		ignore_water = True, 
+		behavior = 'attack_melee', 
+		attack_were = ('Legs','Feet'),
+		possible_effect = None, 
+		effect_duration = 0,
+		effect_probability = 0,
+		message = 'None')
 techID+=1
 ml[7].append(m)
-a = attribute(9,9,5,5,10,5,0,0,0,0,0)
-m=monster(techID,'fire bat',(1,10),0,a,'hostile','vanish',2,True,True, 'attack_melee', ('Head','Body'),'confused' , 40, 30, 'The bat\'s screen make you confused!')
+
+m=monster(techID = techID,
+		name = 'fire bat',
+		sprite_pos = (1,10),
+		move_border = 0,
+		attribute_prev = (2,2,0,0,2),
+		worn_equipment = (0,0,0,0,0),
+		AI_style = 'hostile',
+		corps_style = 'vanish',
+		corps_lvl = 2,
+		ignore_damage = True,
+		ignore_water = True, 
+		behavior = 'attack_melee', 
+		attack_were = ('Head','Body'),
+		possible_effect = 'confused', 
+		effect_duration = 40,
+		effect_probability = 30,
+		message = 'The bat\'s screen make you confused!')
 techID+=1
 ml[7].append(m)
 
@@ -185,24 +663,103 @@ f.close()
 #special
 
 ml.append([])
-a = attribute(0,0,0,0,0,1,0,0,0,0,0)
-m=monster(techID,'vase',(0,3),10,a,'flee','miner',5,True,True, 'attack_melee', ('Head','Body','Feet'),None , 0, 0, 'None')
+m=monster(techID = techID,
+		name = 'vase',
+		sprite_pos = (0,3),
+		move_border = 10,
+		attribute_prev = (2,0,2,0,0),
+		worn_equipment = (0,0,0,0,0),
+		AI_style = 'flee',
+		corps_style = 'miner',
+		corps_lvl = 5,
+		ignore_damage = True,
+		ignore_water = True, 
+		behavior = 'attack_melee', 
+		attack_were = ('Legs','Feet'),
+		possible_effect = None, 
+		effect_duration = 0,
+		effect_probability = 0,
+		message = 'None')
 techID+=1
 ml[8].append(m)
-a = attribute(0,0,0,0,0,1,0,0,0,0,0)
-m=monster(techID,'monster vase',(0,3),10,a,'flee','vase',1,True,True, 'attack_melee', ('Head','Body','Feet'),None , 0, 0, 'None')
+
+m=monster(techID = techID,
+		name = 'monster vase',
+		sprite_pos = (0,3),
+		move_border = 10,
+		attribute_prev = (2,0,2,0,0),
+		worn_equipment = (0,0,0,0,0),
+		AI_style = 'flee',
+		corps_style = 'vase',
+		corps_lvl = 5,
+		ignore_damage = True,
+		ignore_water = True, 
+		behavior = 'attack_melee', 
+		attack_were = ('Legs','Feet'),
+		possible_effect = None, 
+		effect_duration = 0,
+		effect_probability = 0,
+		message = 'None')
 techID+=1
 ml[8].append(m)
-a = attribute(3,3,3,3,5,3,0,0,0,0,0)
-m=monster(techID,'vase monster',(0,2),1,a,'hostile','miner',5,True,True, 'attack_random', ('Body','Legs','Feet'),None , 0, 0, 'None')
+
+m=monster(techID = techID,
+		name = 'vase monster',
+		sprite_pos = (0,2),
+		move_border = 1,
+		attribute_prev = (2,2,2,2,2),
+		worn_equipment = (0,0,0,0,0),
+		AI_style = 'hostile',
+		corps_style = 'miner',
+		corps_lvl = 5,
+		ignore_damage = False,
+		ignore_water = True, 
+		behavior = 'attack_random', 
+		attack_were = ('Body','Legs','Feet'),
+		possible_effect = None, 
+		effect_duration = 0,
+		effect_probability = 0,
+		message = 'None')
 techID+=1
 ml[8].append(m)
-a = attribute(0,0,0,0,0,1,0,0,0,0,0)
-m=monster(techID,'sleeping mimic',(1,1),10,a,'flee','mimic',5,True,True, 'attack_melee', ('Head','Body','Legs','Feet'),None , 0, 0, 'None')
+
+m=monster(techID = techID,
+		name = 'sleeping mimic',
+		sprite_pos = (1,1),
+		move_border = 10,
+		attribute_prev = (2,0,2,0,0),
+		worn_equipment = (0,0,0,0,0),
+		AI_style = 'flee',
+		corps_style = 'mimic',
+		corps_lvl = 5,
+		ignore_damage = True,
+		ignore_water = True, 
+		behavior = 'attack_melee', 
+		attack_were = ('Legs','Feet'),
+		possible_effect = None, 
+		effect_duration = 0,
+		effect_probability = 0,
+		message = 'None')
 techID+=1
 ml[8].append(m)
-a = attribute(10,10,10,10,10,5,0,0,0,0,0)
-m=monster(techID,'mimic',(0,7),4,a,'hostile','vanish',99,True,True, 'attack_random', ('Head','Body','Legs','Feet'),None , 0, 0, 'None')
+
+m=monster(techID = techID,
+		name = 'mimic',
+		sprite_pos = (0,7),
+		move_border = 4,
+		attribute_prev = (2,2,2,2,2),
+		worn_equipment = (0,0,0,0,0),
+		AI_style = 'hostile',
+		corps_style = 'vanish',
+		corps_lvl = 99,
+		ignore_damage = True,
+		ignore_water = True, 
+		behavior = 'attack_random', 
+		attack_were = ('Head','Body','Legs','Feet'),
+		possible_effect = None, 
+		effect_duration = 0,
+		effect_probability = 0,
+		message = 'None')
 techID+=1
 ml[8].append(m)
 

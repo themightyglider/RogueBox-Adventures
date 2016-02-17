@@ -7,7 +7,7 @@ basic_path = basic_path.replace('/LIB','')
 sfx_path = basic_path + os.sep + 'AUDIO' + os.sep + 'SFX' + os.sep
 pygame.init()
 clock = pygame.time.Clock()
-sfxlist = {'wasd': pygame.mixer.Sound(sfx_path + 'wasd.ogg'), 'e' : pygame.mixer.Sound(sfx_path + 'e.ogg'), 'b' : pygame.mixer.Sound(sfx_path + 'b.ogg'), 'i' : pygame.mixer.Sound(sfx_path + 'i.ogg'), 'x' : pygame.mixer.Sound(sfx_path + 'x.ogg')}
+sfxlist = {'wasd': pygame.mixer.Sound(sfx_path + 'wasd.ogg'), 'e' : pygame.mixer.Sound(sfx_path + 'e.ogg'), 'b' : pygame.mixer.Sound(sfx_path + 'b.ogg'), 'i' : pygame.mixer.Sound(sfx_path + 'i.ogg'), 'x' : pygame.mixer.Sound(sfx_path + 'x.ogg'), 'f' : pygame.mixer.Sound(sfx_path + 'f.ogg')}
 
 
 def getch(x=640,y=360,sfx=0,mode=0,mouse=1):#x and y are the resolution of the surface
@@ -53,6 +53,9 @@ def getch(x=640,y=360,sfx=0,mode=0,mouse=1):#x and y are the resolution of the s
 					g='b'
 				elif button_out[3] == 1:
 					g='i'
+				elif button_out[4] == 1:
+					g='f'
+					
 			except:
 				None	
 				
@@ -82,6 +85,9 @@ def getch(x=640,y=360,sfx=0,mode=0,mouse=1):#x and y are the resolution of the s
 				
 				if event.key == pygame.K_x or event.key == pygame.K_ESCAPE:
 					g='x'
+					
+				if event.key == pygame.K_f:
+					g='f'
 			
 			if mouse == 1:
 					
@@ -111,6 +117,9 @@ def getch(x=640,y=360,sfx=0,mode=0,mouse=1):#x and y are the resolution of the s
 				
 				if mouse_pos[0] > (534*x)/640 and mouse_pos[0] < (585*x)/640 and mouse_pos[1] > (255*y)/360 and mouse_pos[1] < (307*y)/360 and mouse_press[0] == True:
 					g='x'
+				
+				if mouse_pos[0] > (534*x)/640 and mouse_pos[0] < (586*x)/640 and mouse_pos[1] > (53*y)/360 and mouse_pos[1] < (104*y)/360 and mouse_press[0] == True:
+					g='f'
 					
 		if run > 59:
 			if mode == 1:

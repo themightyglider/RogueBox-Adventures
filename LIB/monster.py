@@ -1,10 +1,15 @@
+from attribute import attribute
+
 # This file contains the monster-class:
 # It has: 
 # a techID to identify the specific monster
 # a name
 # a sprite_pos to pick the right image when rendering
 # a value of move border between 0 and 9: 0 means the monster can move every turn 9 means the monster can move never
-# a attribute object
+# a integer that represents the monsters lvl
+# a attribute_prev object that vontains integers that stand for the importence aspecial attribute has to this monstere when the attribute points are given. order: (p_strange,p_defense,m_strange,m_defense,max_lp)
+# a basic attribure object
+# a worn_equipment object wich is a list if bools standing for equipment this monster type can wear. Order: (melee weapon,magic_weapon,armor,necklance/amulet/talisman,ring)
 # a AI_style that says how the monster acts toward the player. possible styles are: 'hostile', 'flee' and 'ignore'
 # a crops stile variable that say what kind of crops they maybe let drop when they die. for posible values look at rl.py
 # a crops level variable that says how many items the corps can contain.  possible values are between 1 and 7
@@ -18,14 +23,17 @@
 
 class monster():
 	
-	def __init__(self,techID, name, sprite_pos, move_border, attribute, AI_style, corps_style, corps_lvl, ignore_damage, ignore_water, behavior, attack_were, possible_effect, effect_duration, effect_probability, message):
+	def __init__(self,techID, name, sprite_pos, move_border, attribute_prev,worn_equipment, AI_style, corps_style, corps_lvl, ignore_damage, ignore_water, behavior, attack_were, possible_effect, effect_duration, effect_probability, message):
 		
 		self.techID = techID
 		self.name = name
 		self.sprite_pos = sprite_pos
 		self.move_border = move_border
-		self.attribute = attribute
-		self.lp = self.attribute.max_lp
+		self.lvl = 0
+		self.attribute_prev = attribute_prev
+		self.basic_attribute = attribute(2,2,2,2,2,1,2)
+		self.lp = self.basic_attribute.max_lp
+		self.worn_equipment = worn_equipment
 		self.AI_style = AI_style
 		self.corps_style = corps_style
 		self.corps_lvl = corps_lvl

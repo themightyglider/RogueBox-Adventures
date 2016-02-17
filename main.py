@@ -69,7 +69,18 @@ class g_screen():
 		
 		global monitor
 		
+		self.fire_mode = 0 #0: normal, 1: fire
 		self.win_mode = mode
+		
+		self.hit_matrix = [[0,0,0,0,0,0,0,0,0],
+						   [0,0,0,0,0,0,0,0,0],
+						   [0,0,0,0,0,0,0,0,0],
+						   [0,0,0,0,0,0,0,0,0],
+						   [0,0,0,0,0,0,0,0,0],
+						   [0,0,0,0,0,0,0,0,0],
+						   [0,0,0,0,0,0,0,0,0],
+						   [0,0,0,0,0,0,0,0,0],
+						   [0,0,0,0,0,0,0,0,0],]
 		
 		pygame.init()
 		
@@ -112,6 +123,67 @@ class g_screen():
 			self.screen.blit(i,(0,0))
 			pygame.display.flip()
 			getch(640,360,mode=1)
+			
+			display_path = basic_path +os.sep + 'GRAPHIC' + os.sep + 'DISPLAY' + os.sep
+			i_name = display_path + 'lrsf' + '.png'
+			i = pygame.image.load(i_name)
+			i = pygame.transform.scale(i,(self.displayx,self.displayy))
+			self.screen.blit(i,(0,0))
+			pygame.display.flip()
+			getch(640,360,mode=1)
+	
+	def reset_hit_matrix(self):
+		
+		self.hit_matrix = [[0,0,0,0,0,0,0,0,0],
+						   [0,0,0,0,0,0,0,0,0],
+						   [0,0,0,0,0,0,0,0,0],
+						   [0,0,0,0,0,0,0,0,0],
+						   [0,0,0,0,0,0,0,0,0],
+						   [0,0,0,0,0,0,0,0,0],
+						   [0,0,0,0,0,0,0,0,0],
+						   [0,0,0,0,0,0,0,0,0],
+						   [0,0,0,0,0,0,0,0,0],]
+	
+	def write_hit_matrix(self,x,y,style):
+		
+		#style: 0:nothing
+		#		1:fire_path
+		#		2:fire_path_monster
+		#		3:miss
+		#		4:hit
+		#		5:critical
+		
+		xx = x - player.pos[0] + 4
+		yy = y - player.pos[1] + 4
+		
+		try:
+			self.hit_matrix[yy][xx] = style
+		except:
+			None
+	
+	def render_hits(self):
+		
+		s = pygame.Surface((640,360))
+		s.fill((255,0,255))
+		
+		for y in range(0,9):
+			for x in range(0,9):
+					
+				if self.hit_matrix[y][x] == 1:
+					s.blit(gra_files.gdic['display'][11],(x*32,y*32))
+				elif self.hit_matrix[y][x] == 2:
+					s.blit(gra_files.gdic['display'][12],(x*32,y*32))
+				elif self.hit_matrix[y][x] == 3:
+					s.blit(gra_files.gdic['display'][13],(x*32,y*32))
+				elif self.hit_matrix[y][x] == 4:
+					s.blit(gra_files.gdic['display'][14],(x*32,y*32))
+				elif self.hit_matrix[y][x] == 5:
+					s.blit(gra_files.gdic['display'][15],(x*32,y*32))
+
+		s.set_colorkey((255,0,255),pygame.RLEACCEL)	
+		s = s.convert_alpha()
+		return s
+		
 	
 	def re_init(self): # For changing screenmode
 		
@@ -197,12 +269,12 @@ class g_screen():
 							while run:
 								
 								try:
-									yy = ((ry*c)/round(distance))
+									yy = ((ry*c)/distance)
 								except:
 									yy = 1
 						
 								try:
-									xx = ((rx*c)/round(distance))
+									xx = ((rx*c)/distance)
 								except:
 									xx = 1
 								
@@ -249,10 +321,14 @@ class g_screen():
 											shoestring = player.gender + '_' + player.inventory.wearing['Feet'].material + '_' + player.inventory.wearing['Feet'].classe
 											s.blit(gra_files.gdic['char'][shoestring],(start_pos+((view_x-player.pos[0])*32),start_pos+((view_y-player.pos[1])*32)))
 						
-										if player.inventory.wearing['Hold'] != player.inventory.nothing:
-											weaponstring = 'WEAPONS_' + player.inventory.wearing['Hold'].material + '_' + player.inventory.wearing['Hold'].classe
+										if player.inventory.wearing['Hold(R)'] != player.inventory.nothing:
+											weaponstring = 'WEAPONS_' + player.inventory.wearing['Hold(R)'].material + '_' + player.inventory.wearing['Hold(R)'].classe
 											s.blit(gra_files.gdic['char'][weaponstring],(start_pos+((view_x-player.pos[0])*32),start_pos+((view_y-player.pos[1])*32)))
-								
+										
+										if player.inventory.wearing['Hold(L)'] != player.inventory.nothing:
+											weaponstring = 'WEAPONS_' + player.inventory.wearing['Hold(L)'].material + '_' + player.inventory.wearing['Hold(L)'].classe
+											s.blit(gra_files.gdic['char'][weaponstring],(start_pos+((view_x-player.pos[0])*32),start_pos+((view_y-player.pos[1])*32)))					
+										
 								if c >= radius or world.maplist[player.pos[2]][player.on_map].tilemap[view_y][view_x].transparency == False:
 									run = False
 								else:
@@ -262,11 +338,16 @@ class g_screen():
 						s.blit(gra_files.gdic['tile32'][0][3],(start_pos+((x-player.pos[0])*32),start_pos+((y-player.pos[1])*32)))
 					else:
 						s.blit(gra_files.gdic['tile32'][0][3],(start_pos+((x-player.pos[0])*32),start_pos+((y-player.pos[1])*32)))
-						
+					
 				except:
 					None	
-					 
-		s.blit(gra_files.gdic['display'][0],(0,0)) #render gui
+		
+		s.blit(self.render_hits(),(0,0))
+		
+		if self.fire_mode == 0:			 
+			s.blit(gra_files.gdic['display'][0],(0,0)) #render gui
+		else:
+			s.blit(gra_files.gdic['display'][10],(0,0))
 		
 		#render lvl info
 		
@@ -283,7 +364,10 @@ class g_screen():
 		s.blit(depth_image,(300,50))
 		
 		if game_options.mousepad == 1:
-			s.blit(gra_files.gdic['display'][8],(480,0)) #render mouse pad
+			if self.fire_mode == 0:
+				s.blit(gra_files.gdic['display'][8],(480,0)) #render mouse pad
+			else:
+				s.blit(gra_files.gdic['display'][9],(480,0))
 		else:
 			s_help = pygame.Surface((160,360))
 			s_help.fill((48,48,48))
@@ -383,7 +467,7 @@ class g_screen():
 			s_help = pygame.Surface((640,360))
 			s_help.fill((48,48,48))
 			s_help.blit(s,(80,0))
-			s = s_help
+			s = s_help		
 		
 		s = pygame.transform.scale(s,(self.displayx,self.displayy))
 		self.screen.blit(s,(0,0))
@@ -2077,7 +2161,7 @@ class map():
 						elif direction == 1:
 							direction = 0
 	
-	def spawn_monsters(self):
+	def spawn_monsters(self,depth):
 		#This function spawns monsters on the map
 		
 		if self.map_type == 'elfish_fortress':
@@ -2118,22 +2202,67 @@ class map():
 			
 		for k in range(0,monster_max):
 			
-			try:
-				ran = random.randint(0,len(ml.mlist[self.map_type])-1)
-				ran2 = random.randint(0,len(spawnpoints))
-				ran3 = random.randint(0,len(ml.mlist['civilian'])-1)
+			ran = random.randint(0,len(ml.mlist[self.map_type])-1)
+			ran2 = random.randint(0,len(spawnpoints)-1)
+			ran3 = random.randint(0,len(ml.mlist['civilian'])-1)
 				
-				if self.tilemap[spawnpoints[ran2][1]][spawnpoints[ran2][0]].civilisation == False:#spawn a wild monster
-					self.npcs[spawnpoints[ran2][1]][spawnpoints[ran2][0]] = deepcopy(ml.mlist[self.map_type][ran])#deepcopy is used that every monster on the map is saved seperate
-					if player.difficulty == 4:
-						self.npcs[spawnpoints[ran2][1]][spawnpoints[ran2][0]].AI_style = 'ignore'
+			if self.tilemap[spawnpoints[ran2][1]][spawnpoints[ran2][0]].civilisation == False:#spawn a wild monster
+				self.npcs[spawnpoints[ran2][1]][spawnpoints[ran2][0]] = deepcopy(ml.mlist[self.map_type][ran])#deepcopy is used that every monster on the map is saved seperate
+				self.set_monster_strange(spawnpoints[ran2][0],spawnpoints[ran2][1],depth)
 						
-				else:#spawn a civilian
-					self.npcs[spawnpoints[ran2][1]][spawnpoints[ran2][0]] = deepcopy(ml.mlist['civilian'][ran3])
-					
-			except:
-				None
+			else:#spawn a civilian
+				self.npcs[spawnpoints[ran2][1]][spawnpoints[ran2][0]] = deepcopy(ml.mlist['civilian'][ran3])
+				self.set_monster_strange(spawnpoints[ran2][1],spawnpoints[ran2][1],depth)
 	
+	def set_monster_strange(self,x,y,z):
+		
+		if self.npcs[y][x] != 0:
+			
+			ran = random.randint(1,3)
+		
+			monster_lvl = z + ran
+			self.npcs[y][x].lvl = monster_lvl
+			
+			attribute_list =[] 
+		
+			al = ('p_strange','p_defense','m_strange','m_defense','health')
+			a_nr = 0
+		
+			for c in self.npcs[y][x].attribute_prev:
+				for h in range(0,c):
+					attribute_list.append(al[a_nr])
+				a_nr+=1
+		
+			for i in range(0,monster_lvl):
+				choice = al[random.randint(0,len(al)-1)]
+				
+				if choice == 'p_strange':
+					self.npcs[y][x].basic_attribute.p_strange +=3
+				elif choice == 'p_defense':
+					self.npcs[y][x].basic_attribute.p_defense +=3
+				elif choice == 'm_strange':
+					self.npcs[y][x].basic_attribute.m_strange +=3
+				elif choice == 'm_defense':
+					self.npcs[y][x].basic_attribute.m_defense +=3
+				elif choice == 'health':
+					self.npcs[y][x].basic_attribute.max_lp +=1
+					self.npcs[y][x].lp = self.npcs[y][x].basic_attribute.max_lp	
+			
+			el = [['spear','sword','axe','hammer'],['rune','wand','rune staff','artefact'],['armor','armor'],['necklace','amulet','talisman'],['ring','ring']]
+			e_nr = 0
+			
+			for q in range(0,len(el)-1):
+				ran = random.randint(0,len(el[q])-1)
+				
+				if self.npcs[y][x].worn_equipment[q] == 1:
+					help_equipment = item_wear(el[q][ran],random.randint(0,z),random.randint(-2,2))
+					
+					self.npcs[y][x].basic_attribute.p_strange += help_equipment.attribute.p_strange
+					self.npcs[y][x].basic_attribute.p_defense += help_equipment.attribute.p_defense
+					self.npcs[y][x].basic_attribute.m_strange += help_equipment.attribute.m_strange
+					self.npcs[y][x].basic_attribute.m_defense += help_equipment.attribute.m_defense
+					self.npcs[y][x].basic_attribute.luck += help_equipment.attribute.luck
+				
 	def AI_move(self):
 		#This function moves all monsters that are 7 or less fields away from the player.
 		#It dosn't move all monsters to save performance
@@ -2365,7 +2494,7 @@ class map():
 						if coin < 65: #there is a chance of 65% that a item becomes a eqipment item
 							
 							material = random.randint(0,20) #all materials are allowed
-							classes = ('spear','sword','axe','hammer','shoes','cuisse','helmet','armor','ward','rune','rune staff','artefact','ring','amulet','necklace','talisman','pickaxe')
+							classes = ('spear','sword','axe','hammer','shoes','cuisse','helmet','armor','wand','rune','rune staff','artefact','ring','amulet','necklace','talisman','pickaxe')
 							kind = classes[random.randint(0,len(classes)-1)]#all classes of objects are allowed
 							plus = random.randint(-2,+2)# a plus between -2 and +2 is possible
 							state = random.randint(10,85)#the state of this used objects will allways be between 10% and 80%
@@ -2482,6 +2611,7 @@ class map():
 						if yy != player.pos[1] or xx!= player.pos[0]:
 							if self.npcs[yy][xx] == 0 and self.tilemap[yy][xx].move == True and self.tilemap[yy][xx].damage == 0:
 								self.npcs[yy][xx] = deepcopy(ml.mlist['special'][2])#set vase monsters
+								self.set_monster_strange(xx,yy,player.pos[2])
 								if player.difficulty == 4:
 									self.npcs[yy][xx].AI_style = 'ignore'
 								
@@ -2521,6 +2651,7 @@ class map():
 		
 		if self.npcs[y][x].corps_style == 'mimic':
 			self.npcs[y][x] = deepcopy(ml.mlist['special'][4])#set a mimic
+			self.set_monster_strange(x,y,player.pos[2])
 			if player.difficulty == 4:
 				self.npcs[y][x].AI_style = 'ignore'
 		else:
@@ -2565,15 +2696,21 @@ class map():
 		for yy in range(y-3,y+4):
 			for xx in range(x-3,x+4):
 				
-				if self.npcs[yy][xx] != 0:
+				try:
+					if self.npcs[yy][xx] != 0:
 					
-					if self.npcs[yy][xx].techID == ml.mlist['elfish_fortress'][0].techID:
-						self.npcs[yy][xx] = deepcopy(ml.mlist['angry_elf'][0])
-				
-					if self.npcs[yy][xx].techID == ml.mlist['elfish_fortress'][1].techID:
-						self.npcs[yy][xx] = deepcopy(ml.mlist['angry_elf'][1])
+						if self.npcs[yy][xx].techID == ml.mlist['elfish_fortress'][0].techID:
+							self.npcs[yy][xx] = deepcopy(ml.mlist['angry_elf'][0])
+							self.set_monster_strange(xx,yy,player.pos[2])
 					
-					#add more here
+						if self.npcs[yy][xx].techID == ml.mlist['elfish_fortress'][1].techID:
+							self.npcs[yy][xx] = deepcopy(ml.mlist['angry_elf'][1])
+							self.set_monster_strange(xx,yy,player.pos[2])
+						
+						#go on here
+							
+				except:
+					None
 	
 	def time_pass(self):
 		#This function refresches the map for every day that past since players last visit... make plants growing ect.
@@ -2927,7 +3064,7 @@ class map():
 			
 				self.last_visit = time.day_total #change the day of last visit to today to prevent the map of changed a second time for this day
 			
-				self.spawn_monsters()#spawn new monsters 
+				self.spawn_monsters(player.pos[2])#spawn new monsters 
 			
 			for i in range(0,len(player.inventory.food)):#let the food rot in the players inventory
 			
@@ -2996,7 +3133,7 @@ class map():
 		
 		self.containers[y][x] = container(inventory)
 	
-	def make_special_monsters(self, min_no, max_no, on_tile, monster_type='vase'):
+	def make_special_monsters(self, min_no, max_no, on_tile, depth, monster_type='vase'):
 		
 		size = (max_map_size*max_map_size)/(50*50)
 		
@@ -3046,7 +3183,7 @@ class map():
 					
 						if container_type == 'chest':
 					
-							classes = ['sword', 'axe', 'hammer', 'spear', 'helmet', 'armor', 'cuisse', 'shoes', 'ward', 'rune', 'rune staff', 'artefact', 'amulet', 'ring', 'talisman', 'necklace', 'pickaxe']
+							classes = ['sword', 'axe', 'hammer', 'spear', 'helmet', 'armor', 'cuisse', 'shoes', 'wand', 'rune', 'rune staff', 'artefact', 'amulet', 'ring', 'talisman', 'necklace', 'pickaxe']
 					
 							class_num = random.randint(0,len(classes)-1)
 							material = random.randint(0,20)
@@ -3061,7 +3198,7 @@ class map():
 					
 						elif container_type == 'remains':
 						
-							classes = ['sword', 'axe', 'hammer', 'spear', 'helmet', 'armor', 'cuisse', 'shoes', 'ward', 'rune', 'rune staff', 'artefact', 'amulet', 'ring', 'talisman', 'necklace', 'pickaxe']
+							classes = ['sword', 'axe', 'hammer', 'spear', 'helmet', 'armor', 'cuisse', 'shoes', 'wand', 'rune', 'rune staff', 'artefact', 'amulet', 'ring', 'talisman', 'necklace', 'pickaxe']
 						
 							class_num = random.randint(0,len(classes)-1)
 							material = random.randint(0,20)
@@ -3166,7 +3303,7 @@ class map():
 		self.tilemap[starty+1][startx].damage_mes = 'Your wounds are cured.'
 		self.tilemap[starty+1][startx].build_here = False
 		
-		#go on here
+
 		
 class world_class():
 	
@@ -3341,7 +3478,7 @@ class world_class():
 		
 		m.make_shops()
 		
-		m.spawn_monsters()
+		m.spawn_monsters(3)
 							
 		self.maplist[layer][cave_name] = m
 		
@@ -3600,7 +3737,7 @@ class world_class():
 						m.tilemap[y][x].civilisation = False #this is no players fontain 
 		
 		m.exchange(tl.tlist['elfish'][5],tl.tlist['elfish'][0])
-		m.spawn_monsters()
+		m.spawn_monsters(6)
 		
 		self.maplist[layer][map_name] = m
 		
@@ -3647,7 +3784,7 @@ class world_class():
 			except:
 				None
 		
-		m.spawn_monsters()
+		m.spawn_monsters(9)
 							
 		self.maplist[layer][cave_name] = m		
 		
@@ -3751,10 +3888,10 @@ class world_class():
 						m.tilemap[pos[1]+1][y] = deepcopy(tl.tlist['global_caves'][ran])
 			
 			m.make_containers(1,2,tl.tlist['global_caves'][0],2,5,'chest')#set some chests
-			m.make_special_monsters(0,1,tl.tlist['global_caves'][0],'mimic')#maybe set some mimics
-			m.make_special_monsters(15,25,tl.tlist['global_caves'][0],'vase')#set some vases
+			m.make_special_monsters(0,1,tl.tlist['global_caves'][0],d,'mimic')#maybe set some mimics
+			m.make_special_monsters(15,25,tl.tlist['global_caves'][0],d,'vase')#set some vases
 			
-			m.spawn_monsters()
+			m.spawn_monsters(d)
 							
 			self.maplist[d][cave_name] = m
 							
@@ -3834,7 +3971,7 @@ class world_class():
 		
 		m.set_frame(tl.tlist['functional'][0])
 		
-		m.spawn_monsters()
+		m.spawn_monsters(0)
 					
 		self.maplist[0][name] = m
 		
@@ -3912,10 +4049,9 @@ class world_class():
 			
 class mob():
 	
-	def __init__(self, name, char, on_map, attribute, pos =[40,40,0],glob_pos=[0,0]):
+	def __init__(self, name, on_map, attribute, pos =[40,40,0],glob_pos=[0,0]):
 		
 		self.name = name
-		self.char = char
 		self.on_map = on_map
 		self.attribute = attribute
 		self.lp = attribute.max_lp
@@ -3954,7 +4090,7 @@ class mob():
 			
 			if world.maplist[self.pos[2]][self.on_map].tilemap[self.pos[1]+y][self.pos[0]+x].destroy != False: #for digging
 				
-				if self.attribute.pickaxe_power + player.inventory.wearing['Hold'].attribute.pickaxe_power >= world.maplist[self.pos[2]][self.on_map].tilemap[self.pos[1]+y][self.pos[0]+x].destroy:
+				if self.attribute.pickaxe_power + player.inventory.wearing['Hold(R)'].attribute.pickaxe_power >= world.maplist[self.pos[2]][self.on_map].tilemap[self.pos[1]+y][self.pos[0]+x].destroy:
 					if self == player:
 						message.add(world.maplist[self.pos[2]][self.on_map].tilemap[self.pos[1]+y][self.pos[0]+x].move_mes)
 						
@@ -3976,19 +4112,19 @@ class mob():
 							
 						if world.maplist[self.pos[2]][self.on_map].tilemap[self.pos[1]+y][self.pos[0]+x].techID == tl.tlist['building'][3].techID: #this is a closed door
 							world.maplist[self.pos[2]][self.on_map].countdowns.append(countdown('door', self.pos[0]+x, self.pos[1]+y,3))
-							player.inventory.wearing['Hold'].defensibility += 1 #open doors dosn't damage your tool
+							player.inventory.wearing['Hold(R)'].defensibility += 1 #open doors dosn't damage your tool
 							
 					world.maplist[self.pos[2]][self.on_map].tilemap[self.pos[1]+y][self.pos[0]+x] = deepcopy(world.maplist[self.pos[2]][self.on_map].tilemap[self.pos[1]+y][self.pos[0]+x].replace)
 					
-					if player.inventory.wearing['Hold'] != player.inventory.nothing:
+					if player.inventory.wearing['Hold(R)'] != player.inventory.nothing:
 					
-						player.inventory.wearing['Hold'].take_damage()
+						player.inventory.wearing['Hold(R)'].take_damage()
 					
-						if player.inventory.wearing['Hold'].state > 0:
-							player.inventory.wearing['Hold'].set_name()
+						if player.inventory.wearing['Hold(R)'].state > 0:
+							player.inventory.wearing['Hold(R)'].set_name()
 						else:
 							message.add('Your tool breaks into pieces.')
-							player.inventory.wearing['Hold'] = player.inventory.nothing
+							player.inventory.wearing['Hold(R)'] = player.inventory.nothing
 					
 				else:
 					if self == player:
@@ -4001,7 +4137,7 @@ class mob():
 				
 			if world.maplist[self.pos[2]][self.on_map].tilemap[self.pos[1]+y][self.pos[0]+x].techID == tl.tlist['local'][11].techID or world.maplist[self.pos[2]][self.on_map].tilemap[self.pos[1]+y][self.pos[0]+x].techID == tl.tlist['local'][12].techID or world.maplist[self.pos[2]][self.on_map].tilemap[self.pos[1]+y][self.pos[0]+x].techID == tl.tlist['local'][13].techID or world.maplist[self.pos[2]][self.on_map].tilemap[self.pos[1]+y][self.pos[0]+x].techID == tl.tlist['misc'][14].techID: #if there is a tree on this place
 				
-				if player.inventory.wearing['Hold'].classe == 'axe': #if player has a axe in his hand
+				if player.inventory.wearing['Hold(R)'].classe == 'axe': #if player has a axe in his hand
 										
 					if world.maplist[self.pos[2]][self.on_map].tilemap[self.pos[1]+y][self.pos[0]+x].techID == tl.tlist['local'][11].techID: #this is a young tree
 						mes = player.inventory.materials.add('wood',1)
@@ -4017,13 +4153,13 @@ class mob():
 					
 					world.maplist[self.pos[2]][self.on_map].tilemap[self.pos[1]+y][self.pos[0]+x] = deepcopy(world.maplist[self.pos[2]][self.on_map].tilemap[self.pos[1]+y][self.pos[0]+x].replace) #let the tree dissappear
 					
-					player.inventory.wearing['Hold'].take_damage()
+					player.inventory.wearing['Hold(R)'].take_damage()
 					
-					if player.inventory.wearing['Hold'].state > 0:
-						player.inventory.wearing['Hold'].set_name()
+					if player.inventory.wearing['Hold(R)'].state > 0:
+						player.inventory.wearing['Hold(R)'].set_name()
 					else:
 						message.add('Your axe breaks into pices.')
-						player.inventory.wearing['Hold'] = player.inventory.nothing		
+						player.inventory.wearing['Hold(R)'] = player.inventory.nothing		
 						
 					return False
 					
@@ -4355,7 +4491,7 @@ class mob():
 								items = (il.ilist['misc'][14], il.ilist['misc'][44], item_wear('axe',0,0), item_wear('pickaxe',0,0))
 								final_choice = screen.get_choice('What do you want to prodcuce exactly?', ('Fishing rod','Torch','Axe','Pickaxe'),False)
 							elif gc == 1: #make a weapon
-								items = (item_wear('spear',0,0), item_wear('sword',0,0), item_wear('hammer',0,0), item_wear('ward',0,0), item_wear('rune',0,0), item_wear('rune staff',0,0), item_wear('artefact',0,0))
+								items = (item_wear('spear',0,0), item_wear('sword',0,0), item_wear('hammer',0,0), item_wear('wand',0,0), item_wear('rune',0,0), item_wear('rune staff',0,0), item_wear('artefact',0,0))
 							elif gc == 2: #make some armor
 								items = (item_wear('shoes',0,0), item_wear('cuisse',0,0), item_wear('helmet',0,0), item_wear('armor',0,0))
 								final_choice = screen.get_choice('What do you want to prodcuce?', ('Shoes','Cuisse','Helmet','Armor'), False)
@@ -4500,7 +4636,7 @@ class mob():
 								final_choice = screen.get_choice('What do you want to procuce exactly?', ('Axe', 'Pickaxe'), False)
 								items = (item_wear('axe',material,0), item_wear('pickaxe',material,0)) 
 							elif gc == 1: #make a weapon
-								items = (item_wear('spear',material,0), item_wear('sword',material,0), item_wear('hammer',material,0), item_wear('ward',material,0), item_wear('rune',material,0), item_wear('rune staff',material,0), item_wear('artefact',material,0))
+								items = (item_wear('spear',material,0), item_wear('sword',material,0), item_wear('hammer',material,0), item_wear('wand',material,0), item_wear('rune',material,0), item_wear('rune staff',material,0), item_wear('artefact',material,0))
 							elif gc == 2: #make some armor
 								final_choice = screen.get_choice('What do you want to procuce exactly?', ('Shoes', 'Cuisse', 'Helmet', 'Armor'), False)
 								items = (item_wear('shoes',material,0), item_wear('cuisse',material,0), item_wear('helmet',material,0), item_wear('armor',material,0))
@@ -4681,7 +4817,7 @@ class mob():
 					if judgement == True:
 						
 						cursed_items = 0
-						bodyparts = ('Hold', 'Head', 'Body', 'Legs', 'Feet', 'Hand', 'Neck')
+						bodyparts = ('Hold(R)', 'Hold(L)', 'Head', 'Body', 'Legs', 'Feet', 'Hand', 'Neck')
 						
 						for i in bodyparts:#check if player wears some cursed equipment
 							
@@ -4705,7 +4841,7 @@ class mob():
 							
 						elif cursed_items > 0:#player has some cursed items
 							
-							bodyparts = ('Hold', 'Head', 'Body', 'Legs', 'Feet', 'Hand', 'Neck')
+							bodyparts = ('Hold(R)', 'Hold(L)', 'Head', 'Body', 'Legs', 'Feet', 'Hand', 'Neck')
 							
 							for j in bodyparts:
 								
@@ -4724,7 +4860,7 @@ class mob():
 					else: 
 						
 						uncursed_items = 0
-						bodyparts = ('Hold', 'Head', 'Body', 'Legs', 'Feet', 'Hand', 'Neck')
+						bodyparts = ('Hold(R)', 'Hold(L)', 'Head', 'Body', 'Legs', 'Feet', 'Hand', 'Neck')
 						
 						for i in bodyparts:#check if player wears some cursed equipment
 							
@@ -4750,7 +4886,7 @@ class mob():
 				
 				elif ui == 'b':
 					
-					bodyparts = ('Hold', 'Head', 'Body', 'Legs', 'Feet', 'Hand', 'Neck')
+					bodyparts = ('Hold(R)', 'Hold(L)', 'Head', 'Body', 'Legs', 'Feet', 'Hand', 'Neck')
 					
 					for i in bodyparts:
 						
@@ -4857,20 +4993,19 @@ class mob():
 			
 class player_class(mob):
 	
-	def __init__(self, name, char, on_map, attribute, inventory, pos =[10,10,0]):
+	def __init__(self, name, on_map, attribute, inventory, pos =[10,10,0]):
 		
 		lname = basic_path + os.sep + 'SAVE' + os.sep + 'player.data'
 		
 		try:
 			
-			mob.__init__(self, name, char, on_map, attribute, pos)
+			mob.__init__(self, name, on_map, attribute, pos)
 			
 			f = file(lname, 'r')
 			screen.render_load(7)
 			temp = p.load(f)
 			
 			self.name = temp.name
-			self.char = temp.char
 			self.on_map = temp.on_map
 			
 			self.gender = temp.gender
@@ -5171,17 +5306,17 @@ class player_class(mob):
 								world.maplist[i]['local_0_0'].npcs[y][x].AI_style = 'ignore'
 					
 			
-			mob.__init__(self, name, char, on_map, attribute, pos)
+			mob.__init__(self, name, on_map, attribute, pos)
 		
 			self.inventory = inventory
+			
+			self.xp = 0
+			self.lvl = 0
 			
 			self.buffs = buffs()
 			
 			self.pos[0] = world.startx
 			self.pos[1] = world.starty
-			
-			self.xp = 0
-			self.lvl = 0
 			
 			screen.render_load(5)
 			f = file(lname, 'w')
@@ -5193,32 +5328,67 @@ class player_class(mob):
 		ui = getch(screen.displayx,screen.displayy,game_options.sfxmode,game_options.turnmode,mouse=game_options.mousepad)
 		
 		if ui == 'w':
-			self.move(0,-1)
-			time.tick()
+			if screen.fire_mode == 0:
+				self.move(0,-1)
+				time.tick()
+			else:
+				self.player_fire((0,-1))
+				screen.fire_mode = 0
+				time.tick()
 			
 		if ui == 's':
-			self.move(0,1)
-			time.tick()
+			if screen.fire_mode == 0:
+				self.move(0,1)
+				time.tick()
+			else:
+				self.player_fire((0,1))
+				screen.fire_mode = 0
+				time.tick()
 			
 		if ui == 'a':
-			self.move(-1,0)
-			time.tick()
+			if screen.fire_mode == 0:
+				self.move(-1,0)
+				time.tick()
+			else:
+				self.player_fire((-1,0))
+				screen.fire_mode = 0
+				time.tick()
 			
 		if ui == 'd':
-			self.move(1,0)
-			time.tick()
+			if screen.fire_mode == 0:
+				self.move(1,0)
+				time.tick()
+			else:
+				self.player_fire((1,0))
+				screen.fire_mode = 0
+				time.tick()
 			
 		if ui == 'e':
-			self.enter()
-			time.tick()
+			if screen.fire_mode == 0:
+				self.enter()
+				time.tick()
 		
 		if ui == 'i':
-			self.inventory.inv_user_interaction()
-			time.tick()
+			if screen.fire_mode == 0:
+				self.inventory.inv_user_interaction()
+				time.tick()
 			
 		if ui == 'b':
-			self.built()
-			time.tick()
+			if screen.fire_mode == 0:
+				self.built()
+				time.tick()
+		
+		if ui == 'f':
+			if screen.fire_mode == 0:
+				if player.inventory.wearing['Hold(L)'] != player.inventory.nothing:
+					screen.fire_mode = 1
+					message.add('You channelise your magic powers.')
+					time.tick()
+				else:
+					message.add('You need a magic weapon.')
+			else:
+				screen.fire_mode = 0
+				time.tick()
 			
 		if ui == 'none':
 			time.tick()
@@ -5227,6 +5397,42 @@ class player_class(mob):
 		if ui == 'x':
 			screen.render_brake()
 			
+	def lvl_up(self):
+		
+		self.lvl += 1
+		self.xp -= 100
+		
+		choices = []
+		
+		st_string = 'Strange(' + str(self.attribute.p_strange) + ' -> ' + str(self.attribute.p_strange+3) +')'
+		choices.append(st_string)
+		
+		sk_string = 'Skill(' + str(self.attribute.p_defense) + ' -> ' + str(self.attribute.p_defense+3) +')'
+		choices.append(sk_string)
+		
+		po_string = 'Power(' + str(self.attribute.m_strange) + ' -> ' + str(self.attribute.m_strange+3) +')'
+		choices.append(po_string)
+		
+		wi_string = 'Will(' + str(self.attribute.m_defense) + ' -> ' + str(self.attribute.m_defense+3) +')'
+		choices.append(wi_string)
+		
+		if self.attribute.max_lp < 20:
+			he_string = 'Health(' + str(self.attribute.max_lp) + ' -> ' + str(self.attribute.max_lp+1) +')'
+			choices.append(he_string)
+		
+		c = screen.get_choice('~*Level up! Please choose an attribute.*~',choices,False)
+		
+		if c == 0:
+			self.attribute.p_strange += 3
+		elif c == 1:
+			self.attribute.p_defense += 3
+		elif c == 2:
+			self.attribute.m_strange += 3
+		elif c == 3:
+			self.attribute.m_defense += 3
+		else:
+			self.attribute.max_lp += 1
+		
 	def built(self):
 		
 		style = 'wall'
@@ -5519,7 +5725,7 @@ class player_class(mob):
 			bodypart = world.maplist[self.pos[2]][self.on_map].npcs[y][x].attack_were[random.randint(0,len(world.maplist[self.pos[2]][self.on_map].npcs[y][x].attack_were))-1]
 			
 			monster_strange  = 0
-			for i in range(0,world.maplist[self.pos[2]][self.on_map].npcs[y][x].attribute.p_strange + self.pos[2]):
+			for i in range(0,world.maplist[self.pos[2]][self.on_map].npcs[y][x].basic_attribute.p_strange + self.pos[2]):
 				 monster_strange += random.randint(1,6)
 				 
 			player_defense = 0
@@ -5533,15 +5739,16 @@ class player_class(mob):
 				
 			if attack_success == False:#give the monster a chance to have luck and hit the player
 				chance = random.randint(0,25)
-				if chance < world.maplist[self.pos[2]][self.on_map].npcs[y][x].attribute.luck:
+				if chance < world.maplist[self.pos[2]][self.on_map].npcs[y][x].basic_attribute.luck:
 					attack_success = True
 					
 			if attack_success == True:
 				
 				chance = random.randint(0,25)
 				
-				if chance < world.maplist[self.pos[2]][self.on_map].npcs[y][x].attribute.luck:#monster hits critical
+				if chance < world.maplist[self.pos[2]][self.on_map].npcs[y][x].basic_attribute.luck:#monster hits critical
 					message_string = 'A ' + world.maplist[self.pos[2]][self.on_map].npcs[y][x].name + ' hits your ' + bodypart.lower() + ' critical!'
+					screen.write_hit_matrix(player.pos[0],player.pos[1],5)
 					message.add(message_string)
 					player.lp -= 4
 					if self.inventory.wearing[bodypart] != self.inventory.nothing:
@@ -5551,6 +5758,7 @@ class player_class(mob):
 				else:
 					message_string = 'A ' + world.maplist[self.pos[2]][self.on_map].npcs[y][x].name + ' hits your ' + bodypart.lower() + '!'
 					message.add(message_string)
+					screen.write_hit_matrix(player.pos[0],player.pos[1],4)
 					player.lp -= 2
 					if self.inventory.wearing[bodypart] != self.inventory.nothing:
 						self.inventory.wearing[bodypart].take_damage()
@@ -5568,11 +5776,12 @@ class player_class(mob):
 				
 				message_string = 'A ' + world.maplist[self.pos[2]][self.on_map].npcs[y][x].name + ' miss you!'
 				message.add(message_string)
+				screen.write_hit_matrix(player.pos[0],player.pos[1],3)
 		
 		elif world.maplist[self.pos[2]][self.on_map].npcs[y][x].behavior == 'attack_magic' or random_attack == 'magic':
 			
 			monster_strange = 0
-			for i in range(world.maplist[self.pos[2]][self.on_map].npcs[y][x].attribute.m_strange + self.pos[2]):
+			for i in range(world.maplist[self.pos[2]][self.on_map].npcs[y][x].basic_attribute.m_strange + self.pos[2]):
 				monster_strange += random.randint(1,6)
 				
 			player_defense = 0
@@ -5586,16 +5795,17 @@ class player_class(mob):
 				
 			if attack_success == False:#give the monster a chance to have luck and hit the player
 				chance = random.randint(0,25)
-				if chance < world.maplist[self.pos[2]][self.on_map].npcs[y][x].attribute.luck:
+				if chance < world.maplist[self.pos[2]][self.on_map].npcs[y][x].basic_attribute.luck:
 					attack_success = True
 					
 			if attack_success == True:
 				
 				chance = random.randint(0,25)
 				
-				if chance < world.maplist[self.pos[2]][self.on_map].npcs[y][x].attribute.luck:#monster hits critical
+				if chance < world.maplist[self.pos[2]][self.on_map].npcs[y][x].basic_attribute.luck:#monster hits critical
 					message_string = 'A ' + world.maplist[self.pos[2]][self.on_map].npcs[y][x].name + '\'s magic attack hits you critical!'
 					message.add(message_string)
+					screen.write_hit_matrix(player.pos[0],player.pos[1],5)
 					player.lp -= 4
 					if self.inventory.wearing['Neck'] != self.inventory.nothing:
 						self.inventory.wearing['Neck'].take_damage()#your amor at this bodypart take twice damage
@@ -5609,6 +5819,7 @@ class player_class(mob):
 				else:
 					message_string = 'A ' + world.maplist[self.pos[2]][self.on_map].npcs[y][x].name + '\'s magic attack hits you!'
 					message.add(message_string)
+					screen.write_hit_matrix(player.pos[0],player.pos[1],4)
 					player.lp -= 2
 					
 					if self.inventory.wearing['Neck'] != self.inventory.nothing:
@@ -5631,31 +5842,34 @@ class player_class(mob):
 				
 				message_string = 'A ' + world.maplist[self.pos[2]][self.on_map].npcs[y][x].name + '\'s magic attack miss you!'
 				message.add(message_string)
+				screen.write_hit_matrix(player.pos[0],player.pos[1],3)
 		
 		if self.lp <= 0:
 			screen.render_dead()
 	
-	def attack_monster(self,x,y):
+	def attack_monster(self,x,y,style='melee'):
 		#This function is called when the player try to move at the same position like a monster. The x and the y variable definates the monsters pos. 
 		
 		if world.maplist[self.pos[2]][self.on_map].npcs[y][x].behavior == 'talk':
 			message.add(world.maplist[self.pos[2]][self.on_map].npcs[y][x].message)
 			return 'Done'
 		
-		if self.inventory.wearing['Hold'].attribute.m_strange != 0:#the player holds a magic wapon in his hand	
+		if style == 'magic':
 			
 			bonus = 0
 			
-			if world.maplist[self.pos[2]][self.on_map].npcs[y][x].attribute.m_defense != 0:
+			if world.maplist[self.pos[2]][self.on_map].npcs[y][x].basic_attribute.m_defense != 0:
 				bonus = self.pos[2] #the levelbonus for monsters == the deep of the level were they spawn
 			
 			player_strange = 0
-			for i in range(0,self.attribute.m_strange + self.inventory.wearing['Hold'].attribute.m_strange + self.lvl):
+			for i in range(0,self.attribute.m_strange + self.inventory.wearing['Hold(L)'].attribute.m_strange + self.lvl):
 				player_strange += random.randint(1,6)
 				
 			monster_defense = 0
-			for j in range(0,world.maplist[self.pos[2]][self.on_map].npcs[y][x].attribute.m_defense + bonus):
+			for j in range(0,world.maplist[self.pos[2]][self.on_map].npcs[y][x].basic_attribute.m_defense + bonus):
 				monster_defense += random.randint(1,6)
+			
+			player_luck = self.attribute.luck + self.inventory.wearing['Hand'].attribute.luck +self.inventory.wearing['Neck'].attribute.luck
 			
 			if player_strange >= monster_defense:
 				attack_success = True
@@ -5671,77 +5885,72 @@ class player_class(mob):
 				
 				chance = random.randint(0,25)
 				
-				if chance < self.attribute.luck:#player hits critical
+				if chance < player_luck:#player hits critical
 					message_string = 'Your magic attack hits the ' + world.maplist[self.pos[2]][self.on_map].npcs[y][x].name + ' critical!'
 					message.add(message_string)
+					screen.write_hit_matrix(x,y,5)
 					world.maplist[self.pos[2]][self.on_map].npcs[y][x].lp -= 2
 					 
 					if world.maplist[self.pos[2]][self.on_map].npcs[y][x].lp <= 0:
+						
+						xp = world.maplist[self.pos[2]][self.on_map].npcs[y][x].lvl - self.lvl + 1
+						if xp < 0:
+							xp = 0
+						self.xp += xp
+						
+						if self.xp >= 100:
+							self.lvl_up()
+						
 						test = False
 						while test == False:
 							test = world.maplist[self.pos[2]][self.on_map].monster_die(x,y)	
-						if self.lvl < self.pos[2]:#giving xp to the player
-							self.xp += 3
-						elif self.lvl == self.pos[2]:
-							self.xp += 2
-						elif self.lvl-1 == self.pos[2]:
-							self.xp += 1
-						else:
-							None
-							
-						if self.xp >= 100:
-							self.lvl += 1
-							self.xp -= 100
-							lvlup_msg = 'Congratiolations! You reached level ' + str(self.lvl) + '!'
-							message.add(lvlup_msg)
 						
-					if self.inventory.wearing['Hold'] != self.inventory.nothing:
-						self.inventory.wearing['Hold'].take_damage() 
+					if self.inventory.wearing['Hold(L)'] != self.inventory.nothing:
+						self.inventory.wearing['Hold(L)'].take_damage() 
 					 
 				else:
 					message_string = 'Your magic attack hits the ' + world.maplist[self.pos[2]][self.on_map].npcs[y][x].name + '!'
 					message.add(message_string)
+					screen.write_hit_matrix(x,y,4)
 					world.maplist[self.pos[2]][self.on_map].npcs[y][x].lp -= 1
 					
 					if world.maplist[self.pos[2]][self.on_map].npcs[y][x].lp <= 0:
+						
+						xp = world.maplist[self.pos[2]][self.on_map].npcs[y][x].lvl - self.lvl +1
+						if xp < 0:
+							xp = 0
+						self.xp += xp
+						
+						if self.xp >= 100:
+							self.lvl_up()
+						
 						test = False
 						while test == False:
-							test = world.maplist[self.pos[2]][self.on_map].monster_die(x,y)	
-						if self.lvl < self.pos[2]:#giving xp to the player
-							self.xp += 3
-						elif self.lvl == self.pos[2]:
-							self.xp += 2
-						elif self.lvl-1 == self.pos[2]:
-							self.xp += 1
-						else:
-							None
-							
-						if self.xp >= 100:
-							self.lvl += 1
-							self.xp -= 100
-							lvlup_msg = 'Congratiolations! You reached level ' + str(self.lvl) + '!'
-							message.add(lvlup_msg)
+							test = world.maplist[self.pos[2]][self.on_map].monster_die(x,y)
 					
-					if self.inventory.wearing['Hold'] != self.inventory.nothing:
-						self.inventory.wearing['Hold'].take_damage()
+					if self.inventory.wearing['Hold(L)'] != self.inventory.nothing:
+						self.inventory.wearing['Hold(L)'].take_damage()
 			else:
 				
 				message_string = 'You miss the ' + world.maplist[self.pos[2]][self.on_map].npcs[y][x].name + '.'
 				message.add(message_string)
+				screen.write_hit_matrix(x,y,3)
 		else:
 			
 			bonus = 0
 			
-			if world.maplist[self.pos[2]][self.on_map].npcs[y][x].attribute.p_defense != 0:
+			if world.maplist[self.pos[2]][self.on_map].npcs[y][x].basic_attribute.p_defense != 0:
 				bonus = self.pos[2] #the levelbonus for monsters == the deep of the level were they spawn
 			
 			player_strange = 0
-			for i in range(0,player.attribute.p_strange + player.inventory.wearing['Hold'].attribute.p_strange):
+			for i in range(0,player.attribute.p_strange + player.inventory.wearing['Hold(R)'].attribute.p_strange):
 				player_strange += random.randint(1,6)
 				
 			monster_defense = 0
-			for i in range(0,world.maplist[self.pos[2]][self.on_map].npcs[y][x].attribute.p_defense + bonus):
+			for i in range(0,world.maplist[self.pos[2]][self.on_map].npcs[y][x].basic_attribute.p_defense + bonus):
 				monster_defense += random.randint(1,6)
+			
+			player_luck = self.attribute.luck + self.inventory.wearing['Hand'].attribute.luck +self.inventory.wearing['Neck'].attribute.luck
 				
 			if player_strange >= monster_defense:
 				attack_success = True
@@ -5750,71 +5959,90 @@ class player_class(mob):
 				
 			if attack_success == False:#let the player have luck and hit the monster
 				chance = random.randint(0,25)
-				if chance < self.attribute.luck:
+				if chance < player_luck:
 					attack_success = True
 			
 			if attack_success == True:
 				
 				chance = random.randint(0,25)
 				
-				if chance < self.attribute.luck:#player hits critical
+				if chance < player_luck:#player hits critical
 					message_string = 'You hit the ' + world.maplist[self.pos[2]][self.on_map].npcs[y][x].name + ' critical!'
 					message.add(message_string)
+					screen.write_hit_matrix(x,y,5)
 					world.maplist[self.pos[2]][self.on_map].npcs[y][x].lp -= 2
 					 
 					if world.maplist[self.pos[2]][self.on_map].npcs[y][x].lp <= 0:
+						
+						xp = world.maplist[self.pos[2]][self.on_map].npcs[y][x].lvl - self.lvl +1
+						
+						if xp < 0:
+							xp = 0
+						self.xp += xp
+						
+						if self.xp >= 100:
+							self.lvl_up()
+						
 						test = False
 						while test == False:
 							test = world.maplist[self.pos[2]][self.on_map].monster_die(x,y)	
-						if self.lvl < self.pos[2]:#giving xp to the player
-							self.xp += 3
-						elif self.lvl == self.pos[2]:
-							self.xp += 2
-						elif self.lvl-1 == self.pos[2]:
-							self.xp += 1
-						else:
-							None
-							
-						if self.xp >= 100:
-							self.lvl += 1
-							self.xp -= 100
-							lvlup_msg = 'Congratiolations! You reached level ' + str(self.lvl) + '!'
-							message.add(lvlup_msg)
 					 
-					if self.inventory.wearing['Hold'] != self.inventory.nothing:
-						self.inventory.wearing['Hold'].take_damage() 
+					if self.inventory.wearing['Hold(R)'] != self.inventory.nothing:
+						self.inventory.wearing['Hold(R)'].take_damage() 
 					 
 				else:
 					message_string = 'You hit the ' + world.maplist[self.pos[2]][self.on_map].npcs[y][x].name + '!'
 					message.add(message_string)
+					screen.write_hit_matrix(x,y,4)
 					world.maplist[self.pos[2]][self.on_map].npcs[y][x].lp -= 1
 					
 					if world.maplist[self.pos[2]][self.on_map].npcs[y][x].lp <= 0:
+						
+						xp = world.maplist[self.pos[2]][self.on_map].npcs[y][x].lvl - self.lvl + 1
+						
+						if xp < 0:
+							xp = 0
+						self.xp += xp
+						
+						if self.xp >= 100:
+							self.lvl_up()
+						
 						test = False
 						while test == False:
 							test = world.maplist[self.pos[2]][self.on_map].monster_die(x,y)	
-						if self.lvl < self.pos[2]:#giving xp to the player
-							self.xp += 3
-						elif self.lvl == self.pos[2]:
-							self.xp += 2
-						elif self.lvl-1 == self.pos[2]:
-							self.xp += 1
-						else:
-							None
-							
-						if self.xp >= 100:
-							self.lvl += 1
-							self.xp -= 100
-							lvlup_msg = 'Congratiolations! You reached level ' + str(self.lvl) + '!'
-							message.add(lvlup_msg)
 					
-					if self.inventory.wearing['Hold'] != self.inventory.nothing:
-						self.inventory.wearing['Hold'].take_damage()
+					if self.inventory.wearing['Hold(R)'] != self.inventory.nothing:
+						self.inventory.wearing['Hold(R)'].take_damage()
 			
 			else:
 				
 				message_string = 'You miss the ' + world.maplist[self.pos[2]][self.on_map].npcs[y][x].name + '.'
 				message.add(message_string)
+				screen.write_hit_matrix(x,y,3)
+	
+	def player_fire(self,direction):
+		
+		#direction must be a tulpel like (0,1) [style: (x,y)]
+		x=player.pos[0]
+		y=player.pos[1]
+		c = 1
+		run = True
+		
+		while run:
+			
+			xx = player.pos[0] + (direction[0]*c)
+			yy = player.pos[1] + (direction[1]*c)
+			c += 1
+			
+			if world.maplist[self.pos[2]][self.on_map].npcs[yy][xx] == 0:
+				screen.write_hit_matrix(xx,yy,1)
+			elif world.maplist[self.pos[2]][self.on_map].npcs[yy][xx] != 0:#there is a monster here
+				player.attack_monster(xx,yy,'magic')
+				run = False
+			
+			if c > 4 or world.maplist[self.pos[2]][self.on_map].tilemap[yy][xx].transparency == False:
+				run = False
+				
 				
 	def respawn(self):
 		
@@ -5830,8 +6058,8 @@ class player_class(mob):
 		
 		if self.difficulty == 0:#the player plays on easy
 			self.inventory.materials = materials()#reset materials
-			if self.inventory.wearing['Hold'].cursed == 0:
-				self.inventory.wearing['Hold'] = self.inventory.nothing
+			if self.inventory.wearing['Hold(R)'].cursed == 0:
+				self.inventory.wearing['Hold(R)'] = self.inventory.nothing
 		elif self.difficulty == 1:#the player plays on normal
 			self.inventory = inventory(5)#reset inventory
 		elif self.difficulty == 2:#the player plays on hard
@@ -5977,7 +6205,7 @@ class inventory():
 	def __init__(self, equipment=7, food=7, misc=7):
 		
 		self.nothing = item_wear('Nothing',21,0,0)
-		self.wearing = {'Head' : self.nothing, 'Body' : self.nothing, 'Legs' : self.nothing, 'Feet' : self.nothing, 'Hand' : self.nothing, 'Neck' : self.nothing, 'Hold' : self.nothing}
+		self.wearing = {'Head' : self.nothing, 'Body' : self.nothing, 'Legs' : self.nothing, 'Feet' : self.nothing, 'Hand' : self.nothing, 'Neck' : self.nothing, 'Hold(R)' : self.nothing, 'Hold(L)' : self.nothing}
 		self.item_change = self.nothing
 		self.equipment = []
 		self.food = []
@@ -6216,12 +6444,12 @@ class inventory():
 				return True
 			
 			elif self.misc[slot].name == 'Anchanted Enhancemen Powder':
-				if self.wearing['Hold'] != self.nothing:
-					if self.wearing['Hold'].plus < 2:
-						mes = 'Your ' + self.wearing['Hold'].name + ' glowes blue.'
+				if self.wearing['Hold(R)'] != self.nothing:
+					if self.wearing['Hold(R)'].plus < 2:
+						mes = 'Your ' + self.wearing['Hold(R)'].name + ' glowes blue.'
 						message.add(mes)
-						self.wearing['Hold'].plus += 1
-						self.wearing['Hold'].set_name()
+						self.wearing['Hold(R)'].plus += 1
+						self.wearing['Hold(R)'].set_name()
 						self.misc[slot] = self.nothing
 					else:
 						message.add('Nothing happens.')
@@ -6287,7 +6515,7 @@ class inventory():
 					
 				if self.misc[slot].effect == 0: #identify
 					
-					bodyparts = ('Head','Body','Legs','Feet','Hand','Neck','Hold')
+					bodyparts = ('Head','Body','Legs','Feet','Hand','Neck','Hold(R)', 'Hold(L)')
 					
 					for i in bodyparts:
 						if self.wearing[i] != self.nothing:
@@ -6301,7 +6529,7 @@ class inventory():
 						
 				elif self.misc[slot].effect == 1: #repair
 					
-					bodyparts = ('Head','Body','Legs','Feet','Hand','Neck','Hold')
+					bodyparts = ('Head','Body','Legs','Feet','Hand','Neck','Hold(R)','Hold(L)')
 					final_bodyparts = []
 					
 					for i in bodyparts:
@@ -7216,7 +7444,7 @@ def main():
 	message = messager()
 	p_attribute = attribute(2,2,2,2,2,10,10)
 	p_inventory = inventory()
-	player = player_class ('Testificate', '@', 'local_0_0', p_attribute,p_inventory)
+	player = player_class ('Testificate', 'local_0_0', p_attribute,p_inventory)
 	time = time_class()
 	mes = 'Welcome to Roguebox Adventures[' + version +']'
 	message.add(mes)
@@ -7251,12 +7479,14 @@ def main():
 				move_border += 1
 				
 		if player.buffs.immobilized > 0:
+			screen.reset_hit_matrix()
 			ui = getch(screen.displayx,screen.displayy,game_options.sfxmode,game_options.turnmode,mouse=game_options.mousepad)
 			if ui == 'x':
 				screen.render_brake()
 		else:
 			move_chance = random.randint(1,9)
 			if move_border < move_chance:
+				screen.reset_hit_matrix()
 				player.user_input()
 		
 		if exitgame == True:

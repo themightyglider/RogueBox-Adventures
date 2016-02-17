@@ -68,8 +68,8 @@ class g_files():
 
 		#display stuff
 		
-		display_names = ('gui','game_menu_bg','tab_unmarked','tab_marked','marker','gui_transparent', 'dark', 'unknown_monster','mouse_pad')
-		
+		display_names = ('gui','game_menu_bg','tab_unmarked','tab_marked','marker','gui_transparent', 'dark', 'unknown_monster','mouse_pad','mouse_pad_fire','gui_fire','fire_path','fire_path_monster','miss','hit','critical')
+		#				   0          1             2             3          4             5             6            7              8           9               10          11             12            13    14       15
 		for c in display_names:
 			i_name = display_path + c + '.png'
 			i = pygame.image.load(i_name)
