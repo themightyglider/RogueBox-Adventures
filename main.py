@@ -4,14 +4,16 @@
 import time
 import sys
 import os
-import pickle as p
-import random
-
 basic_path = os.path.dirname(os.path.realpath('main.py')) #just get the execution path for resources
 lib_path = basic_path + os.sep + 'LIB'
 data_path = basic_path + os.sep + 'DATA'
+save_path = basic_path + os.sep + 'SAVE' + os.sep + 'World0'
+playing = False
 sys.path.append(lib_path)
-
+max_map_size = 202
+monitor = [0,0]
+import pickle as p
+import random
 from getch import *
 from tile import tile
 from attribute import attribute
@@ -23,10 +25,10 @@ from save import save_everything as save
 from monster import monster
 from copy import deepcopy
 from buffs import buffs
+from itemlist import *
+from tilelist import *
+from monsterlist import *
 from version import *
-
-max_map_size = 202
-monitor = [0,0]
 
 class game_options():
 	
@@ -71,16 +73,12 @@ class g_screen():
 		
 		self.fire_mode = 0 #0: normal, 1: fire
 		self.win_mode = mode
+		self.hit_matrix = []
 		
-		self.hit_matrix = [[0,0,0,0,0,0,0,0,0],
-						   [0,0,0,0,0,0,0,0,0],
-						   [0,0,0,0,0,0,0,0,0],
-						   [0,0,0,0,0,0,0,0,0],
-						   [0,0,0,0,0,0,0,0,0],
-						   [0,0,0,0,0,0,0,0,0],
-						   [0,0,0,0,0,0,0,0,0],
-						   [0,0,0,0,0,0,0,0,0],
-						   [0,0,0,0,0,0,0,0,0],]
+		for y in range(0,12):
+			self.hit_matrix.append([])
+			for  x in range(0,15):
+				self.hit_matrix[y].append(0)
 		
 		pygame.init()
 		
@@ -109,10 +107,20 @@ class g_screen():
 			self.displayx = 640
 			self.displayy = 360
 		
+		if low_res == True:
+			self.screen = pygame.display.set_mode((320,240))
+			self.displayx = 320
+			self.displayy = 240
+		
 		pygame.display.set_caption('RogueBox Adventures')
 		
 		font_path = basic_path + os.sep + 'FONT' + os.sep + 'PressStart2P.ttf'
 		self.font = pygame.font.Font(font_path,8)
+		if low_res == False:
+			self.menu_font = self.font
+		else:
+			menu_font_path = basic_path + os.sep + 'FONT' + os.sep + 'DejaVuSansMono-Bold.ttf'
+			self.menu_font = pygame.font.Font(menu_font_path,16)
 		
 		if show_logo == True:
 			display_path = basic_path +os.sep + 'GRAPHIC' + os.sep + 'DISPLAY' + os.sep
@@ -134,16 +142,13 @@ class g_screen():
 	
 	def reset_hit_matrix(self):
 		
-		self.hit_matrix = [[0,0,0,0,0,0,0,0,0],
-						   [0,0,0,0,0,0,0,0,0],
-						   [0,0,0,0,0,0,0,0,0],
-						   [0,0,0,0,0,0,0,0,0],
-						   [0,0,0,0,0,0,0,0,0],
-						   [0,0,0,0,0,0,0,0,0],
-						   [0,0,0,0,0,0,0,0,0],
-						   [0,0,0,0,0,0,0,0,0],
-						   [0,0,0,0,0,0,0,0,0],]
-	
+		self.hit_matrix = []
+		
+		for y in range(0,12):
+			self.hit_matrix.append([])
+			for  x in range(0,15):
+				self.hit_matrix[y].append(0)
+				
 	def write_hit_matrix(self,x,y,style):
 		
 		#style: 0:nothing
@@ -152,9 +157,9 @@ class g_screen():
 		#		3:miss
 		#		4:hit
 		#		5:critical
-		
-		xx = x - player.pos[0] + 4
-		yy = y - player.pos[1] + 4
+				
+		xx = x - player.pos[0] + 7
+		yy = y - player.pos[1] + 6
 		
 		try:
 			self.hit_matrix[yy][xx] = style
@@ -163,27 +168,203 @@ class g_screen():
 	
 	def render_hits(self):
 		
-		s = pygame.Surface((640,360))
+		s = pygame.Surface((480,360))
+			
 		s.fill((255,0,255))
+		if low_res == False:
+			start = 0
+			plus = 20
+		else:
+			start = 2
+			plus = -6
 		
-		for y in range(0,9):
-			for x in range(0,9):
+		for y in range(start,len(self.hit_matrix)):
+			for x in range(start,len(self.hit_matrix[0])):
 					
 				if self.hit_matrix[y][x] == 1:
-					s.blit(gra_files.gdic['display'][11],(x*32,y*32))
+					s.blit(gra_files.gdic['display'][11],(((x-start)*32)+plus,(y-start)*32))
 				elif self.hit_matrix[y][x] == 2:
-					s.blit(gra_files.gdic['display'][12],(x*32,y*32))
+					s.blit(gra_files.gdic['display'][12],(((x-start)*32)+plus,(y-start)*32))
 				elif self.hit_matrix[y][x] == 3:
-					s.blit(gra_files.gdic['display'][13],(x*32,y*32))
+					s.blit(gra_files.gdic['display'][13],(((x-start)*32)+plus,(y-start)*32))
 				elif self.hit_matrix[y][x] == 4:
-					s.blit(gra_files.gdic['display'][14],(x*32,y*32))
+					s.blit(gra_files.gdic['display'][14],(((x-start)*32)+plus,(y-start)*32))
 				elif self.hit_matrix[y][x] == 5:
-					s.blit(gra_files.gdic['display'][15],(x*32,y*32))
+					s.blit(gra_files.gdic['display'][15],(((x-start)*32)+plus,(y-start)*32))
 
 		s.set_colorkey((255,0,255),pygame.RLEACCEL)	
 		s = s.convert_alpha()
 		return s
 		
+	def render_main_menu(self):
+		
+		display_path = basic_path +os.sep + 'GRAPHIC' + os.sep + 'DISPLAY' + os.sep
+		
+		num = 0
+		
+		run = True
+		
+		while run:
+			s = pygame.Surface((640,360))
+			s.fill((48,48,48))
+			try:
+				i_name = display_path + 'tmp.png'
+				i = pygame.image.load(i_name)
+				i.set_colorkey((255,0,255),pygame.RLEACCEL)
+				i = i.convert_alpha()
+				s.blit(i,(0,0))
+			except:
+				None
+				
+			s.blit(gra_files.gdic['display'][16],(0,0))
+			
+			menu_list = ('PLAY','OPTIONS','CREDITS','QUIT')
+			
+			for c in range(0,len(menu_list)):
+				name_image = self.menu_font.render(menu_list[c],1,(0,0,0))
+				s.blit(name_image,(210,145+(c*45)))
+				
+			s.blit(gra_files.gdic['display'][4],(185,138+(num*45)))
+			
+			if game_options.mousepad == 0:
+				s_h = pygame.Surface((160,360))
+				s_h.fill((48,48,48))
+				s.blit(s_h,(480,0))
+				s_help = pygame.Surface((640,360))
+				s_help.fill((48,48,48))
+				s_help.blit(s,(80,0))
+				s = s_help
+			else:
+				s.blit(gra_files.gdic['display'][8],(480,0)) #render mouse pad
+			
+			s = pygame.transform.scale(s,(self.displayx,self.displayy))
+			
+			self.screen.blit(s,(0,0))
+			
+			pygame.display.flip()
+			
+			ui = getch(screen.displayx,screen.displayy,game_options.sfxmode,game_options.turnmode,mouse=game_options.mousepad)
+			
+			if ui == 'w':
+				num -= 1
+				if num < 0:
+					num = 0
+					
+			elif ui == 's':
+				num += 1
+				if num > 3:
+					num = 3
+			
+			elif ui == 'e':
+				if num == 0:
+					screen.choose_save_path()
+					run = False
+				elif num == 1:
+					screen.render_options()
+				elif num == 2:
+					screen.render_credits()
+				elif num == 3:
+					exit(0)
+	
+	def choose_save_path(self):
+		
+		global save_path
+		global playing
+		
+		run = True
+		while run:
+			
+			menu_items = []
+		
+			for c in range(0,5):
+				save_path = basic_path + os.sep + 'SAVE' + os.sep + 'World' + str(c)
+				p_attribute = attribute(2,2,2,2,2,10,10)
+				p_inventory = inventory()
+				player_help = player_class ('-EMPTY SLOT-', 'local_0_0', p_attribute,p_inventory, build= 'Auto')
+				
+				if player_help.name != '-EMPTY SLOT-':
+					item_string = player_help.name + ' LVL:' + str(player_help.lvl)
+				else:
+					item_string = '-EMPTY SLOT-'
+					
+				menu_items.append(item_string)
+				
+			menu_items.append('~~ERASE~~')
+			menu_items.append('~~BACK~~')
+				
+			choice = screen.get_choice('Choose a saved game',menu_items,False)
+				
+			if choice < 5:
+				save_path = basic_path + os.sep + 'SAVE' + os.sep + 'World' + str(choice)
+				playing = True
+				run = False
+				
+			elif choice == 5:
+				menu_items_erase = []
+				
+				for d in range(0,5):
+					menu_items_erase.append(menu_items[d])
+				
+				menu_items_erase.append('~~BACK~~')
+					
+				choice2 = screen.get_choice('Choose a game to erase',menu_items_erase,False,'Warning')
+				
+				if choice2 < 5:
+						
+					save_path = basic_path + os.sep + 'SAVE' + os.sep + 'World' + str(choice2)
+						
+					try:	
+						
+						choice3 = screen.get_choice('Are you sure?',('No','Yes'),False,'Warning')
+						
+						if choice3 == 1:
+							h = ('world.data','time.data','player.data','gods.data')
+							
+							for i in h:	
+								path = save_path + os.sep + i
+								os.remove(path)
+					except:
+						None
+						
+			elif choice == 6:
+				run = False
+	
+	def save_tmp_png(self):
+		
+		x = player.pos[0]
+		if x-10 < 0:
+			x += -1*(x-11)
+		elif x+10 > max_map_size-2:
+			x -= 10
+			
+		y = player.pos[1]
+		if y-10 < 0:
+			y += -1*(y-11)
+		elif y+10 > max_map_size-2:
+			y -= 10
+			
+		z =  player.pos[2]
+		
+		s = pygame.Surface((480,360))
+		
+		for yy in range(-10,10):
+			for xx in range(-7,8):
+				
+				  
+				t_pos = world.maplist[z][player.on_map].tilemap[y+yy][x+xx].tile_pos
+				t_replace = world.maplist[z][player.on_map].tilemap[y+yy][x+xx].replace
+					
+				if t_replace == None:
+					s.blit(gra_files.gdic['tile32'][t_pos[1]][t_pos[0]],((xx+7)*32,(yy+10)*32))
+				else:
+					#render the replaced tile under the replacing one. eg.: for stacks
+					s.blit(gra_files.gdic['tile32'][t_replace.tile_pos[1]][t_replace.tile_pos[0]],((xx+7)*32,(yy+10)*32))
+					s.blit(gra_files.gdic['tile32'][t_pos[1]][t_pos[0]],((xx+7)*32,(yy+10)*32))
+		
+		tmp_save_path = basic_path + os.sep + 'GRAPHIC' + os.sep + 'DISPLAY' + os.sep + 'tmp.png'
+					
+		pygame.image.save(s,tmp_save_path)
+							
 	
 	def re_init(self): # For changing screenmode
 		
@@ -215,24 +396,30 @@ class g_screen():
 		
 		s.fill((48,48,48)) #paint it grey(to clear the screen)
 		
-		start_pos = 128 #the center of the main map view
+		if low_res == False:
+			start_pos_x = 240 #the center of the main map view
+			start_pos_y = 180
+		else:
+			start_pos_x = 152 #the center of the main map view
+			start_pos_y = 122
 		
-		ymin = player.pos[1]-5
+		ymin = player.pos[1]-6
 		if ymin < 0:
 			ymin = 0		
-		ymax = player.pos[1]+5
-		xmin = player.pos[0]-5
+		ymax = player.pos[1]+7
+		xmin = player.pos[0]-8
 		if xmin < 0: 
 			xmin = 0
-		xmax = player.pos[0]+5
+		xmax = player.pos[0]+8
 		
 		for y in range(ymin,ymax):
 			for x in range(xmin,xmax):
-				
+								
 				rx = x-player.pos[0]
 				ry = y-player.pos[1]
 				
 				distance = ((rx)**2+(ry)**2)**0.5
+				
 				try:
 					t_pos = world.maplist[player.pos[2]][player.on_map].tilemap[y][x].tile_pos
 					t_known = world.maplist[player.pos[2]][player.on_map].known[y][x]
@@ -240,26 +427,26 @@ class g_screen():
 						
 					if t_known == 1:
 						if t_replace == None:
-							s.blit(gra_files.gdic['tile32'][t_pos[1]][t_pos[0]],(start_pos+((x-player.pos[0])*32),start_pos+((y-player.pos[1])*32)))
+							s.blit(gra_files.gdic['tile32'][t_pos[1]][t_pos[0]],(start_pos_x+((x-player.pos[0])*32),start_pos_y+((y-player.pos[1])*32)))
 						else:
 							#render the replaced tile under the replacing one. eg.: for stacks
-							s.blit(gra_files.gdic['tile32'][t_replace.tile_pos[1]][t_replace.tile_pos[0]],(start_pos+((x-player.pos[0])*32),start_pos+((y-player.pos[1])*32)))
-							s.blit(gra_files.gdic['tile32'][t_pos[1]][t_pos[0]],(start_pos+((x-player.pos[0])*32),start_pos+((y-player.pos[1])*32)))
+							s.blit(gra_files.gdic['tile32'][t_replace.tile_pos[1]][t_replace.tile_pos[0]],(start_pos_x+((x-player.pos[0])*32),start_pos_y+((y-player.pos[1])*32)))
+							s.blit(gra_files.gdic['tile32'][t_pos[1]][t_pos[0]],(start_pos_x+((x-player.pos[0])*32),start_pos_y+((y-player.pos[1])*32)))
 							
 						
-						s.blit(gra_files.gdic['display'][6],(start_pos+((x-player.pos[0])*32),start_pos+((y-player.pos[1])*32)))
+						s.blit(gra_files.gdic['display'][6],(start_pos_x+((x-player.pos[0])*32),start_pos_y+((y-player.pos[1])*32)))
 					
 						if world.maplist[player.pos[2]][player.on_map].npcs[y][x] != 0:	
 							ran = random.randint(0,1)
 							if world.maplist[player.pos[2]][player.on_map].npcs[y][x].techID == ml.mlist['special'][0].techID or world.maplist[player.pos[2]][player.on_map].npcs[y][x].techID == ml.mlist['special'][1].techID or world.maplist[player.pos[2]][player.on_map].npcs[y][x].techID == ml.mlist['special'][3].techID:
 								#if this is a vase, a monster vase or a sleepng mimic show them like they would be tile ojects
-								s.blit(gra_files.gdic['monster'][pos[1]][pos[0]],(start_pos+((x-player.pos[0])*32),start_pos+((y-player.pos[1])*32)))
+								s.blit(gra_files.gdic['monster'][pos[1]][pos[0]],(start_pos_x+((x-player.pos[0])*32),start_pos_y+((y-player.pos[1])*32)))
 								ran = 0
 						
 							if ran == 1:
-								s.blit(gra_files.gdic['display'][7],(start_pos+((x-player.pos[0])*32),start_pos+((y-player.pos[1])*32)))
+								s.blit(gra_files.gdic['display'][7],(start_pos_x+((x-player.pos[0])*32),start_pos_y+((y-player.pos[1])*32)))
 							else:
-								s.blit(gra_files.gdic['display'][6],(start_pos+((x-player.pos[0])*32),start_pos+((y-player.pos[1])*32)))
+								s.blit(gra_files.gdic['display'][6],(start_pos_x+((x-player.pos[0])*32),start_pos_y+((y-player.pos[1])*32)))
 						
 						if round(distance) <= radius+1 or round(distance) >= radius-1:
 							
@@ -287,47 +474,47 @@ class g_screen():
 								
 								if t_known == 1:
 									if t_replace == None:
-										s.blit(gra_files.gdic['tile32'][t_pos[1]][t_pos[0]],(start_pos+((view_x-player.pos[0])*32),start_pos+((view_y-player.pos[1])*32)))
+										s.blit(gra_files.gdic['tile32'][t_pos[1]][t_pos[0]],(start_pos_x+((view_x-player.pos[0])*32),start_pos_y+((view_y-player.pos[1])*32)))
 									else:
 										#render the replaced tile under the replacing one. eg.: for stacks
-										s.blit(gra_files.gdic['tile32'][t_replace.tile_pos[1]][t_replace.tile_pos[0]],(start_pos+((view_x-player.pos[0])*32),start_pos+((view_y-player.pos[1])*32)))
-										s.blit(gra_files.gdic['tile32'][t_pos[1]][t_pos[0]],(start_pos+((view_x-player.pos[0])*32),start_pos+((view_y-player.pos[1])*32)))
+										s.blit(gra_files.gdic['tile32'][t_replace.tile_pos[1]][t_replace.tile_pos[0]],(start_pos_x+((view_x-player.pos[0])*32),start_pos_y+((view_y-player.pos[1])*32)))
+										s.blit(gra_files.gdic['tile32'][t_pos[1]][t_pos[0]],(start_pos_x+((view_x-player.pos[0])*32),start_pos_y+((view_y-player.pos[1])*32)))
 							
 									if world.maplist[player.pos[2]][player.on_map].npcs[view_y][view_x] != 0:#render monsters
 										pos = world.maplist[player.pos[2]][player.on_map].npcs[view_y][view_x].sprite_pos
-										s.blit(gra_files.gdic['monster'][pos[1]][pos[0]],(start_pos+((view_x-player.pos[0])*32),start_pos+((view_y-player.pos[1])*32)))
+										s.blit(gra_files.gdic['monster'][pos[1]][pos[0]],(start_pos_x+((view_x-player.pos[0])*32),start_pos_y+((view_y-player.pos[1])*32)))
 								
 									if view_x == player.pos[0] and view_y == player.pos[1]:
 						
 										skinstring = 'SKIN_' + player.gender + '_' + str(player.style +1)
-										s.blit(gra_files.gdic['char'][skinstring],(start_pos+((view_x-player.pos[0])*32),start_pos+((view_y-player.pos[1])*32)))
+										s.blit(gra_files.gdic['char'][skinstring],(start_pos_x+((view_x-player.pos[0])*32),start_pos_y+((view_y-player.pos[1])*32)))
 						
 										if player.inventory.wearing['Head'] == player.inventory.nothing:
 											hairstring = 'HAIR_' + player.gender + '_' + str(player.style +1)
-											s.blit(gra_files.gdic['char'][hairstring],(start_pos+((view_x-player.pos[0])*32),start_pos+((view_y-player.pos[1])*32)))
+											s.blit(gra_files.gdic['char'][hairstring],(start_pos_x+((view_x-player.pos[0])*32),start_pos_y+((view_y-player.pos[1])*32)))
 										else:
 											helmetstring = player.gender + '_' + player.inventory.wearing['Head'].material + '_' + player.inventory.wearing['Head'].classe
-											s.blit(gra_files.gdic['char'][helmetstring],(start_pos+((view_x-player.pos[0])*32),start_pos+((view_y-player.pos[1])*32)))
+											s.blit(gra_files.gdic['char'][helmetstring],(start_pos_x+((view_x-player.pos[0])*32),start_pos_y+((view_y-player.pos[1])*32)))
 							
 										if player.inventory.wearing['Body'] != player.inventory.nothing:
 											armorstring = player.gender + '_' + player.inventory.wearing['Body'].material + '_' + player.inventory.wearing['Body'].classe
-											s.blit(gra_files.gdic['char'][armorstring],(start_pos+((view_x-player.pos[0])*32),start_pos+((view_y-player.pos[1])*32)))
+											s.blit(gra_files.gdic['char'][armorstring],(start_pos_x+((view_x-player.pos[0])*32),start_pos_y+((view_y-player.pos[1])*32)))
 									
 										if player.inventory.wearing['Legs'] != player.inventory.nothing:
 											cuissestring = player.gender + '_' + player.inventory.wearing['Legs'].material + '_' + player.inventory.wearing['Legs'].classe
-											s.blit(gra_files.gdic['char'][cuissestring],(start_pos+((view_x-player.pos[0])*32),start_pos+((view_y-player.pos[1])*32)))
+											s.blit(gra_files.gdic['char'][cuissestring],(start_pos_x+((view_x-player.pos[0])*32),start_pos_y+((view_y-player.pos[1])*32)))
 								
 										if player.inventory.wearing['Feet'] != player.inventory.nothing:
 											shoestring = player.gender + '_' + player.inventory.wearing['Feet'].material + '_' + player.inventory.wearing['Feet'].classe
-											s.blit(gra_files.gdic['char'][shoestring],(start_pos+((view_x-player.pos[0])*32),start_pos+((view_y-player.pos[1])*32)))
+											s.blit(gra_files.gdic['char'][shoestring],(start_pos_x+((view_x-player.pos[0])*32),start_pos_y+((view_y-player.pos[1])*32)))
 						
 										if player.inventory.wearing['Hold(R)'] != player.inventory.nothing:
 											weaponstring = 'WEAPONS_' + player.inventory.wearing['Hold(R)'].material + '_' + player.inventory.wearing['Hold(R)'].classe
-											s.blit(gra_files.gdic['char'][weaponstring],(start_pos+((view_x-player.pos[0])*32),start_pos+((view_y-player.pos[1])*32)))
+											s.blit(gra_files.gdic['char'][weaponstring],(start_pos_x+((view_x-player.pos[0])*32),start_pos_y+((view_y-player.pos[1])*32)))
 										
 										if player.inventory.wearing['Hold(L)'] != player.inventory.nothing:
 											weaponstring = 'WEAPONS_' + player.inventory.wearing['Hold(L)'].material + '_' + player.inventory.wearing['Hold(L)'].classe
-											s.blit(gra_files.gdic['char'][weaponstring],(start_pos+((view_x-player.pos[0])*32),start_pos+((view_y-player.pos[1])*32)))					
+											s.blit(gra_files.gdic['char'][weaponstring],(start_pos_x+((view_x-player.pos[0])*32),start_pos_y+((view_y-player.pos[1])*32)))					
 										
 								if c >= radius or world.maplist[player.pos[2]][player.on_map].tilemap[view_y][view_x].transparency == False:
 									run = False
@@ -335,9 +522,9 @@ class g_screen():
 									c+=1
 						
 					elif t_known == 0:
-						s.blit(gra_files.gdic['tile32'][0][3],(start_pos+((x-player.pos[0])*32),start_pos+((y-player.pos[1])*32)))
+						s.blit(gra_files.gdic['tile32'][0][3],(start_pos_x+((x-player.pos[0])*32),start_pos_y+((y-player.pos[1])*32)))
 					else:
-						s.blit(gra_files.gdic['tile32'][0][3],(start_pos+((x-player.pos[0])*32),start_pos+((y-player.pos[1])*32)))
+						s.blit(gra_files.gdic['tile32'][0][3],(start_pos_x+((x-player.pos[0])*32),start_pos_y+((y-player.pos[1])*32)))
 					
 				except:
 					None	
@@ -351,17 +538,19 @@ class g_screen():
 		
 		#render lvl info
 		
-		lvl_string = 'LVL: ' + str(player.lvl)
+		lvl_string = str(player.lvl)
+		if len(lvl_string) == 1:
+			lvl_string = '0'+lvl_string
 		lvl_image = self.font.render(lvl_string,1,(255,255,255))
-		s.blit(lvl_image,(300,20))
+		s.blit(lvl_image,(153,48))
 		
-		exp_string = 'EXP: ' + str(player.xp) + '%'
-		exp_image = self.font.render(exp_string,1,(200,200,200))
-		s.blit(exp_image,(300,30))
-		
-		depth_string = 'Depth: ' + str(player.pos[2])
-		depth_image = self.font.render(depth_string,1,(200,200,200))
-		s.blit(depth_image,(300,50))
+		bar_length = 1 + ((319/100)*player.xp)
+		xp_surface = pygame.Surface((bar_length,64))
+		xp_surface.fill((255,0,255))
+		xp_surface.blit(gra_files.gdic['display'][19],(0,0))
+		xp_surface.set_colorkey((255,0,255),pygame.RLEACCEL)	
+		xp_surface = xp_surface.convert_alpha()
+		s.blit(xp_surface,(0,0))
 		
 		if game_options.mousepad == 1:
 			if self.fire_mode == 0:
@@ -376,13 +565,18 @@ class g_screen():
 		#render buffs
 		
 		buffs = player.buffs.sget()
-		
-		posx = 388 
-		posy = 10
+		if low_res == False:
+			posx = 388 
+			posy = 10
+		else:
+			posx = 228
+			posy = 65
 		
 		for i in buffs:
 			if i != ' ':
-				buff_image = self.font.render(i,1,(0,0,0))
+				buff_shadow = self.font.render(i,1,(0,0,0))
+				s.blit(buff_shadow,(posx+2,posy))
+				buff_image = self.font.render(i,1,(200,200,200))
 				s.blit(buff_image,(posx,posy))
 			else:
 				None
@@ -393,83 +587,92 @@ class g_screen():
 		#render date
 		
 		date_string = time.sget()
-		posx = 302
-		posy = 110
+		posx = 235
+		posy = 10
 		
-		date_image = self.font.render(date_string,1,(255,255,255))
+		date_image = self.font.render(date_string[0],1,(0,0,0))
 		s.blit(date_image,(posx,posy))
+		posy = 20
+		time_image = self.font.render(date_string[1],1,(0,0,0))
+		s.blit(time_image,(posx,posy))
 		
 		#render player info
-			#name
-		name_string = player.name
-		
-		posx = 302
-		posy =150
-		
-		name_image = self.font.render(name_string,1,(255,255,255))
-		s.blit(name_image,(posx,posy))
-		
 			#lp
-		lp_string = 'Health: ' + str(player.lp) + '/' + str(player.attribute.max_lp)
+		lp_string = str(player.lp) + '/' + str(player.attribute.max_lp)
 			
-		posx = 302
-		posy = 180
+		posx = 13
+		posy = 12
 		
-		lp_image = self.font.render(lp_string,1,(200,0,0))
+		if player.lp < 4: 
+			lp_image = self.font.render(lp_string,1,(200,0,0))
+		else:
+			lp_image = self.font.render(lp_string,1,(0,0,0))
 		s.blit(lp_image,(posx,posy))
 			
 			#hunger
 		
 		hunger_percent = int((100 * player.attribute.hunger) / player.attribute.hunger_max)
 		
-		hunger_string = 'Hunger: ' + str(hunger_percent) + '%'
+		hunger_string = str(hunger_percent) + '%'
 		
-		posx = 302
-		posy = 205
+		posx = 75
+		posy = 12
 		
-		hunger_image = self.font.render(hunger_string,1,(175,100,60))
+		hunger_image = self.font.render(hunger_string,1,(0,0,0))
 		s.blit(hunger_image,(posx,posy))
 		
 			#trirst
 			
 		thirst_percent = int((100 * player.attribute.thirst) / player.attribute.thirst_max)
 		
-		thirst_string = 'Thirst: ' + str(thirst_percent) + '%'
+		thirst_string = str(thirst_percent) + '%'
 		
-		posx = 302
-		posy = 230
+		posx = 125
+		posy = 12
 		
-		thirst_image = self.font.render(thirst_string,1,(125,200,255))
+		thirst_image = self.font.render(thirst_string,1,(0,0,0))
 		s.blit(thirst_image,(posx,posy))
 		
-		#tiredness
+			#tiredness
 			
 		tiredness_percent = int((100 * player.attribute.tiredness) / player.attribute.tiredness_max)
 		
-		tiredness_string = 'Tiredness: ' + str(tiredness_percent) + '%'
+		tiredness_string = str(tiredness_percent) + '%'
 		
-		posx = 302
-		posy = 255
+		posx = 180
+		posy = 12
 		
-		tiredness_image = self.font.render(tiredness_string,1,(185,255,0))
+		tiredness_image = self.font.render(tiredness_string,1,(0,0,0))
 		s.blit(tiredness_image,(posx,posy))
 		
 		# render messages
 		
+		if low_res == False:
+			mes_pos_y_0 = 305
+			mes_pos_y_1 = 335
+		else:
+			mes_pos_y_0 = 210
+			mes_pos_y_1 = 225
+		
 		text_string1 = test[0]
 		text_string2 = test[1]
+		shadow_image1 = self.font.render(text_string1,1,(0,0,0))
+		shadow_image2 = self.font.render(text_string2,1,(0,0,0))
+		s.blit(shadow_image1,(2,mes_pos_y_0))
+		s.blit(shadow_image2,(2,mes_pos_y_1))
 		text_image1 = self.font.render(text_string1,1,(255,255,255))
 		text_image2 = self.font.render(text_string2,1,(255,255,255))
-		s.blit(text_image1,(0,305))
-		s.blit(text_image2,(0,335))
+		s.blit(text_image1,(0,mes_pos_y_0))
+		s.blit(text_image2,(0,mes_pos_y_1))
 		
-		if game_options.mousepad == 0:
+		if game_options.mousepad == 0 and low_res == False:
 			s_help = pygame.Surface((640,360))
 			s_help.fill((48,48,48))
 			s_help.blit(s,(80,0))
 			s = s_help		
+		if low_res == False:
+			s = pygame.transform.scale(s,(self.displayx,self.displayy))
 		
-		s = pygame.transform.scale(s,(self.displayx,self.displayy))
 		self.screen.blit(s,(0,0))
 		
 		if simulate == False:	
@@ -528,7 +731,7 @@ class g_screen():
 		posx = 150
 		posy = 200
 		
-		image = self.font.render(string,1,(255,255,255))
+		image = self.menu_font.render(string,1,(255,255,255))
 		s.blit(image,(posx,posy))
 		
 		s = pygame.transform.scale(s,(self.displayx,self.displayy))
@@ -539,7 +742,12 @@ class g_screen():
 			
 	def render_built(self,xmin,xmax,ymin,ymax,style):
 		
-		start_pos = 128 #the center of the main map view
+		if low_res == False:
+			start_pos_x = 240 #the center of the main map view
+			start_pos_y = 180
+		else:
+			start_pos_x = 152 #the center of the main map view
+			start_pos_y = 122
 		
 		price = 0
 		
@@ -553,7 +761,7 @@ class g_screen():
 			for y in range (-ymin,ymax+1):
 				for x in range (-xmin,xmax+1):
 				
-					if world.maplist[player.pos[2]][player.on_map].tilemap[player.pos[1]+y][player.pos[0]+x].move == True and world.maplist[player.pos[2]][player.on_map].tilemap[player.pos[1]+y][player.pos[0]+x].damage == False and world.maplist[player.pos[2]][player.on_map].tilemap[player.pos[1]+y][player.pos[0]+x].civilisation == False and world.maplist[player.pos[2]][player.on_map].npcs[player.pos[1]+y][player.pos[0]+x] == 0:
+					if world.maplist[player.pos[2]][player.on_map].tilemap[player.pos[1]+y][player.pos[0]+x].move_groupe == 'soil' and world.maplist[player.pos[2]][player.on_map].tilemap[player.pos[1]+y][player.pos[0]+x].damage == False and world.maplist[player.pos[2]][player.on_map].tilemap[player.pos[1]+y][player.pos[0]+x].civilisation == False and world.maplist[player.pos[2]][player.on_map].npcs[player.pos[1]+y][player.pos[0]+x] == 0:
 						built_here = 1
 						price += 2
 					elif world.maplist[player.pos[2]][player.on_map].tilemap[player.pos[1]+y][player.pos[0]+x].civilisation == True:
@@ -574,14 +782,14 @@ class g_screen():
 						if x == xmax or x == -xmin or y == ymax or y == -ymin:
 							if x == xmax or x == -xmin:
 								if built_here == 1:
-									s.blit(gra_files.gdic['built'][1],(start_pos+(x*32),start_pos+(y*32))) #wall_true here
+									s.blit(gra_files.gdic['built'][1],(start_pos_x+(x*32),start_pos_y+(y*32))) #wall_true here
 								elif built_here == 2:
-									s.blit(gra_files.gdic['built'][6],(start_pos+(x*32),start_pos+(y*32))) #wall_over here
+									s.blit(gra_files.gdic['built'][6],(start_pos_x+(x*32),start_pos_y+(y*32))) #wall_over here
 							if y == ymax or y == -ymin:
 								if built_here == 1:
-									s.blit(gra_files.gdic['built'][1],(start_pos+(x*32),start_pos+(y*32))) #wall_true here
+									s.blit(gra_files.gdic['built'][1],(start_pos_x+(x*32),start_pos_y+(y*32))) #wall_true here
 								elif built_here == 2:
-									s.blit(gra_files.gdic['built'][6],(start_pos+(x*32),start_pos+(y*32))) #wall_over here
+									s.blit(gra_files.gdic['built'][6],(start_pos_x+(x*32),start_pos_y+(y*32))) #wall_over here
 						else:
 							
 							None
@@ -590,10 +798,10 @@ class g_screen():
 					
 						if x == xmax or x == -xmin or y == ymax or y == -ymin:
 							if x == xmax or x == -xmin:
-								s.blit(gra_files.gdic['built'][0],(start_pos+(x*32),start_pos+(y*32))) #wall_false here
+								s.blit(gra_files.gdic['built'][0],(start_pos_x+(x*32),start_pos_y+(y*32))) #wall_false here
 					
 							if y == ymax or y == -ymin:
-								s.blit(gra_files.gdic['built'][0],(start_pos+(x*32),start_pos+(y*32))) #wall_false here
+								s.blit(gra_files.gdic['built'][0],(start_pos_x+(x*32),start_pos_y+(y*32))) #wall_false here
 						else:
 								None
 		
@@ -604,8 +812,8 @@ class g_screen():
 			name = '~Build Walls~'
 			name_image = self.font.render(name,1,(255,255,255))
 			
-			posx = 120
-			posy = 290
+			posx = 0
+			posy = 0
 			
 			s.blit(name_image,(posx,posy))
 		
@@ -616,8 +824,8 @@ class g_screen():
 				wood_need = 1
 			wood_string = 'Wood: ' + str(wood_need) + '(' + str(player.inventory.materials.wood) + ')' 
 		
-			posx = 50
-			posy = 315
+			posx = 0
+			posy = 15
 		
 			if wood_need <= player.inventory.materials.wood:
 				wood_image = self.font.render(wood_string,1,(255,255,255))
@@ -633,8 +841,8 @@ class g_screen():
 				stone_need = 1
 			stone_string = 'Stone: ' + str(stone_need) + '(' + str(player.inventory.materials.stone) + ')' 
 		
-			posx = 200
-			posy = 315
+			posx = 160
+			posy = 15
 		
 			if stone_need <= player.inventory.materials.stone:
 				stone_image = self.font.render(stone_string,1,(255,255,255))
@@ -645,12 +853,19 @@ class g_screen():
 			
 			# render info line
 			
-			info_string = '[w,a,s,d]ch. Size [b]ch. Mode [x]Leave [e]BUILT!' 
+			info_string_0 = '[w,a,s,d]ch. Size [b]ch. Mode' 
+			info_string_1 = '[x]Leave [e]BUILT!' 
 		
-			posx = 50
-			posy = 340
+			posx = 0
+			posy = 30
 		
-			info_image = self.font.render(info_string,1,(255,255,255))
+			info_image = self.font.render(info_string_0,1,(255,255,255))
+			s.blit(info_image,(posx,posy))
+			
+			posx = 0
+			posy = 40
+		
+			info_image = self.font.render(info_string_1,1,(255,255,255))
 			s.blit(info_image,(posx,posy))
 			
 		elif style == 'floor':
@@ -658,7 +873,7 @@ class g_screen():
 			for y in range (-ymin,ymax+1):
 				for x in range (-xmin,xmax+1):
 				
-					if world.maplist[player.pos[2]][player.on_map].tilemap[player.pos[1]+y][player.pos[0]+x].move == True and world.maplist[player.pos[2]][player.on_map].tilemap[player.pos[1]+y][player.pos[0]+x].damage == False and world.maplist[player.pos[2]][player.on_map].tilemap[player.pos[1]+y][player.pos[0]+x].civilisation == False and world.maplist[player.pos[2]][player.on_map].npcs[player.pos[1]+y][player.pos[0]+x] == 0:
+					if world.maplist[player.pos[2]][player.on_map].tilemap[player.pos[1]+y][player.pos[0]+x].move_groupe == 'soil' and world.maplist[player.pos[2]][player.on_map].tilemap[player.pos[1]+y][player.pos[0]+x].damage == False and world.maplist[player.pos[2]][player.on_map].tilemap[player.pos[1]+y][player.pos[0]+x].civilisation == False and world.maplist[player.pos[2]][player.on_map].npcs[player.pos[1]+y][player.pos[0]+x] == 0:
 						built_here = 1
 						price += 2
 					elif world.maplist[player.pos[2]][player.on_map].tilemap[player.pos[1]+y][player.pos[0]+x].civilisation == True:
@@ -678,13 +893,13 @@ class g_screen():
 					
 						
 						if built_here == 1:
-							s.blit(gra_files.gdic['built'][5],(start_pos+(x*32),start_pos+(y*32))) #floor_true here
+							s.blit(gra_files.gdic['built'][5],(start_pos_x+(x*32),start_pos_y+(y*32))) #floor_true here
 						elif built_here == 2:
-							s.blit(gra_files.gdic['built'][7],(start_pos+(x*32),start_pos+(y*32))) #floor_over
+							s.blit(gra_files.gdic['built'][7],(start_pos_x+(x*32),start_pos_y+(y*32))) #floor_over
 									
 					else:
 					
-						s.blit(gra_files.gdic['built'][4],(start_pos+(x*32),start_pos+(y*32))) #floor_false here
+						s.blit(gra_files.gdic['built'][4],(start_pos_x+(x*32),start_pos_y+(y*32))) #floor_false here
 		
 			s.blit(gra_files.gdic['display'][5],(0,0)) #render gui_transparent over gui
 			
@@ -693,8 +908,8 @@ class g_screen():
 			name = '~Build Floor~'
 			name_image = self.font.render(name,1,(255,255,255))
 			
-			posx = 120
-			posy = 290
+			posx = 0
+			posy = 0
 			
 			s.blit(name_image,(posx,posy))
 			
@@ -705,8 +920,8 @@ class g_screen():
 				wood_need = 1
 			wood_string = 'Wood: ' + str(wood_need) + '(' + str(player.inventory.materials.wood) + ')' 
 		
-			posx = 50
-			posy = 315
+			posx = 0
+			posy = 15
 		
 			if wood_need <= player.inventory.materials.wood:
 				wood_image = self.font.render(wood_string,1,(255,255,255))
@@ -721,8 +936,8 @@ class g_screen():
 		
 			stone_string = 'Stone: ' + str(stone_need) + '(' + str(player.inventory.materials.stone) + ')' 
 		
-			posx = 200
-			posy = 315
+			posx = 160
+			posy = 15
 		
 			if stone_need <= player.inventory.materials.stone:
 				stone_image = self.font.render(stone_string,1,(255,255,255))
@@ -733,17 +948,24 @@ class g_screen():
 			
 			# render info line
 			
-			info_string = '[w,a,s,d]ch. Size [b]ch. Mode [x]Leave [e]BUILT!' 
+			info_string_0 = '[w,a,s,d]ch. Size [b]ch. Mode'
+			info_string_1 = '[x]Leave [e]BUILT!' 
 		
-			posx = 50
-			posy = 340
+			posx = 0
+			posy = 30
 		
-			info_image = self.font.render(info_string,1,(255,255,255))
+			info_image = self.font.render(info_string_0,1,(255,255,255))
+			s.blit(info_image,(posx,posy))
+			
+			posx = 0
+			posy = 40
+		
+			info_image = self.font.render(info_string_1,1,(255,255,255))
 			s.blit(info_image,(posx,posy))
 		
 		elif style == 'Door':
 			
-			if world.maplist[player.pos[2]][player.on_map].tilemap[player.pos[1]+ymin][player.pos[0]+xmin].move == True and world.maplist[player.pos[2]][player.on_map].tilemap[player.pos[1]+ymin][player.pos[0]+xmin].damage == False and world.maplist[player.pos[2]][player.on_map].tilemap[player.pos[1]+ymin][player.pos[0]+xmin].civilisation == False and world.maplist[player.pos[2]][player.on_map].npcs[player.pos[1]+ymin][player.pos[0]+xmin] == 0:
+			if world.maplist[player.pos[2]][player.on_map].tilemap[player.pos[1]+ymin][player.pos[0]+xmin].move_groupe == 'soil' and world.maplist[player.pos[2]][player.on_map].tilemap[player.pos[1]+ymin][player.pos[0]+xmin].damage == False and world.maplist[player.pos[2]][player.on_map].tilemap[player.pos[1]+ymin][player.pos[0]+xmin].civilisation == False and world.maplist[player.pos[2]][player.on_map].npcs[player.pos[1]+ymin][player.pos[0]+xmin] == 0:
 				built_here = 1
 				price += 2
 			elif world.maplist[player.pos[2]][player.on_map].tilemap[player.pos[1]+ymin][player.pos[0]+xmin].civilisation == True:
@@ -761,12 +983,12 @@ class g_screen():
 			
 			if built_here != 0:
 				if built_here == 1:
-					s.blit(gra_files.gdic['built'][3],(start_pos+(xmin*32),start_pos+(ymin*32))) #door_true here
+					s.blit(gra_files.gdic['built'][3],(start_pos_x+(xmin*32),start_pos_y+(ymin*32))) #door_true here
 				elif built_here == 2:
-					s.blit(gra_files.gdic['built'][8],(start_pos+(xmin*32),start_pos+(ymin*32))) #door_over
+					s.blit(gra_files.gdic['built'][8],(start_pos_x+(xmin*32),start_pos_y+(ymin*32))) #door_over
 				
 			else:
-				s.blit(gra_files.gdic['built'][2],(start_pos+(xmin*32),start_pos+(ymin*32))) #door_false here		
+				s.blit(gra_files.gdic['built'][2],(start_pos_x+(xmin*32),start_pos_y+(ymin*32))) #door_false here		
 		
 			s.blit(gra_files.gdic['display'][5],(0,0)) #render gui_transparent over gui
 		
@@ -775,8 +997,8 @@ class g_screen():
 			name = '~Built Door~'
 			name_image = self.font.render(name,1,(255,255,255))
 			
-			posx = 120
-			posy = 290
+			posx = 0
+			posy = 0
 			
 			s.blit(name_image,(posx,posy))
 			
@@ -786,8 +1008,8 @@ class g_screen():
 		
 			wood_string = 'Wood: ' + str(wood_need) + '(' + str(player.inventory.materials.wood) + ')' 
 		
-			posx = 50
-			posy = 315
+			posx = 0
+			posy = 15
 		
 			if wood_need <= player.inventory.materials.wood:
 				wood_image = self.font.render(wood_string,1,(255,255,255))
@@ -802,8 +1024,8 @@ class g_screen():
 		
 			stone_string = 'Stone: ' + str(stone_need) + '(' + str(player.inventory.materials.stone) + ')' 
 		
-			posx = 200
-			posy = 315
+			posx = 160
+			posy = 15
 		
 			if stone_need <= player.inventory.materials.stone:
 				stone_image = self.font.render(stone_string,1,(255,255,255))
@@ -814,12 +1036,19 @@ class g_screen():
 			
 			# render info line
 			
-			info_string = '[w,a,s,d]ch. Pos. [b]ch. Mode [x]Leave [e]BUILT!' 
+			info_string_0 = '[w,a,s,d]ch. Pos. [b]ch. Mode'
+			info_string_1 = '[x]Leave [e]BUILT!' 
 		
-			posx = 50
-			posy = 340
+			posx = 0
+			posy = 30
 		
-			info_image = self.font.render(info_string,1,(255,255,255))
+			info_image = self.font.render(info_string_0,1,(255,255,255))
+			s.blit(info_image,(posx,posy))
+			
+			posx = 0
+			posy = 40
+		
+			info_image = self.font.render(info_string_1,1,(255,255,255))
 			s.blit(info_image,(posx,posy))
 			
 			pygame.display.flip()
@@ -828,17 +1057,17 @@ class g_screen():
 
 			if player.pos[2] > 0:
 					
-				if world.maplist[player.pos[2]][player.on_map].tilemap[player.pos[1]+ymin][player.pos[0]+xmin].replace == None and world.maplist[player.pos[2]-1][player.on_map].tilemap[player.pos[1]+ymin][player.pos[0]+xmin].build_here == True and world.maplist[player.pos[2]][player.on_map].tilemap[player.pos[1]+ymin][player.pos[0]+xmin].build_here == True and world.maplist[player.pos[2]][player.on_map].tilemap[player.pos[1]+ymin][player.pos[0]+xmin].move == True and world.maplist[player.pos[2]][player.on_map].tilemap[player.pos[1]+ymin][player.pos[0]+xmin].damage == False:
+				if world.maplist[player.pos[2]][player.on_map].tilemap[player.pos[1]+ymin][player.pos[0]+xmin].replace == None and world.maplist[player.pos[2]-1][player.on_map].tilemap[player.pos[1]+ymin][player.pos[0]+xmin].build_here == True and world.maplist[player.pos[2]][player.on_map].tilemap[player.pos[1]+ymin][player.pos[0]+xmin].build_here == True and world.maplist[player.pos[2]][player.on_map].tilemap[player.pos[1]+ymin][player.pos[0]+xmin].move_groupe == 'soil' and world.maplist[player.pos[2]][player.on_map].tilemap[player.pos[1]+ymin][player.pos[0]+xmin].damage == False:
 					build_here = 0
 				else: 
 					build_here = 1
 							
 				if build_here == 0:
-					s.blit(gra_files.gdic['built'][10],(start_pos+(xmin*32),start_pos+(ymin*32))) #stair up true icon here
+					s.blit(gra_files.gdic['built'][10],(start_pos_x+(xmin*32),start_pos_y+(ymin*32))) #stair up true icon here
 				else:
-					s.blit(gra_files.gdic['built'][11],(start_pos+(xmin*32),start_pos+(ymin*32))) #stair up false icon here
+					s.blit(gra_files.gdic['built'][11],(start_pos_x+(xmin*32),start_pos_y+(ymin*32))) #stair up false icon here
 			else:
-				s.blit(gra_files.gdic['built'][11],(start_pos+(xmin*32),start_pos+(ymin*32))) #stair up false icon here
+				s.blit(gra_files.gdic['built'][11],(start_pos_x+(xmin*32),start_pos_y+(ymin*32))) #stair up false icon here
 			
 			s.blit(gra_files.gdic['display'][5],(0,0)) #render gui_transparent over gui
 		
@@ -847,8 +1076,8 @@ class g_screen():
 			name = '~Built stair up~'
 			name_image = self.font.render(name,1,(255,255,255))
 			
-			posx = 120
-			posy = 290
+			posx = 0
+			posy = 0
 			
 			s.blit(name_image,(posx,posy))
 			
@@ -858,8 +1087,8 @@ class g_screen():
 		
 			wood_string = 'Wood: ' + str(wood_need) + '(' + str(player.inventory.materials.wood) + ')' 
 		
-			posx = 50
-			posy = 315
+			posx = 0
+			posy = 15
 		
 			if wood_need <= player.inventory.materials.wood:
 				wood_image = self.font.render(wood_string,1,(255,255,255))
@@ -874,8 +1103,8 @@ class g_screen():
 		
 			stone_string = 'Stone: ' + str(stone_need) + '(' + str(player.inventory.materials.stone) + ')' 
 		
-			posx = 200
-			posy = 315
+			posx = 160
+			posy = 15
 		
 			if stone_need <= player.inventory.materials.stone:
 				stone_image = self.font.render(stone_string,1,(255,255,255))
@@ -886,12 +1115,19 @@ class g_screen():
 			
 			# render info line
 			
-			info_string = '[w,a,s,d]ch. Pos. [b]ch. Mode [x]Leave [e]BUILT!' 
+			info_string_0 = '[w,a,s,d]ch. Pos. [b]ch. Mode'
+			info_string_1 = '[x]Leave [e]BUILT!' 
 		
-			posx = 50
-			posy = 340
+			posx = 0
+			posy = 30
 		
-			info_image = self.font.render(info_string,1,(255,255,255))
+			info_image = self.font.render(info_string_0,1,(255,255,255))
+			s.blit(info_image,(posx,posy))
+			
+			posx = 0
+			posy = 40
+		
+			info_image = self.font.render(info_string_1,1,(255,255,255))
 			s.blit(info_image,(posx,posy))
 			
 			pygame.display.flip()
@@ -900,17 +1136,17 @@ class g_screen():
 			
 			if player.pos[2] < 15:
 				
-				if world.maplist[player.pos[2]][player.on_map].tilemap[player.pos[1]+ymin][player.pos[0]+xmin].replace == None and world.maplist[player.pos[2]+1][player.on_map].tilemap[player.pos[1]+ymin][player.pos[0]+xmin].build_here == True and world.maplist[player.pos[2]][player.on_map].tilemap[player.pos[1]+ymin][player.pos[0]+xmin].build_here == True and world.maplist[player.pos[2]][player.on_map].tilemap[player.pos[1]+ymin][player.pos[0]+xmin].move == True and world.maplist[player.pos[2]][player.on_map].tilemap[player.pos[1]+ymin][player.pos[0]+xmin].damage == False:
+				if world.maplist[player.pos[2]][player.on_map].tilemap[player.pos[1]+ymin][player.pos[0]+xmin].replace == None and world.maplist[player.pos[2]+1][player.on_map].tilemap[player.pos[1]+ymin][player.pos[0]+xmin].build_here == True and world.maplist[player.pos[2]][player.on_map].tilemap[player.pos[1]+ymin][player.pos[0]+xmin].build_here == True and world.maplist[player.pos[2]][player.on_map].tilemap[player.pos[1]+ymin][player.pos[0]+xmin].move_groupe == 'soil' and world.maplist[player.pos[2]][player.on_map].tilemap[player.pos[1]+ymin][player.pos[0]+xmin].damage == False:
 					build_here = 0
 				else: 
 					build_here = 1
 							
 				if build_here == 0:
-					s.blit(gra_files.gdic['built'][12],(start_pos+(xmin*32),start_pos+(ymin*32))) #stair up true icon here
+					s.blit(gra_files.gdic['built'][12],(start_pos_x+(xmin*32),start_pos_y+(ymin*32))) #stair up true icon here
 				else:
-					s.blit(gra_files.gdic['built'][13],(start_pos+(xmin*32),start_pos+(ymin*32))) #stair up false icon here
+					s.blit(gra_files.gdic['built'][13],(start_pos_x+(xmin*32),start_pos_y+(ymin*32))) #stair up false icon here
 			else:
-				s.blit(gra_files.gdic['built'][12],(start_pos+(xmin*32),start_pos+(ymin*32))) #stair up false icon here
+				s.blit(gra_files.gdic['built'][12],(start_pos_x+(xmin*32),start_pos_y+(ymin*32))) #stair up false icon here
 			
 			s.blit(gra_files.gdic['display'][5],(0,0)) #render gui_transparent over gui
 		
@@ -919,8 +1155,8 @@ class g_screen():
 			name = '~Built stair down~'
 			name_image = self.font.render(name,1,(255,255,255))
 			
-			posx = 120
-			posy = 290
+			posx = 0
+			posy = 0
 			
 			s.blit(name_image,(posx,posy))
 			
@@ -930,8 +1166,8 @@ class g_screen():
 		
 			wood_string = 'Wood: ' + str(wood_need) + '(' + str(player.inventory.materials.wood) + ')' 
 		
-			posx = 50
-			posy = 315
+			posx = 0
+			posy = 15
 		
 			if wood_need <= player.inventory.materials.wood:
 				wood_image = self.font.render(wood_string,1,(255,255,255))
@@ -948,8 +1184,8 @@ class g_screen():
 		
 			stone_string = 'Stone: ' + str(stone_need) + '(' + str(player.inventory.materials.stone) + ')' 
 		
-			posx = 200
-			posy = 315
+			posx = 160
+			posy = 15
 		
 			if stone_need <= player.inventory.materials.stone:
 				stone_image = self.font.render(stone_string,1,(255,255,255))
@@ -960,12 +1196,19 @@ class g_screen():
 			
 			# render info line
 			
-			info_string = '[w,a,s,d]ch. Pos. [b]ch. Mode [x]Leave [e]BUILT!' 
+			info_string_0 = '[w,a,s,d]ch. Pos. [b]ch. Mode'
+			info_string_1 = '[x]Leave [e]BUILT!' 
 		
-			posx = 50
-			posy = 340
+			posx = 0
+			posy = 30
 		
-			info_image = self.font.render(info_string,1,(255,255,255))
+			info_image = self.font.render(info_string_0,1,(255,255,255))
+			s.blit(info_image,(posx,posy))
+			
+			posx = 0
+			posy = 40
+		
+			info_image = self.font.render(info_string_1,1,(255,255,255))
 			s.blit(info_image,(posx,posy))
 			
 			pygame.display.flip()
@@ -975,7 +1218,7 @@ class g_screen():
 			for y in range (-ymin,ymax+1):
 				for x in range (-xmin,xmax+1):
 				
-					if world.maplist[player.pos[2]][player.on_map].tilemap[player.pos[1]+y][player.pos[0]+x].move == True and world.maplist[player.pos[2]][player.on_map].tilemap[player.pos[1]+y][player.pos[0]+x].damage == False and world.maplist[player.pos[2]][player.on_map].tilemap[player.pos[1]+y][player.pos[0]+x].civilisation == False and world.maplist[player.pos[2]][player.on_map].npcs[player.pos[1]+y][player.pos[0]+x] == 0:
+					if world.maplist[player.pos[2]][player.on_map].tilemap[player.pos[1]+y][player.pos[0]+x].move_groupe == 'soil' and world.maplist[player.pos[2]][player.on_map].tilemap[player.pos[1]+y][player.pos[0]+x].damage == False and world.maplist[player.pos[2]][player.on_map].tilemap[player.pos[1]+y][player.pos[0]+x].civilisation == False and world.maplist[player.pos[2]][player.on_map].npcs[player.pos[1]+y][player.pos[0]+x] == 0:
 						built_here = 1
 						price += 1
 					elif world.maplist[player.pos[2]][player.on_map].tilemap[player.pos[1]+y][player.pos[0]+x].civilisation == True:
@@ -995,13 +1238,13 @@ class g_screen():
 					
 						
 						if built_here == 1:
-							s.blit(gra_files.gdic['built'][15],(start_pos+(x*32),start_pos+(y*32))) #floor_true here
+							s.blit(gra_files.gdic['built'][15],(start_pos_x+(x*32),start_pos_y+(y*32))) #floor_true here
 						elif built_here == 2:
-							s.blit(gra_files.gdic['built'][16],(start_pos+(x*32),start_pos+(y*32))) #floor_over
+							s.blit(gra_files.gdic['built'][16],(start_pos_x+(x*32),start_pos_y+(y*32))) #floor_over
 									
 					else:
 					
-						s.blit(gra_files.gdic['built'][14],(start_pos+(x*32),start_pos+(y*32))) #floor_false here
+						s.blit(gra_files.gdic['built'][14],(start_pos_x+(x*32),start_pos_y+(y*32))) #floor_false here
 		
 			s.blit(gra_files.gdic['display'][5],(0,0)) #render gui_transparent over gui
 			
@@ -1010,8 +1253,8 @@ class g_screen():
 			name = '~Build Agriculture~'
 			name_image = self.font.render(name,1,(255,255,255))
 			
-			posx = 120
-			posy = 290
+			posx = 0
+			posy = 0
 			
 			s.blit(name_image,(posx,posy))
 			
@@ -1024,8 +1267,8 @@ class g_screen():
 			stone_need = 0
 			wood_string = 'Seeds: ' + str(seed_need) + '(' + str(player.inventory.materials.seeds) + ')' 
 		
-			posx = 50
-			posy = 315
+			posx = 120
+			posy = 15
 		
 			if wood_need <= player.inventory.materials.wood:
 				wood_image = self.font.render(wood_string,1,(255,255,255))
@@ -1036,12 +1279,19 @@ class g_screen():
 			
 			# render info line
 			
-			info_string = '[w,a,s,d]ch. Size [b]ch. Mode [x]Leave [e]BUILT!' 
+			info_string_0 = '[w,a,s,d]ch. Size [b]ch. Mode'
+			info_string_1 = '[x]Leave [e]BUILT!' 
 		
-			posx = 50
-			posy = 340
+			posx = 0
+			posy = 30
 		
-			info_image = self.font.render(info_string,1,(255,255,255))
+			info_image = self.font.render(info_string_0,1,(255,255,255))
+			s.blit(info_image,(posx,posy))
+			
+			posx = 0
+			posy = 40
+		
+			info_image = self.font.render(info_string_1,1,(255,255,255))
 			s.blit(info_image,(posx,posy))
 					
 		elif style == 'remove':
@@ -1055,7 +1305,7 @@ class g_screen():
 						remove_here = 1
 							
 					if remove_here == 0:
-						s.blit(gra_files.gdic['built'][9],(start_pos+(x*32),start_pos+(y*32))) #remove icon here
+						s.blit(gra_files.gdic['built'][9],(start_pos_x+(x*32),start_pos_y+(y*32))) #remove icon here
 					else:
 						None
 			
@@ -1066,8 +1316,8 @@ class g_screen():
 			name = '~Remove~'
 			name_image = self.font.render(name,1,(255,255,255))
 			
-			posx = 120
-			posy = 290
+			posx = 0
+			posy = 0
 			
 			s.blit(name_image,(posx,posy))
 			
@@ -1075,8 +1325,8 @@ class g_screen():
 				
 			wood_string = '---' 
 		
-			posx = 180
-			posy = 315
+			posx = 120
+			posy = 15
 		
 			wood_image = self.font.render(wood_string,1,(255,255,255))
 			
@@ -1084,18 +1334,25 @@ class g_screen():
 			
 			# render info line
 			
-			info_string = '[w,a,s,d]ch. Size [b]ch. Mode [x]Leave [e]BUILT!' 
+			info_string_0 = '[w,a,s,d]ch. Size [b]ch. Mode'
+			info_string_1 = '[x]Leave [e]BUILT!' 
 		
-			posx = 50
-			posy = 340
+			posx = 0
+			posy = 30
 		
-			info_image = self.font.render(info_string,1,(255,255,255))
+			info_image = self.font.render(info_string_0,1,(255,255,255))
+			s.blit(info_image,(posx,posy))
+			
+			posx = 0
+			posy = 40
+		
+			info_image = self.font.render(info_string_1,1,(255,255,255))
 			s.blit(info_image,(posx,posy))
 			
 			wood_need = 0
 			stone_need = 0
 		
-		if game_options.mousepad == 0:
+		if game_options.mousepad == 0 and low_res == False:
 			s_help = pygame.Surface((640,360))
 			s_help.fill((255,0,255))
 			s_help.blit(s,(80,0))
@@ -1103,7 +1360,9 @@ class g_screen():
 			
 		s.set_colorkey((255,0,255),pygame.RLEACCEL)	
 		s = s.convert_alpha()
-		s = pygame.transform.scale(s,(self.displayx,self.displayy))
+		if low_res == False:
+			s = pygame.transform.scale(s,(self.displayx,self.displayy))
+		
 		self.screen.blit(s,(0,0))
 		
 		pygame.display.flip()
@@ -1126,14 +1385,14 @@ class g_screen():
 		line1_image = self.font.render(line1,1,(255,255,255))
 			
 		posx = 0
-		posy = 290
+		posy = 0
 			
 		s.blit(line1_image,(posx,posy))
 			
 		line2_image = self.font.render(line2,1,(255,255,255))
 		
 		posx = 0
-		posy = 315
+		posy = 20
 		
 		s.blit(line2_image,(posx,posy))
 			
@@ -1141,7 +1400,7 @@ class g_screen():
 		line3_image = self.font.render(line3,1,(255,255,255)) 
 		
 		posx = 0
-		posy = 340
+		posy = 40
 		
 		s.blit(line3_image,(posx,posy))
 		
@@ -1192,14 +1451,14 @@ class g_screen():
 				s_help.fill((48,48,48))
 				s.blit(s_help,(480,0))
 			
-			text_image = screen.font.render('~*~ Map ~*~        [Press [x] to leave]',1,(255,255,255))
+			text_image = screen.menu_font.render('~*~ Map ~*~        [Press [x] to leave]',1,(255,255,255))
 			s.blit(text_image,(5,2))#menue title
 			
 			lvl_string = 'Level ' + str(level)
-			text_image = screen.font.render(lvl_string,1,(0,0,0))
+			text_image = screen.menu_font.render(lvl_string,1,(0,0,0))
 			s.blit(text_image,(300,70))
 			
-			text_image = screen.font.render('[w] - lvl. up [s] - lvl. down',1,(255,255,255))
+			text_image = screen.menu_font.render('[w] - lvl. up [s] - lvl. down',1,(255,255,255))
 			s.blit(text_image,(5,335))
 			
 			s.blit(m,(25,55))
@@ -1241,14 +1500,14 @@ class g_screen():
 				s_help.fill((48,48,48))
 				s.blit(s_help,(480,0))
 			
-			text_image = screen.font.render('~*~ Credits ~*~        [Press [x] to leave]',1,(255,255,255))
+			text_image = screen.menu_font.render('~*~ Credits ~*~        [Press [x] to leave]',1,(255,255,255))
 			s.blit(text_image,(5,2))#menue title
 			
 			credit_items = ('Idea & Code: Marian Luck aka Nothing', 'BGM: Yubatake & Avgvsta [opengameart.org]' , 'SFX: Little Robot Sound Factory', 'Font: Cody Boisclair' )
 		
 			for i in range (0,len(credit_items)):
 			
-				text_image = screen.font.render(credit_items[i],1,(0,0,0))
+				text_image = screen.menu_font.render(credit_items[i],1,(0,0,0))
 				s.blit(text_image,(21,120+i*25))#blit credit_items
 			
 			if game_options.mousepad == 0:
@@ -1276,11 +1535,13 @@ class g_screen():
 		while run:
 			
 			s = pygame.Surface((640,360))
-			
-			if game_options.screenmode == 1:
-				winm = 'Screenmode: Fullscreen'
+			if low_res == False:
+				if game_options.screenmode == 1:
+					winm = 'Screenmode: Fullscreen'
+				else:
+					winm = 'Screenmode: Windowed'
 			else:
-				winm = 'Screenmode: Windowed'
+				winm = '----------'
 				
 			
 			if game_options.bgmmode == 1:
@@ -1297,11 +1558,14 @@ class g_screen():
 				turnm = 'Gamemode: Semi-Realtime'
 			else:
 				turnm = 'Gamemode: Turnbased'
-				
-			if game_options.mousepad == 1:
-				mousem = 'Use Mouse: yes'
+			
+			if low_res == False:	
+				if game_options.mousepad == 1:
+					mousem = 'Use Mouse: yes'
+				else:
+					mousem = 'Use Mouse: no'
 			else:
-				mousem = 'Use Mouse: no'
+				mousem = '----------'
 			
 			s.blit(gra_files.gdic['display'][1],(0,0)) #render background
 		
@@ -1312,7 +1576,7 @@ class g_screen():
 		
 			for i in range (0,len(menu_items)):
 			
-				text_image = screen.font.render(menu_items[i],1,(0,0,0))
+				text_image = screen.menu_font.render(menu_items[i],1,(0,0,0))
 				s.blit(text_image,(21,120+i*25))#blit menu_items
 			
 			s.blit(gra_files.gdic['display'][4],(0,112+num*25))#blit marker
@@ -1352,7 +1616,7 @@ class g_screen():
 			
 			if ui == 'e':
 				
-				if num == 0:
+				if num == 0 and low_res == False:
 					screen.re_init()
 					pygame.display.flip()
 					game_options.save()
@@ -1381,8 +1645,10 @@ class g_screen():
 						game_options.turnmode = 0
 					else:
 						game_options.turnmode = 1
+						
+					game_options.save()
 				
-				if num == 4:
+				if num == 4 and low_res == False:
 					if game_options.mousepad == 1:
 						game_options.mousepad = 0
 					else:
@@ -1399,6 +1665,7 @@ class g_screen():
 		run = True
 		num = 0
 		global exitgame
+		global playing
 		
 		while run:
 			
@@ -1406,14 +1673,14 @@ class g_screen():
 			
 			s.blit(gra_files.gdic['display'][1],(0,0)) #render background
 		
-			text_image = screen.font.render('~*~ Game Paused ~*~        [Press [e] to choose]',1,(255,255,255))
+			text_image = screen.menu_font.render('~*~ Game Paused ~*~        [Press [e] to choose]',1,(255,255,255))
 			s.blit(text_image,(5,2))#menue title
 		
-			menu_items = ('Resume','Map','Message History','Save and Exit', 'Options', 'Credits', '!!!RESET GAME!!!')
+			menu_items = ('Resume','Map','Message History','Save and Exit', 'Options',)
 		
 			for i in range (0,len(menu_items)):
 			
-				text_image = screen.font.render(menu_items[i],1,(0,0,0))
+				text_image = screen.menu_font.render(menu_items[i],1,(0,0,0))
 				s.blit(text_image,(21,120+i*25))#blit menu_items
 			
 			s.blit(gra_files.gdic['display'][4],(0,112+num*25))#blit marker
@@ -1465,113 +1732,17 @@ class g_screen():
 				if num == 3:
 					exitgame = True
 					screen.render_load(5)
-					save(world,player,time,gods,basic_path,os.sep)
+					save(world,player,time,gods,save_path,os.sep)
+					screen.save_tmp_png()
+					playing = False
 					run = False
 					
 				if num == 4:
 					screen.render_options()
-				
-				if num == 5:
-					screen.render_credits()
-					
-				if num == 6:
-					run2 = True
-					num2 = 0
-		
-					while run2:
-						
-						s = pygame.Surface((640,360))
-			
-						s.blit(gra_files.gdic['display'][1],(0,0)) #render background
-		
-						text_image = screen.font.render('~*~ WARNING ~*~        [Press [e] to choose]',1,(255,255,255))
-						s.blit(text_image,(5,2))#menue title
-						
-						warn_image = screen.font.render('!!!WARNING!!!',1,(255,0,0))
-						s.blit(warn_image,(5,60))#menue title
-						
-						warn_image = screen.font.render('This will delet all your game files and exit the Game!',1,(255,0,0))
-						s.blit(warn_image,(5,80))#menue title
-						
-						menu_items = ('Back','!RESET!')
-		
-						for i in range (0,len(menu_items)):
-			
-							text_image = screen.font.render(menu_items[i],1,(0,0,0))
-							s.blit(text_image,(21,120+i*25))#blit menu_items
-			
-						s.blit(gra_files.gdic['display'][4],(0,112+num2*25))#blit marker
-						
-						if game_options.mousepad == 1:
-							s.blit(gra_files.gdic['display'][8],(480,0)) #render mouse pad
-						else:
-							s_help = pygame.Surface((160,360))
-							s_help.fill((48,48,48))
-							s.blit(s_help,(480,0))
-						
-						if game_options.mousepad == 0:
-							s_help = pygame.Surface((640,360))
-							s_help.fill((48,48,48))
-							s_help.blit(s,(80,0))
-							s = s_help
-						
-						s = pygame.transform.scale(s,(screen.displayx,screen.displayy))
-						screen.screen.blit(s,(0,0))
-						
-						pygame.display.flip()
-						
-						ui = getch(screen.displayx,screen.displayy,game_options.sfxmode,game_options.turnmode,mouse=game_options.mousepad)
-		
-						if ui == 'w':
-							num2 -= 1
-							if num2 < 0:
-								num2 = len(menu_items)-1
-				
-						if ui == 's':
-							num2 += 1
-							if num2 >= len(menu_items):
-								num2 = 0
-				
-						if ui == 'e':
-							
-							if num2 == 0:
-								run2 = False
-							if run2 == 1:
-								save_path = basic_path + os.sep + 'SAVE' + os.sep
-								
-								try:
-									player_path = save_path + 'player.data'
-									os.remove(player_path)
-								except:
-									None
-									
-								try:
-									world_path = save_path + 'world.data'
-									os.remove(world_path)
-								except:
-									None	
-									
-								try:
-									gods_path = save_path + 'gods.data'
-									os.remove(gods_path)
-								except:
-									None
-									
-								try:
-									time_path = save_path + 'time.data'
-									os.remove(time_path)
-								except:
-									None
-									
-								exitgame = True
-								run2 = False
-								run = False
-							
-							
-						
+											
 		return exitgame
 	
-	def get_choice(self,headline,choices,allow_chancel): 
+	def get_choice(self,headline,choices,allow_chancel,style='Default'): 
 		
 		#this function allows the player to make a coice. The choices-variable is a tulpel with strings. The function returns the number of the choosen string inside the tulpel
 		
@@ -1582,26 +1753,32 @@ class g_screen():
 			
 			s = pygame.Surface((640,360))
 			
-			s.blit(gra_files.gdic['display'][1],(0,0)) #render background
+			if style == 'Default':
+				s.blit(gra_files.gdic['display'][1],(0,0)) #render background
+			elif style == 'Warning':
+				s.blit(gra_files.gdic['display'][17],(0,0))
 		
-			text_image = screen.font.render(headline,1,(255,255,255))
+			text_image = screen.menu_font.render(headline,1,(255,255,255))
 			s.blit(text_image,(5,2))#menue title
 		
 			menu_items = choices
 		
 			for i in range (0,len(menu_items)):
 			
-				text_image = screen.font.render(menu_items[i],1,(0,0,0))
+				text_image = screen.menu_font.render(menu_items[i],1,(0,0,0))
 				s.blit(text_image,(21,120+i*25))#blit menu_items
 			
 			if allow_chancel == True:
-				text_image = screen.font.render('[e] - choose [x] - leave',1,(255,255,255))
+				text_image = screen.menu_font.render('[e] - choose [x] - leave',1,(255,255,255))
 				s.blit(text_image,(5,335))
 			else:
-				text_image = screen.font.render('[e] - choose',1,(255,255,255))
+				text_image = screen.menu_font.render('[e] - choose',1,(255,255,255))
 				s.blit(text_image,(5,335))
 			
-			s.blit(gra_files.gdic['display'][4],(0,112+num*25))#blit marker
+			if style == 'Default':
+				s.blit(gra_files.gdic['display'][4],(0,112+num*25))#blit marker
+			elif style == 'Warning':
+				s.blit(gra_files.gdic['display'][18],(0,112+num*25))#blit marker
 			
 			if game_options.mousepad == 1:
 				s.blit(gra_files.gdic['display'][8],(480,0)) #render mouse pad
@@ -1752,7 +1929,7 @@ class g_screen():
 			
 			s.fill((48,48,48)) #paint it grey(to clear the screen)
 		
-			text_image = screen.font.render('YOU ARE DEAD!',1,(255,255,255))
+			text_image = screen.menu_font.render('YOU ARE DEAD!',1,(255,255,255))
 			s.blit(text_image,(175,60))
 		
 			if player.difficulty == 3: #you play on roguelike mode
@@ -1760,7 +1937,7 @@ class g_screen():
 			else:#you play on a other mode
 				choose_string = '[e] - RESPAWN [x] - END GAME'  
 		
-			choose_image = screen.font.render(choose_string,1,(255,255,255))
+			choose_image = screen.menu_font.render(choose_string,1,(255,255,255))
 			s.blit(choose_image,(125,200))
 			
 			if game_options.mousepad == 1:
@@ -1793,138 +1970,7 @@ class g_screen():
 					save(world,player,time,gods,basic_path,os.sep)
 				run = False
 				exitgame = True
-			
-class tilelist():
-	
-	def __init__(self):
-		
-		path = data_path
-		self.tlist = {}
-		
-		name = path + os.sep + 'misc_tiles.data'
-		f = file(name, 'r')
-		self.tlist['misc'] = p.load(f)
-		f.close()
-		
-		name = path + os.sep + 'orcish_tiles.data'
-		f = file(name,'r')
-		self.tlist['mine'] = p.load(f)
-		f.close()
-		
-		name = path + os.sep + 'global_caves_tiles.data'
-		f = file(name, 'r')
-		self.tlist['global_caves'] = p.load(f)
-		f.close()
-		
-		name = path + os.sep + 'functional_tiles.data'
-		f = file(name, 'r')
-		self.tlist['functional'] = p.load(f)
-		f.close()
-		
-		name = path + os.sep + 'local_tiles.data'
-		f = file(name, 'r')
-		self.tlist['local'] = p.load(f)
-		f.close()
-		
-		name = path + os.sep + 'building_tiles.data'
-		f = file(name, 'r')
-		self.tlist['building'] = p.load(f)
-		f.close()
-		
-		name = path + os.sep + 'help_tiles.data'
-		f = file(name, 'r')
-		self.tlist['help'] = p.load(f)
-		f.close()
-		
-		name = path + os.sep + 'sanctuary_tiles.data'
-		f = file(name, 'r')
-		self.tlist['sanctuary'] = p.load(f)
-		f.close()
-		
-		name = path + os.sep + 'shop_tiles.data'
-		f = file(name, 'r')
-		self.tlist['shop'] = p.load(f)
-		f.close()
-		
-		name = path + os.sep + 'effect_tiles.data'
-		f = file(name, 'r')
-		self.tlist['effect'] = p.load(f)
-		f.close()
-		
-		name = path + os.sep + 'elfish_tiles.data'
-		f = file(name, 'r')
-		self.tlist['elfish'] = p.load(f)
-		f.close()
-		
-class itemlist():
-	
-	def __init__(self):
-		
-		path = data_path
-		self.ilist = {}
-		
-		name = path + os.sep + 'misc_items.data'
-		f = file(name, 'r')
-		self.ilist['misc'] = p.load(f)
-		f.close()
-		
-		name = path + os.sep + 'food_items.data'
-		f = file(name,'r')
-		self.ilist['food'] = p.load(f)
-		f.close()
-		
-class monsterlist():
-	
-	def __init__(self):
-		
-		path = data_path
-		self.mlist = {}
-		
-		name = path + os.sep + 'overworld_monster.data'
-		f = file(name, 'r')
-		self.mlist['overworld'] = p.load(f)
-		f.close()
-		
-		name = path + os.sep + 'civilian_monster.data'
-		f = file(name, 'r')
-		self.mlist['civilian'] = p.load(f)
-		f.close()
-		
-		name = path + os.sep + 'cave_monster.data'
-		f = file(name, 'r')
-		self.mlist['cave'] = p.load(f)
-		f.close()
-		
-		name = path + os.sep + 'mine_monster.data'
-		f = file(name, 'r')
-		self.mlist['orcish_mines'] = p.load(f)
-		f.close()
-		
-		name = path + os.sep + 'elfish_monster.data'
-		f = file(name, 'r')
-		self.mlist['elfish_fortress'] = p.load(f)
-		f.close()
-		
-		name = path + os.sep + 'angry_elfish_monster.data'
-		f = file(name, 'r')
-		self.mlist['angry_elf'] = p.load(f)
-		f.close()
-		
-		name = path + os.sep + 'grot_monster.data'
-		f = file(name, 'r')
-		self.mlist['grot'] = p.load(f)
-		f.close()
-		
-		name = path + os.sep + 'lava_cave_monster.data'
-		f = file(name, 'r')
-		self.mlist['lava_cave'] = p.load(f)
-		f.close()
-		
-		name = path + os.sep + 'special_monster.data'
-		f = file(name, 'r')
-		self.mlist['special'] = p.load(f)
-		f.close()
-		
+					
 class map():
 	
 	def __init__(self, name, tilemap, visit=False, map_type='overworld'):
@@ -2308,19 +2354,14 @@ class map():
 							
 						try:
 								
-							move = self.tilemap[y+yy[i]][x+xx[i]].move
-							damage = self.tilemap[y+yy[i]][x+xx[i]].damage
-								
-							if  self.npcs[y][x].ignore_damage == True:
-								damage = False
-									
-							if self.tilemap[y+yy[i]][x+xx[i]].techID == tl.tlist['misc'][0].techID: #this is low water
-								if self.npcs[y][x].ignore_water == False:
-									water = True
-								else:
-									water = False 
-							else:
-								water = False
+							monster_move_groups = self.npcs[y][x].move_groups
+							tile_move_groupe = self.tilemap[y+yy[i]][x+xx[i]].move_groupe
+							
+							move_groupe_check = False
+							
+							for j in range(0,len(monster_move_groups)):
+								if monster_move_groups[j] == tile_move_groupe:
+									move_groupe_check = True
 									
 							if self.npcs[y+yy[i]][x+xx[i]] == 0:
 								npc = False
@@ -2337,14 +2378,13 @@ class map():
 							else:
 								playerpos = False
 							
-							if move == True and damage == False and water == False and npc == False and stair == False and playerpos == False:
+							if move_groupe_check == True and npc == False and stair == False and playerpos == False:
 									
 								moves.append((x+xx[i],y+yy[i]))
 									
 									
 						except:
-								
-							None
+							print('Debug:Error')
 					
 						#II. Find out wich possible move leads to wich distance between monster and player
 					distances = []
@@ -2609,7 +2649,7 @@ class map():
 					for xx in range(x-1,x+2):
 						
 						if yy != player.pos[1] or xx!= player.pos[0]:
-							if self.npcs[yy][xx] == 0 and self.tilemap[yy][xx].move == True and self.tilemap[yy][xx].damage == 0:
+							if self.npcs[yy][xx] == 0 and self.tilemap[yy][xx].move_groupe == 'soil' and self.tilemap[yy][xx].damage == 0:
 								self.npcs[yy][xx] = deepcopy(ml.mlist['special'][2])#set vase monsters
 								self.set_monster_strange(xx,yy,player.pos[2])
 								if player.difficulty == 4:
@@ -2656,7 +2696,7 @@ class map():
 				self.npcs[y][x].AI_style = 'ignore'
 		else:
 			self.npcs[y][x] = 0 #allways del the monster if it is no mimic
-		self.make_monsters_angry(x,y)
+		self.make_monsters_angry(x,y,'kill')
 		message.add(die_mess)
 		return True
 	
@@ -2685,30 +2725,22 @@ class map():
 			self.tilemap[y+2][x] = deepcopy(tl.tlist['shop'][2])   
 			
 			if self.map_type == 'orcish_mines':			
-				self.tilemap[y][x] = deepcopy(tl.tlist['shop'][4])
+				self.npcs[y][x] = deepcopy(ml.mlist['shop'][1])
 			elif self.map_type == 'grot':			
-				self.tilemap[y][x] = deepcopy(tl.tlist['shop'][5])
+				self.npcs[y][x] = deepcopy(ml.mlist['shop'][2])
 			else:
-				self.tilemap[y][x] = deepcopy(tl.tlist['shop'][3])#the elfish shopkeeper is only for fallback...In the elfish fortress the shops are spawned on a other way
+				self.npcs[y][x] = deepcopy(ml.mlist['shop'][0])#the elfish shopkeeper is only for fallback...In the elfish fortress the shops are spawned on a other way
 	
-	def make_monsters_angry(self,x,y):
+	def make_monsters_angry(self,x,y,style):
 		
 		for yy in range(y-3,y+4):
 			for xx in range(x-3,x+4):
 				
 				try:
 					if self.npcs[yy][xx] != 0:
-					
-						if self.npcs[yy][xx].techID == ml.mlist['elfish_fortress'][0].techID:
-							self.npcs[yy][xx] = deepcopy(ml.mlist['angry_elf'][0])
-							self.set_monster_strange(xx,yy,player.pos[2])
-					
-						if self.npcs[yy][xx].techID == ml.mlist['elfish_fortress'][1].techID:
-							self.npcs[yy][xx] = deepcopy(ml.mlist['angry_elf'][1])
-							self.set_monster_strange(xx,yy,player.pos[2])
-						
-						#go on here
-							
+						if self.npcs[yy][xx].anger == style:
+							self.npcs[yy][xx] = deepcopy(ml.mlist['angry_monster'][self.npcs[yy][xx].anger_monster])
+							self.set_monster_strange(xx,yy,player.pos[2])		
 				except:
 					None
 	
@@ -3115,12 +3147,18 @@ class map():
 		cordinates_list = []
 		for y in range (0, max_map_size):
 			for x in range (0,max_map_size):
+				
+				moveable = False
+				
 				if ignore_water == True:
-					if self.tilemap[y][x].move == True and self.tilemap[y][x].damage == False and self.tilemap[y][x].techID != tl.tlist['misc'][0].techID:
-						cordinates_list.append((x,y))
+					if self.tilemap[y][x].move_groupe == 'soil':
+						moveable = True
 				else:
-					if self.tilemap[y][x].move == True and self.tilemap[y][x].damage == False:
-						cordinates_list.append((x,y))
+					if self.tilemap[y][x].move_groupe == 'soil' or self.tilemap[y][x].move_groupe == 'low_liquid':
+						moveable = True
+				
+				if moveable == True and self.tilemap[y][x].damage == False and self.tilemap[y][x].techID != tl.tlist['misc'][0].techID:
+					cordinates_list.append((x,y))
 					
 		if len(cordinates_list) > 0:
 			return cordinates_list
@@ -3279,8 +3317,6 @@ class map():
 						self.tilemap[y][x] = deepcopy(tl.tlist['sanctuary'][1])#sanctuary pilar
 						
 		self.tilemap[starty][startx] = deepcopy(tl.tlist['sanctuary'][2])#sanctuary spawn point
-		self.tilemap[starty][startx-1] = deepcopy(tl.tlist['sanctuary'][3])#sanctuary dark portal off
-		self.tilemap[starty][startx+1] = deepcopy(tl.tlist['sanctuary'][5])#sanctuary light portal off
 		
 		self.tilemap[starty-1][startx] = deepcopy(tl.tlist['functional'][20])#divine gift
 		self.tilemap[starty-1][startx].replace = tl.tlist['sanctuary'][0]
@@ -3313,7 +3349,7 @@ class world_class():
 		
 		screen.render_load(0)
 		
-		name = basic_path + os.sep + 'SAVE' + os.sep + 'world.data'
+		name = save_path + os.sep + 'world.data'
 		
 		self.map_size = 52
 		
@@ -3364,9 +3400,6 @@ class world_class():
 			
 			
 			screen.render_load(5)
-			f = file(name, 'w')
-			p.dump(self,f)
-			f.close() 
 			
 	def default_map_generator(self, name, tiles, tilelist):	#check if tilelist can be deleted
 		
@@ -3581,7 +3614,7 @@ class world_class():
 			
 			for y in range(pos[1]+1,pos[1]+size[1]-1,2):
 				for x in range(pos[0]+1,pos[0]+size[0]-1,3):
-					m.tilemap[y][x] = tl.tlist['shop'][3]
+					m.npcs[y][x] = ml.mlist['shop'][0]
 			
 			m.exchange(tl.tlist['elfish'][4],tl.tlist['shop'][0])
 			
@@ -3990,7 +4023,7 @@ class world_class():
 			s.blit(gra_files.gdic['display'][1],(0,0)) #render background
 
 
-			text_image = screen.font.render('~*~ Choose Map-Size ~*~            [e]',1,(255,255,255))
+			text_image = screen.menu_font.render('~*~ Choose Map-Size ~*~            [e]',1,(255,255,255))
 			s.blit(text_image,(5,2))#menue title
 			
 			entries = ('Small (50x50)', 'Medium (100x100)', 'Big (150x150)')
@@ -3999,12 +4032,12 @@ class world_class():
 			
 			for i in range (0,3):
 				
-				entry_image = screen.font.render(entries[i],1,(0,0,0))
+				entry_image = screen.menu_font.render(entries[i],1,(0,0,0))
 				s.blit(entry_image,(150,120+i*30))#render entries
 				
 			s.blit(gra_files.gdic['display'][4],(120,115+num*30))#blit marker
 				
-			entry_image = screen.font.render(messages[num],1,(255,255,255))
+			entry_image = screen.menu_font.render(messages[num],1,(255,255,255))
 			s.blit(entry_image,(5,335))#render message
 			if game_options.mousepad == 1:
 				s.blit(gra_files.gdic['display'][8],(480,0)) #render mouse pad
@@ -4049,7 +4082,7 @@ class world_class():
 			
 class mob():
 	
-	def __init__(self, name, on_map, attribute, pos =[40,40,0],glob_pos=[0,0]):
+	def __init__(self, name, on_map, attribute, pos =[40,40,0],glob_pos=[0,0],build='Manual'):
 		
 		self.name = name
 		self.on_map = on_map
@@ -4063,18 +4096,35 @@ class mob():
 	def move(self, x=0, y=0):
 		
 		mc = self.move_check(x,y)
+		tile_move_groupe = world.maplist[self.pos[2]][self.on_map].tilemap[self.pos[1]+y][self.pos[0]+x].move_groupe
+		player_move_groups = ['soil','low_liquid','holy','shop']
+		
+		swim_check = True
+		
+		for i in ('Head','Body','Legs','Feet'):
+			if player.inventory.wearing[i] != player.inventory.nothing:
+				swim_check = False
+				
+		if swim_check == True:
+			player_move_groups.append('swim')
+		
+		move_check2 = False	
+		
+		for j in player_move_groups:
+			if j == tile_move_groupe:
+				move_check2 = True
 		
 		if mc == True:
-			if x > 0 and world.maplist[self.pos[2]][self.on_map].tilemap[self.pos[1]][self.pos[0]+1].move == True and self.pos[0] < max_map_size - 1:
+			if x > 0 and move_check2 == True and self.pos[0] < max_map_size - 1:
 				self.pos[0] += 1
 			
-			if x < 0 and world.maplist[self.pos[2]][self.on_map].tilemap[self.pos[1]][self.pos[0]-1].move == True and self.pos[0] > 0:
+			if x < 0 and move_check2 == True and self.pos[0] > 0:
 				self.pos[0] -= 1
 			
-			if y > 0 and world.maplist[self.pos[2]][self.on_map].tilemap[self.pos[1]+1][self.pos[0]].move == True and self.pos[1] < max_map_size - 1:
+			if y > 0 and move_check2 == True and self.pos[1] < max_map_size - 1:
 				self.pos[1] += 1
 			
-			if y < 0 and world.maplist[self.pos[2]][self.on_map].tilemap[self.pos[1]-1][self.pos[0]].move == True and self.pos[1] > 0:
+			if y < 0 and move_check2 == True and self.pos[1] > 0:
 				self.pos[1] -= 1
 				
 		self.stand_check()
@@ -4084,7 +4134,6 @@ class mob():
 		try:
 			
 			if world.maplist[self.pos[2]][self.on_map].npcs[self.pos[1]+y][self.pos[0]+x]:
-				
 				player.attack_monster(self.pos[0]+x,self.pos[1]+y)
 				return False
 			
@@ -4094,21 +4143,13 @@ class mob():
 					if self == player:
 						message.add(world.maplist[self.pos[2]][self.on_map].tilemap[self.pos[1]+y][self.pos[0]+x].move_mes)
 						
-						if world.maplist[self.pos[2]][self.on_map].tilemap[self.pos[1]+y][self.pos[0]+x].techID == tl.tlist['local'][14].techID: #this is stone
-							mes = player.inventory.materials.add('stone',1)
+						try:
+							material = world.maplist[self.pos[2]][self.on_map].tilemap[self.pos[1]+y][self.pos[0]+x].conected_resources[0]
+							mat_num = world.maplist[self.pos[2]][self.on_map].tilemap[self.pos[1]+y][self.pos[0]+x].conected_resources[1]
+							mes = player.inventory.materials.add(material,mat_num)
 							message.add(mes)
-						elif world.maplist[self.pos[2]][self.on_map].tilemap[self.pos[1]+y][self.pos[0]+x].techID == tl.tlist['global_caves'][1].techID:#this is worn rock
-							mes = player.inventory.materials.add('stone',3)
-							message.add(mes)
-						elif world.maplist[self.pos[2]][self.on_map].tilemap[self.pos[1]+y][self.pos[0]+x].techID == tl.tlist['global_caves'][3].techID: #this is hard rock
-							mes = player.inventory.materials.add('stone',5)
-							message.add(mes)
-						elif world.maplist[self.pos[2]][self.on_map].tilemap[self.pos[1]+y][self.pos[0]+x].techID == tl.tlist['misc'][4].techID: #this is ore
-							mes = player.inventory.materials.add('ore',1)
-							message.add(mes)
-						elif world.maplist[self.pos[2]][self.on_map].tilemap[self.pos[1]+y][self.pos[0]+x].techID == tl.tlist['misc'][5].techID: #this is gem
-							mes = player.inventory.materials.add('gem',1)
-							message.add(mes)
+						except:
+							None
 							
 						if world.maplist[self.pos[2]][self.on_map].tilemap[self.pos[1]+y][self.pos[0]+x].techID == tl.tlist['building'][3].techID: #this is a closed door
 							world.maplist[self.pos[2]][self.on_map].countdowns.append(countdown('door', self.pos[0]+x, self.pos[1]+y,3))
@@ -4135,21 +4176,18 @@ class mob():
 			else:
 				None
 				
-			if world.maplist[self.pos[2]][self.on_map].tilemap[self.pos[1]+y][self.pos[0]+x].techID == tl.tlist['local'][11].techID or world.maplist[self.pos[2]][self.on_map].tilemap[self.pos[1]+y][self.pos[0]+x].techID == tl.tlist['local'][12].techID or world.maplist[self.pos[2]][self.on_map].tilemap[self.pos[1]+y][self.pos[0]+x].techID == tl.tlist['local'][13].techID or world.maplist[self.pos[2]][self.on_map].tilemap[self.pos[1]+y][self.pos[0]+x].techID == tl.tlist['misc'][14].techID: #if there is a tree on this place
+			if world.maplist[self.pos[2]][self.on_map].tilemap[self.pos[1]+y][self.pos[0]+x].move_groupe == 'tree':
 				
 				if player.inventory.wearing['Hold(R)'].classe == 'axe': #if player has a axe in his hand
 										
-					if world.maplist[self.pos[2]][self.on_map].tilemap[self.pos[1]+y][self.pos[0]+x].techID == tl.tlist['local'][11].techID: #this is a young tree
-						mes = player.inventory.materials.add('wood',1)
+					try:
+						material = world.maplist[self.pos[2]][self.on_map].tilemap[self.pos[1]+y][self.pos[0]+x].conected_resources[0]
+						mat_num = world.maplist[self.pos[2]][self.on_map].tilemap[self.pos[1]+y][self.pos[0]+x].conected_resources[1]
+						mes = player.inventory.materials.add(material,mat_num)
 						message.add(mes)
-						
-					elif world.maplist[self.pos[2]][self.on_map].tilemap[self.pos[1]+y][self.pos[0]+x].techID == tl.tlist['local'][12].techID: #this is a tree
-						mes = player.inventory.materials.add('wood',5)
-						message.add(mes)
-						
-					elif world.maplist[self.pos[2]][self.on_map].tilemap[self.pos[1]+y][self.pos[0]+x].techID == tl.tlist['local'][13].techID or world.maplist[self.pos[2]][self.on_map].tilemap[self.pos[1]+y][self.pos[0]+x].techID == tl.tlist['misc'][14].techID: #this is a dead tree or a giant mushroom
-						mes = player.inventory.materials.add('wood',3)
-						message.add(mes)
+						world.maplist[self.pos[2]][self.on_map].make_monsters_angry(self.pos[0],self.pos[1],'tree')
+					except:
+						None
 					
 					world.maplist[self.pos[2]][self.on_map].tilemap[self.pos[1]+y][self.pos[0]+x] = deepcopy(world.maplist[self.pos[2]][self.on_map].tilemap[self.pos[1]+y][self.pos[0]+x].replace) #let the tree dissappear
 					
@@ -4993,9 +5031,9 @@ class mob():
 			
 class player_class(mob):
 	
-	def __init__(self, name, on_map, attribute, inventory, pos =[10,10,0]):
+	def __init__(self, name, on_map, attribute, inventory, pos =[10,10,0], build='Manual'):
 		
-		lname = basic_path + os.sep + 'SAVE' + os.sep + 'player.data'
+		lname = save_path + os.sep + 'player.data'
 		
 		try:
 			
@@ -5038,274 +5076,278 @@ class player_class(mob):
 			self.lvl = temp.lvl
 			
 		except:
+			if build == 'Manual':
+				accept = False
+				while accept == False:
+				
+					num = 0
+					gender_list = ('FEMALE','MALE') 
+					run = True
 			
-			accept = False
-			while accept == False:
+					while run:
+					
+						s = pygame.Surface((640,360))
+					
+						s.blit(gra_files.gdic['display'][1],(0,0)) #render background
 				
-				num = 0
-				gender_list = ('FEMALE','MALE') 
-				run = True
-			
-				while run:
-					
-					s = pygame.Surface((640,360))
-					
-					s.blit(gra_files.gdic['display'][1],(0,0)) #render background
+						text_image = screen.menu_font.render('Choose gender:',1,(255,255,255))
+						s.blit(text_image,(5,2))#menue title
 				
-					text_image = screen.font.render('Choose gender:',1,(255,255,255))
-					s.blit(text_image,(5,2))#menue title
+						s.blit(gra_files.gdic['display'][4],(0,115+num*25))#blit marker
 				
-					s.blit(gra_files.gdic['display'][4],(0,115+num*25))#blit marker
-				
-					for i in range (0,2): 
-						string = gender_list[i]
-						text_image = screen.font.render(string,1,(0,0,0))
-						s.blit(text_image,(21,120+i*25))#blit item names
+						for i in range (0,2): 
+							string = gender_list[i]
+							text_image = screen.menu_font.render(string,1,(0,0,0))
+							s.blit(text_image,(21,120+i*25))#blit item names
 					
-					text_image = screen.font.render('[e] Choose',1,(255,255,255))
-					s.blit(text_image,(5,335))
-					
-					if game_options.mousepad == 1:
-						s.blit(gra_files.gdic['display'][8],(480,0)) #render mouse pad
-					else:
-						s_help = pygame.Surface((160,360))
-						s_help.fill((48,48,48))
-						s.blit(s_help,(480,0))
-					
-					if game_options.mousepad == 0:
-						s_help = pygame.Surface((640,360))
-						s_help.fill((48,48,48))
-						s_help.blit(s,(80,0))
-						s = s_help
-					
-					s = pygame.transform.scale(s,(screen.displayx,screen.displayy))
-					screen.screen.blit(s,(0,0))
-					
-					pygame.display.flip()
-					
-					ui = getch(screen.displayx,screen.displayy,game_options.sfxmode,game_options.turnmode,mouse=game_options.mousepad)
-				
-					if ui == 's':
-						num += 1
-						if num > 1:
-							num = 0
-						
-					if ui == 'w':
-						num -= 1
-						if num < 0:
-							num = 1
-						
-					if ui == 'e':
-						self.gender = gender_list[num]
-						run = False
-					
-				run2 = True
-				num2 = 0
-				
-				while run2:
-					s = pygame.Surface((640,360))
-					
-					s.blit(gra_files.gdic['display'][1],(0,0)) #render background
-				
-					text_image = screen.font.render('Choose style:',1,(255,255,255))
-					s.blit(text_image,(5,2))#menue title
-				
-					s.blit(gra_files.gdic['display'][4],(0,115+num2*32))#blit marker
-				
-					for i in range (1,5): 
-						skinstring = 'SKIN_' + self.gender + '_' + str(i)
-						hairstring = 'HAIR_' + self.gender + '_' +  str(i)
-						s.blit(gra_files.gdic['char'][skinstring],(26,115+(i-1)*32))
-						s.blit(gra_files.gdic['char'][hairstring],(26,115+(i-1)*32))
-					
-					text_image = screen.font.render('[e] Choose',1,(255,255,255))
-					s.blit(text_image,(5,335))
-					
-					if game_options.mousepad == 1:
-						s.blit(gra_files.gdic['display'][8],(480,0)) #render mouse pad
-					else:
-						s_help = pygame.Surface((160,360))
-						s_help.fill((48,48,48))
-						s.blit(s_help,(480,0))
-					
-					if game_options.mousepad == 0:
-						s_help = pygame.Surface((640,360))
-						s_help.fill((48,48,48))
-						s_help.blit(s,(80,0))
-						s = s_help
-					
-					s = pygame.transform.scale(s,(screen.displayx,screen.displayy))
-					screen.screen.blit(s,(0,0))
-					
-					pygame.display.flip()
-				
-					ui = getch(screen.displayx,screen.displayy,game_options.sfxmode,game_options.turnmode,mouse=game_options.mousepad)
-				
-					if ui == 's':
-						num2 += 1
-						if num2 > 3:
-							num2 = 0
-						
-					if ui == 'w':
-						num2 -= 1
-						if num2 < 0:
-							num2 = 3
-						
-					if ui == 'e':
-						self.style = num2
-						run2 = False
-					
-			
-				num3 = 0
-				dificulty_list = ('EASY','NORMAL','HARD','ROGUELIKE','SANDBOX')
-				description_list = ('Lose resources on death.','Lose inventory on death.','Lose inventory and level on death.','LOSE EVERYTHING', 'MONSTERS IGNORE YOU') 
-				run3 = True
-			
-				while run3:
-					
-					s = pygame.Surface((640,360))
-					
-					s.blit(gra_files.gdic['display'][1],(0,0)) #render background
-				
-					text_image = screen.font.render('Choose Game Mode:',1,(255,255,255))
-					s.blit(text_image,(5,2))#menue title
-				
-					s.blit(gra_files.gdic['display'][4],(0,115+num3*25))#blit marker
-				
-					for i in range (0,5): 
-						string = dificulty_list[i]
-						text_image = screen.font.render(string,1,(0,0,0))
-						s.blit(text_image,(21,120+i*25))#blit item names
-					
-						text_image = screen.font.render(description_list[num3],1,(255,255,255))
+						text_image = screen.menu_font.render('[e] Choose',1,(255,255,255))
 						s.blit(text_image,(5,335))
+					
+						if game_options.mousepad == 1:
+							s.blit(gra_files.gdic['display'][8],(480,0)) #render mouse pad
+						else:
+							s_help = pygame.Surface((160,360))
+							s_help.fill((48,48,48))
+							s.blit(s_help,(480,0))
+					
+						if game_options.mousepad == 0:
+							s_help = pygame.Surface((640,360))
+							s_help.fill((48,48,48))
+							s_help.blit(s,(80,0))
+							s = s_help
+					
+						s = pygame.transform.scale(s,(screen.displayx,screen.displayy))
+						screen.screen.blit(s,(0,0))
+					
+						pygame.display.flip()
+					
+						ui = getch(screen.displayx,screen.displayy,game_options.sfxmode,game_options.turnmode,mouse=game_options.mousepad)
+				
+						if ui == 's':
+							num += 1
+							if num > 1:
+								num = 0
 						
-					if game_options.mousepad == 1:
-						s.blit(gra_files.gdic['display'][8],(480,0)) #render mouse pad
-					else:
-						s_help = pygame.Surface((160,360))
-						s_help.fill((48,48,48))
-						s.blit(s_help,(480,0))
-					
-					if game_options.mousepad == 0:
-						s_help = pygame.Surface((640,360))
-						s_help.fill((48,48,48))
-						s_help.blit(s,(80,0))
-						s = s_help
-					
-					s = pygame.transform.scale(s,(screen.displayx,screen.displayy))
-					screen.screen.blit(s,(0,0))
-					
-					pygame.display.flip()
-					
-					ui = getch(screen.displayx,screen.displayy,game_options.sfxmode,game_options.turnmode,mouse=game_options.mousepad)
-				
-					if ui == 's':
-						num3 += 1
-						if num3 > 4:
-							num3 = 0
+						if ui == 'w':
+							num -= 1
+							if num < 0:
+								num = 1
 						
-					if ui == 'w':
-						num3 -= 1
-						if num3 < 0:
-							num3 = 4
+						if ui == 'e':
+							self.gender = gender_list[num]
+							run = False
+					
+					run2 = True
+					num2 = 0
+				
+					while run2:
+						s = pygame.Surface((640,360))
+					
+						s.blit(gra_files.gdic['display'][1],(0,0)) #render background
+				
+						text_image = screen.menu_font.render('Choose style:',1,(255,255,255))
+						s.blit(text_image,(5,2))#menue title
+				
+						s.blit(gra_files.gdic['display'][4],(0,115+num2*32))#blit marker
+				
+						for i in range (1,5): 
+							skinstring = 'SKIN_' + self.gender + '_' + str(i)
+							hairstring = 'HAIR_' + self.gender + '_' +  str(i)
+							s.blit(gra_files.gdic['char'][skinstring],(26,115+(i-1)*32))
+							s.blit(gra_files.gdic['char'][hairstring],(26,115+(i-1)*32))
+					
+						text_image = screen.menu_font.render('[e] Choose',1,(255,255,255))
+						s.blit(text_image,(5,335))
+					
+						if game_options.mousepad == 1:
+							s.blit(gra_files.gdic['display'][8],(480,0)) #render mouse pad
+						else:
+							s_help = pygame.Surface((160,360))
+							s_help.fill((48,48,48))
+							s.blit(s_help,(480,0))
+					
+						if game_options.mousepad == 0:
+							s_help = pygame.Surface((640,360))
+							s_help.fill((48,48,48))
+							s_help.blit(s,(80,0))
+							s = s_help
+					
+						s = pygame.transform.scale(s,(screen.displayx,screen.displayy))
+						screen.screen.blit(s,(0,0))
+					
+						pygame.display.flip()
+				
+						ui = getch(screen.displayx,screen.displayy,game_options.sfxmode,game_options.turnmode,mouse=game_options.mousepad)
+				
+						if ui == 's':
+							num2 += 1
+							if num2 > 3:
+								num2 = 0
 						
-					if ui == 'e':
-						self.difficulty = num3
-						run3 = False
-				
-				name = screen.string_input('Whats your name?', 15)
-				if name == '':
-					name = 'Nameless' 
-				
-				num4 = 0
-				choose_list = ('Yes','No') 
-				run4 = True
-			
-				while run4:
-					
-					s = pygame.Surface((640,360))
-				
-					s.blit(gra_files.gdic['display'][1],(0,0)) #render background
-				
-					text_image = screen.font.render('Is everything alright?',1,(255,255,255))
-					s.blit(text_image,(5,2))#menue title
-					
-					skinstring = 'SKIN_' + self.gender + '_' + str(self.style +1)
-					s.blit(gra_files.gdic['char'][skinstring],(160,80))
+						if ui == 'w':
+							num2 -= 1
+							if num2 < 0:
+								num2 = 3
 						
-					hairstring = 'HAIR_' + self.gender + '_' + str(self.style +1)
-					s.blit(gra_files.gdic['char'][hairstring],(160,80))
-					
-					n_string = 'NAME: ' + name
-					name_image = screen.font.render(n_string,1,(0,0,0))
-					s.blit(name_image,(160,120))
-					
-					d_list = ('Easy', 'Normal', 'Hard', 'Rougelike', 'Sandbox')
-					
-					d_string = 'Difficulty: ' + d_list[self.difficulty]
-					name_image = screen.font.render(d_string,1,(0,0,0))
-					s.blit(name_image,(160,140))
-					
-					s.blit(gra_files.gdic['display'][4],(155,160+num4*25))#blit marker
-				
-					for i in range (0,2): 
-						string = choose_list[i]
-						text_image = screen.font.render(string,1,(0,0,0))
-						s.blit(text_image,(176,165+i*25))#blit item names
-					
-					text_image = screen.font.render('[e] Choose',1,(255,255,255))
-					s.blit(text_image,(5,335))
-					
-					if game_options.mousepad == 1:
-						s.blit(gra_files.gdic['display'][8],(480,0)) #render mouse pad
-					else:
-						s_help = pygame.Surface((160,360))
-						s_help.fill((48,48,48))
-						s.blit(s_help,(480,0))
-					
-					if game_options.mousepad == 0:
-						s_help = pygame.Surface((640,360))
-						s_help.fill((48,48,48))
-						s_help.blit(s,(80,0))
-						s = s_help
-					
-					s = pygame.transform.scale(s,(screen.displayx,screen.displayy))
-					screen.screen.blit(s,(0,0))
-					
-					pygame.display.flip()
-					
-					ui = getch(screen.displayx,screen.displayy,game_options.sfxmode,game_options.turnmode,mouse=game_options.mousepad)
-				
-					if ui == 's':
-						num4 += 1
-						if num4 > 1:
-							num4 = 0
-						
-					if ui == 'w':
-						num4 -= 1
-						if num4 < 0:
-							num4 = 1
-						
-					if ui == 'e':
-						
-						if num4 == 0:
-							accept = True
-							
-						run4 = False
-						
-			if self.difficulty == 4:
-				
-				
-				for i in range (0,len(world.maplist)-1):
-					
-					for y in range(0,max_map_size):
-						for x in range(0,max_map_size):
-							
-							if world.maplist[i]['local_0_0'].npcs[y][x] != 0:
-								world.maplist[i]['local_0_0'].npcs[y][x].AI_style = 'ignore'
+						if ui == 'e':
+							self.style = num2
+							run2 = False
 					
 			
+					num3 = 0
+					dificulty_list = ('EASY','NORMAL','HARD','ROGUELIKE','SANDBOX')
+					description_list = ('Lose resources on death.','Lose inventory on death.','Lose inventory and level on death.','LOSE EVERYTHING', 'MONSTERS IGNORE YOU') 
+					run3 = True
+			
+					while run3:
+					
+						s = pygame.Surface((640,360))
+					
+						s.blit(gra_files.gdic['display'][1],(0,0)) #render background
+				
+						text_image = screen.menu_font.render('Choose Game Mode:',1,(255,255,255))
+						s.blit(text_image,(5,2))#menue title
+				
+						s.blit(gra_files.gdic['display'][4],(0,115+num3*25))#blit marker
+				
+						for i in range (0,5): 
+							string = dificulty_list[i]
+							text_image = screen.menu_font.render(string,1,(0,0,0))
+							s.blit(text_image,(21,120+i*25))#blit item names
+					
+							text_image = screen.menu_font.render(description_list[num3],1,(255,255,255))
+							s.blit(text_image,(5,335))
+						
+						if game_options.mousepad == 1:
+							s.blit(gra_files.gdic['display'][8],(480,0)) #render mouse pad
+						else:
+							s_help = pygame.Surface((160,360))
+							s_help.fill((48,48,48))
+							s.blit(s_help,(480,0))
+					
+						if game_options.mousepad == 0:
+							s_help = pygame.Surface((640,360))
+							s_help.fill((48,48,48))
+							s_help.blit(s,(80,0))
+							s = s_help
+					
+						s = pygame.transform.scale(s,(screen.displayx,screen.displayy))
+						screen.screen.blit(s,(0,0))
+					
+						pygame.display.flip()
+					
+						ui = getch(screen.displayx,screen.displayy,game_options.sfxmode,game_options.turnmode,mouse=game_options.mousepad)
+				
+						if ui == 's':
+							num3 += 1
+							if num3 > 4:
+								num3 = 0
+						
+						if ui == 'w':
+							num3 -= 1
+							if num3 < 0:
+								num3 = 4
+						
+						if ui == 'e':
+							self.difficulty = num3
+							run3 = False
+					
+					if low_res == False:
+						name = screen.string_input('Whats your name?', 15)
+					else:
+						name = 'PLAYER'
+					
+					if name == '':
+						name = 'Nameless' 
+				
+					num4 = 0
+					choose_list = ('Yes','No') 
+					run4 = True
+			
+					while run4:
+					
+						s = pygame.Surface((640,360))
+				
+						s.blit(gra_files.gdic['display'][1],(0,0)) #render background
+				
+						text_image = screen.menu_font.render('Is everything alright?',1,(255,255,255))
+						s.blit(text_image,(5,2))#menue title
+					
+						skinstring = 'SKIN_' + self.gender + '_' + str(self.style +1)
+						s.blit(gra_files.gdic['char'][skinstring],(160,80))
+						
+						hairstring = 'HAIR_' + self.gender + '_' + str(self.style +1)
+						s.blit(gra_files.gdic['char'][hairstring],(160,80))
+					
+						n_string = 'NAME: ' + name
+						name_image = screen.menu_font.render(n_string,1,(0,0,0))
+						s.blit(name_image,(160,120))
+					
+						d_list = ('Easy', 'Normal', 'Hard', 'Rougelike', 'Sandbox')
+					
+						d_string = 'Difficulty: ' + d_list[self.difficulty]
+						name_image = screen.menu_font.render(d_string,1,(0,0,0))
+						s.blit(name_image,(160,140))
+					
+						s.blit(gra_files.gdic['display'][4],(155,160+num4*25))#blit marker
+				
+						for i in range (0,2): 
+							string = choose_list[i]
+							text_image = screen.menu_font.render(string,1,(0,0,0))
+							s.blit(text_image,(176,165+i*25))#blit item names
+					
+						text_image = screen.menu_font.render('[e] Choose',1,(255,255,255))
+						s.blit(text_image,(5,335))
+					
+						if game_options.mousepad == 1:
+							s.blit(gra_files.gdic['display'][8],(480,0)) #render mouse pad
+						else:
+							s_help = pygame.Surface((160,360))
+							s_help.fill((48,48,48))
+							s.blit(s_help,(480,0))
+					
+						if game_options.mousepad == 0:
+							s_help = pygame.Surface((640,360))
+							s_help.fill((48,48,48))
+							s_help.blit(s,(80,0))
+							s = s_help
+					
+						s = pygame.transform.scale(s,(screen.displayx,screen.displayy))
+						screen.screen.blit(s,(0,0))
+					
+						pygame.display.flip()
+					
+						ui = getch(screen.displayx,screen.displayy,game_options.sfxmode,game_options.turnmode,mouse=game_options.mousepad)
+				
+						if ui == 's':
+							num4 += 1
+							if num4 > 1:
+								num4 = 0
+						
+						if ui == 'w':
+							num4 -= 1
+							if num4 < 0:
+								num4 = 1
+						
+						if ui == 'e':
+						
+							if num4 == 0:
+								accept = True
+							
+							run4 = False
+						
+				if self.difficulty == 4:
+				
+				
+					for i in range (0,len(world.maplist)-1):
+					
+						for y in range(0,max_map_size):
+							for x in range(0,max_map_size):
+							
+								if world.maplist[i]['local_0_0'].npcs[y][x] != 0:
+									world.maplist[i]['local_0_0'].npcs[y][x].AI_style = 'ignore'
+					
+			###############
 			mob.__init__(self, name, on_map, attribute, pos)
 		
 			self.inventory = inventory
@@ -5315,13 +5357,14 @@ class player_class(mob):
 			
 			self.buffs = buffs()
 			
-			self.pos[0] = world.startx
-			self.pos[1] = world.starty
+			try:
+				self.pos[0] = world.startx
+				self.pos[1] = world.starty
+			except:
+				self.pos[0] = 0
+				self.pos[1] = 0
 			
 			screen.render_load(5)
-			f = file(lname, 'w')
-			p.dump(self,f)
-			f.close() 
 		
 	def user_input(self):
 		
@@ -5538,7 +5581,7 @@ class player_class(mob):
 						for y in range (-ymin,ymax+1):
 							for x in range (-xmin,xmax+1):
 				
-								if world.maplist[player.pos[2]][player.on_map].tilemap[player.pos[1]+y][player.pos[0]+x].move == True and world.maplist[player.pos[2]][player.on_map].tilemap[player.pos[1]+y][player.pos[0]+x].damage == False and world.maplist[player.pos[2]][player.on_map].npcs[player.pos[1]+y][player.pos[0]+x] == 0:
+								if world.maplist[player.pos[2]][player.on_map].tilemap[player.pos[1]+y][player.pos[0]+x].move_groupe == 'soil' and world.maplist[player.pos[2]][player.on_map].tilemap[player.pos[1]+y][player.pos[0]+x].damage == False and world.maplist[player.pos[2]][player.on_map].npcs[player.pos[1]+y][player.pos[0]+x] == 0:
 									built_here = True
 								elif world.maplist[player.pos[2]][player.on_map].tilemap[player.pos[1]+y][player.pos[0]+x].civilisation == True:
 									built_here = True
@@ -5572,7 +5615,7 @@ class player_class(mob):
 						for y in range (-ymin,ymax+1):
 							for x in range (-xmin,xmax+1):
 				
-								if world.maplist[player.pos[2]][player.on_map].tilemap[player.pos[1]+y][player.pos[0]+x].move == True and world.maplist[player.pos[2]][player.on_map].tilemap[player.pos[1]+y][player.pos[0]+x].damage == False and world.maplist[player.pos[2]][player.on_map].npcs[player.pos[1]+y][player.pos[0]+x] == 0:
+								if world.maplist[player.pos[2]][player.on_map].tilemap[player.pos[1]+y][player.pos[0]+x].move_groupe == 'soil' and world.maplist[player.pos[2]][player.on_map].tilemap[player.pos[1]+y][player.pos[0]+x].damage == False and world.maplist[player.pos[2]][player.on_map].npcs[player.pos[1]+y][player.pos[0]+x] == 0:
 									built_here = True
 								elif world.maplist[player.pos[2]][player.on_map].tilemap[player.pos[1]+y][player.pos[0]+x].civilisation == True:
 									built_here = True
@@ -5600,7 +5643,7 @@ class player_class(mob):
 						player.inventory.materials.wood -= res_need[0]
 						player.inventory.materials.stone -= res_need[1]
 						
-						if world.maplist[player.pos[2]][player.on_map].tilemap[player.pos[1]+ymin][player.pos[0]+xmin].move == True and world.maplist[player.pos[2]][player.on_map].tilemap[player.pos[1]+ymin][player.pos[0]+xmin].damage == False and world.maplist[player.pos[2]][player.on_map].npcs[player.pos[1]+ymin][player.pos[0]+xmin] == 0:
+						if world.maplist[player.pos[2]][player.on_map].tilemap[player.pos[1]+ymin][player.pos[0]+xmin].move_groupe == 'soil' and world.maplist[player.pos[2]][player.on_map].tilemap[player.pos[1]+ymin][player.pos[0]+xmin].damage == False and world.maplist[player.pos[2]][player.on_map].npcs[player.pos[1]+ymin][player.pos[0]+xmin] == 0:
 							built_here = True
 						elif world.maplist[player.pos[2]][player.on_map].tilemap[player.pos[1]+ymin][player.pos[0]+xmin].civilisation == True:
 							built_here = True
@@ -5621,7 +5664,7 @@ class player_class(mob):
 					if res_need[0] <= player.inventory.materials.wood and res_need[1] <= player.inventory.materials.stone:
 						if player.pos[2] > 0:
 					
-							if world.maplist[player.pos[2]][player.on_map].tilemap[player.pos[1]+ymin][player.pos[0]+xmin].replace == None and world.maplist[player.pos[2]-1][player.on_map].tilemap[player.pos[1]+ymin][player.pos[0+xmin]].build_here == True and world.maplist[player.pos[2]][player.on_map].tilemap[player.pos[1]+ymin][player.pos[0]+xmin].build_here == True and world.maplist[player.pos[2]][player.on_map].tilemap[player.pos[1]+ymin][player.pos[0]+xmin].move == True and world.maplist[player.pos[2]][player.on_map].tilemap[player.pos[1]+ymin][player.pos[0]+xmin].damage == False:
+							if world.maplist[player.pos[2]][player.on_map].tilemap[player.pos[1]+ymin][player.pos[0]+xmin].replace == None and world.maplist[player.pos[2]-1][player.on_map].tilemap[player.pos[1]+ymin][player.pos[0+xmin]].build_here == True and world.maplist[player.pos[2]][player.on_map].tilemap[player.pos[1]+ymin][player.pos[0]+xmin].build_here == True and world.maplist[player.pos[2]][player.on_map].tilemap[player.pos[1]+ymin][player.pos[0]+xmin].move_groupe == 'soil' and world.maplist[player.pos[2]][player.on_map].tilemap[player.pos[1]+ymin][player.pos[0]+xmin].damage == False:
 								build_here = 0
 							else: 
 								build_here = 1
@@ -5643,7 +5686,7 @@ class player_class(mob):
 					if res_need[0] <= player.inventory.materials.wood and res_need[1] <= player.inventory.materials.stone:
 						if player.pos[2] < 15:
 							
-							if world.maplist[player.pos[2]][player.on_map].tilemap[player.pos[1]+ymin][player.pos[0]+xmin].replace == None and world.maplist[player.pos[2]+1][player.on_map].tilemap[player.pos[1]+ymin][player.pos[0]+xmin].build_here == True and world.maplist[player.pos[2]][player.on_map].tilemap[player.pos[1]+ymin][player.pos[0]+xmin].build_here == True and world.maplist[player.pos[2]][player.on_map].tilemap[player.pos[1]][player.pos[0]].move == True and world.maplist[player.pos[2]][player.on_map].tilemap[player.pos[1]][player.pos[0]].damage == False:
+							if world.maplist[player.pos[2]][player.on_map].tilemap[player.pos[1]+ymin][player.pos[0]+xmin].replace == None and world.maplist[player.pos[2]+1][player.on_map].tilemap[player.pos[1]+ymin][player.pos[0]+xmin].build_here == True and world.maplist[player.pos[2]][player.on_map].tilemap[player.pos[1]+ymin][player.pos[0]+xmin].build_here == True and world.maplist[player.pos[2]][player.on_map].tilemap[player.pos[1]][player.pos[0]].move_groupe == 'soil' and world.maplist[player.pos[2]][player.on_map].tilemap[player.pos[1]][player.pos[0]].damage == False:
 								build_here = 0
 							else: 
 								build_here = 1
@@ -5668,7 +5711,7 @@ class player_class(mob):
 						for y in range (-ymin,ymax+1):
 							for x in range (-xmin,xmax+1):
 				
-								if world.maplist[player.pos[2]][player.on_map].tilemap[player.pos[1]+y][player.pos[0]+x].move == True and world.maplist[player.pos[2]][player.on_map].tilemap[player.pos[1]+y][player.pos[0]+x].damage == False and world.maplist[player.pos[2]][player.on_map].npcs[player.pos[1]+y][player.pos[0]+x] == 0:
+								if world.maplist[player.pos[2]][player.on_map].tilemap[player.pos[1]+y][player.pos[0]+x].move_groupe == 'soil' and world.maplist[player.pos[2]][player.on_map].tilemap[player.pos[1]+y][player.pos[0]+x].damage == False and world.maplist[player.pos[2]][player.on_map].npcs[player.pos[1]+y][player.pos[0]+x] == 0:
 									built_here = True
 								elif world.maplist[player.pos[2]][player.on_map].tilemap[player.pos[1]+y][player.pos[0]+x].civilisation == True:
 									built_here = True
@@ -6065,6 +6108,7 @@ class player_class(mob):
 		elif self.difficulty == 2:#the player plays on hard
 			self.inventory = inventory(5)#reset inventory
 			self.lvl = 0#reset lvl
+			self.attribute = attribute(2,2,2,2,2,10,10)#reset attribute
 		elif self. difficulty == 3:#the player plays on Roguelike
 			#del everything
 			save_path = basic_path + os.sep + 'SAVE' + os.sep
@@ -6145,14 +6189,14 @@ class messager():
 			s.blit(gra_files.gdic['display'][1],(0,0)) #render background
 			
 			text_string = '~*~ Message History ~*~            Page(' + str(page+1) + ' of ' + str(len(self.mes_history)) +')'
-			text_image = screen.font.render(text_string,1,(255,255,255))
+			text_image = screen.menu_font.render(text_string,1,(255,255,255))
 			s.blit(text_image,(5,2))#menue title
 			
 			for i in range (0, len(self.mes_history[page])):
-				mes_image = screen.font.render(self.mes_history[page][i],1,(0,0,0))
+				mes_image = screen.menu_font.render(self.mes_history[page][i],1,(0,0,0))
 				s.blit(mes_image,(5,100+25*i))#messages
 				
-			text_image = screen.font.render('[w,a] - Page up [s,d] - Page down [x] - leave',1,(255,255,255))
+			text_image = screen.menu_font.render('[w,a] - Page up [s,d] - Page down [x] - leave',1,(255,255,255))
 			s.blit(text_image,(5,335))
 			
 			if game_options.mousepad == 1:	
@@ -6741,7 +6785,7 @@ class inventory():
 
 		num = 0
 		
-		text_image = screen.font.render('~*~ Inventory ~*~        [Press [x] to leave]',1,(255,255,255))
+		text_image = screen.menu_font.render('~*~ Inventory ~*~        [Press [x] to leave]',1,(255,255,255))
 		s.blit(text_image,(5,2))#menue title
 		
 		for c in range(0,6):
@@ -6765,13 +6809,13 @@ class inventory():
 				
 				if slot == num and self.wearing[h[slot]] != self.nothing:
 					string = i + ' : ' + self.wearing[i].name + '>([e]unwear, [b]drop)'
-					text_image = screen.font.render(string,1,(0,0,0))
+					text_image = screen.menu_font.render(string,1,(0,0,0))
 					s.blit(text_image,(21,120+num*25))#blit item names
 				
 				else:
 					
 					string = i + ' : ' + self.wearing[i].name
-					text_image = screen.font.render(string,1,(0,0,0))
+					text_image = screen.menu_font.render(string,1,(0,0,0))
 					s.blit(text_image,(21,120+num*25))#blit item names
 				
 				num += 1
@@ -6787,13 +6831,13 @@ class inventory():
 						string = i.name + '>([e]wear, [b]drop)'
 					else:
 						string = i.name
-					text_image = screen.font.render(string,1,(0,0,0))
+					text_image = screen.menu_font.render(string,1,(0,0,0))
 					s.blit(text_image,(21,120+num*25))#blit item names
 				
 				else:
 					
 					string = i.name
-					text_image = screen.font.render(string,1,(0,0,0))
+					text_image = screen.menu_font.render(string,1,(0,0,0))
 					s.blit(text_image,(21,120+num*25))#blit item names
 			
 				num += 1
@@ -6809,13 +6853,13 @@ class inventory():
 						string = i.name + '>([e]%s, [b]drop)' %(i.eat_name)
 					else:
 						string = i.name
-					text_image = screen.font.render(string,1,(0,0,0))
+					text_image = screen.menu_font.render(string,1,(0,0,0))
 					s.blit(text_image,(21,120+num*25))#blit item names
 				
 				else:
 					
 					string = i.name
-					text_image = screen.font.render(string,1,(0,0,0))
+					text_image = screen.menu_font.render(string,1,(0,0,0))
 					s.blit(text_image,(21,120+num*25))#blit item names
 			
 				num += 1
@@ -6832,13 +6876,13 @@ class inventory():
 					else:
 						string = i.name
 						
-					text_image = screen.font.render(string,1,(0,0,0))
+					text_image = screen.menu_font.render(string,1,(0,0,0))
 					s.blit(text_image,(21,120+num*25))#blit item names
 				
 				else:
 					
 					string = i.name
-					text_image = screen.font.render(string,1,(0,0,0))
+					text_image = screen.menu_font.render(string,1,(0,0,0))
 					s.blit(text_image,(21,120+num*25))#blit item names
 			
 				num += 1
@@ -6846,31 +6890,31 @@ class inventory():
 		elif category == 4:
 			
 			string = 'Wood: ' + str(self.materials.wood) + '/' + str(self.materials.wood_max)
-			text_image = screen.font.render(string,1,(0,0,0))
+			text_image = screen.menu_font.render(string,1,(0,0,0))
 			s.blit(text_image,(21,100))#blit wood line
 			
 			string = 'Stone: ' + str(self.materials.stone) + '/' + str(self.materials.stone_max)
-			text_image = screen.font.render(string,1,(0,0,0))
+			text_image = screen.menu_font.render(string,1,(0,0,0))
 			s.blit(text_image,(21,125))#blit stone line
 			
 			string = 'Ore: ' + str(self.materials.ore) + '/' + str(self.materials.ore_max)
-			text_image = screen.font.render(string,1,(0,0,0))
+			text_image = screen.menu_font.render(string,1,(0,0,0))
 			s.blit(text_image,(21,150))#blit ore line
 			
 			string = 'Herbs: ' + str(self.materials.herb) + '/' + str(self.materials.herb_max)
-			text_image = screen.font.render(string,1,(0,0,0))
+			text_image = screen.menu_font.render(string,1,(0,0,0))
 			s.blit(text_image,(21,175))#blit herbs line
 			
 			string = 'Gem: ' + str(self.materials.gem) + '/' + str(self.materials.gem_max)
-			text_image = screen.font.render(string,1,(0,0,0))
+			text_image = screen.menu_font.render(string,1,(0,0,0))
 			s.blit(text_image,(21,200))#blit gem line
 		
 			string = 'Seeds: ' + str(self.materials.seeds) + '/' + str(self.materials.seeds_max)
-			text_image = screen.font.render(string,1,(0,0,0))
+			text_image = screen.menu_font.render(string,1,(0,0,0))
 			s.blit(text_image,(21,225))#blit gem line
 			
 			string = 'Built with: ' + player.inventory.blueprint.name 
-			text_image = screen.font.render(string,1,(0,0,0))
+			text_image = screen.menu_font.render(string,1,(0,0,0))
 			s.blit(text_image,(21,280))#blit blueprint line
 		
 		text_image = screen.font.render(self.inv_mes,1,(255,255,255))
@@ -6991,17 +7035,7 @@ class container():
 		
 		self.items = items
 		self.con_mes = '~*~'
-		
-	def inv_mes(self):
-		
-		string = []
-		
-		for j in self.items:
-			string.append(j.name)
-		
-		for k in string:
-			message.add(k)
-			
+					
 	def loot(self,num,real_mes= False):
 		
 		if self.items[num].inv_slot == 'equipment':
@@ -7071,7 +7105,7 @@ class container():
 				
 				s.blit(gra_files.gdic['display'][1],(0,0)) #render background
 		
-				text_image = screen.font.render('~*~ Loot ~*~        [Press [x] to leave]',1,(255,255,255))
+				text_image = screen.menu_font.render('~*~ Loot ~*~        [Press [x] to leave]',1,(255,255,255))
 				s.blit(text_image,(5,2))#menue title
 			
 				for i in range (0,len(self.items)):
@@ -7079,13 +7113,13 @@ class container():
 					if i == num:
 						s.blit(gra_files.gdic['display'][4],(0,95+num*25))#blit marker
 						text_string = self.items[i].name + '>[e]loot'
-						text_image = screen.font.render(text_string,1,(0,0,0))
+						text_image = screen.menu_font.render(text_string,1,(0,0,0))
 						s.blit(text_image,(21,100+i*25))#blit item name
 					else:
-						text_image = screen.font.render(self.items[i].name,1,(0,0,0))
+						text_image = screen.menu_font.render(self.items[i].name,1,(0,0,0))
 						s.blit(text_image,(21,100+i*25))#blit item name
 				
-				text_image = screen.font.render(self.con_mes,1,(255,255,255))
+				text_image = screen.menu_font.render(self.con_mes,1,(255,255,255))
 				s.blit(text_image,(5,335))
 				if game_options.mousepad == 1:
 					s.blit(gra_files.gdic['display'][8],(480,0)) #render mouse pad
@@ -7153,7 +7187,7 @@ class time_class():
 	
 	def __init__(self):
 		
-		name = basic_path + os.sep + 'SAVE' + os.sep + 'time.data'
+		name = save_path + os.sep + 'time.data'
 		
 		try:
 			
@@ -7329,9 +7363,6 @@ class time_class():
 		else:
 			daystring = str(self.day) + 'th'
 			
-		if len(daystring) < 4:
-			daystring = ' ' + daystring
-			
 		if self.hour > 11:
 			hourstring = str(self.hour-12)
 			ampmstring = 'PM'
@@ -7347,15 +7378,17 @@ class time_class():
 		else:
 			minutestring = str(self.minute)	
 		
-		string = daystring + ' ' + monthnames[self.month] + ' (' + hourstring + ':' + minutestring + ampmstring + ')'
+		date = daystring + ' ' + monthnames[self.month]
+		time = hourstring + ':' + minutestring + ampmstring
+		strings = (date,time)
 		
-		return string
+		return strings
 	
 class gods_class():
 	#this class stores the goods mood about the player
 	def __init__(self):
 		
-		name = basic_path + os.sep + 'SAVE' + os.sep + 'gods.data'
+		name = save_path + os.sep + 'gods.data'
 		
 		try:
 			
@@ -7430,8 +7463,8 @@ def main():
 	global player
 	global time
 	global exitgame
+	global playing
 	
-	exitgame = False
 	screen = g_screen()
 	gra_files = g_files()
 	tl = tilelist()
@@ -7439,58 +7472,63 @@ def main():
 	ml = monsterlist()
 	bgm = bgM()
 	bgm.check_for_song(True)
-	world = world_class(tl)
-	gods = gods_class()
-	message = messager()
-	p_attribute = attribute(2,2,2,2,2,10,10)
-	p_inventory = inventory()
-	player = player_class ('Testificate', 'local_0_0', p_attribute,p_inventory)
-	time = time_class()
-	mes = 'Welcome to Roguebox Adventures[' + version +']'
-	message.add(mes)
-	player.stand_check()
+	master_loop = True
+	while master_loop:
+		screen.render_main_menu()
+		if playing == True:
+			exitgame = False
+			world = world_class(tl)
+			gods = gods_class()
+			message = messager()
+			p_attribute = attribute(2,2,2,2,2,10,10)
+			p_inventory = inventory()
+			player = player_class ('Testificate', 'local_0_0', p_attribute,p_inventory)
+			time = time_class()
+			mes = 'Welcome to Roguebox Adventures[' + version +']'
+			message.add(mes)
+			player.stand_check()
 		
-	running = True
+			running = True
 	
-	while running:
+			while running:
 		
-		world.maplist[player.pos[2]][player.on_map].time_pass() #make the changes of passing time every new day 
+				world.maplist[player.pos[2]][player.on_map].time_pass() #make the changes of passing time every new day 
 		
-		if len(message.mes_list) > 1:
+				if len(message.mes_list) > 1:
 		
-			for i in range (0,len(message.mes_list)):
-				a=screen.render(i)
+					for i in range (0,len(message.mes_list)):
+						a=screen.render(i)
 				
-				if a == False:
-					getch(screen.displayx,screen.displayy,game_options.sfxmode,game_options.turnmode,mouse=game_options.mousepad)
+						if a == False:
+							getch(screen.displayx,screen.displayy,game_options.sfxmode,game_options.turnmode,mouse=game_options.mousepad)
 			
-		else: 
-			screen.render(0) 
+				else: 
+					screen.render(0) 
 		
-		message.clear()
+				message.clear()
 		
-		move_border = 0
+				move_border = 0
 		
-		bodyparts = ('Head', 'Body', 'Legs' , 'Feet')
+				bodyparts = ('Head', 'Body', 'Legs' , 'Feet')
 		
-		for i in bodyparts:
+				for i in bodyparts:
 			
-			if player.inventory.wearing[i] != player.inventory.nothing:
-				move_border += 1
+					if player.inventory.wearing[i] != player.inventory.nothing:
+						move_border += 1
 				
-		if player.buffs.immobilized > 0:
-			screen.reset_hit_matrix()
-			ui = getch(screen.displayx,screen.displayy,game_options.sfxmode,game_options.turnmode,mouse=game_options.mousepad)
-			if ui == 'x':
-				screen.render_brake()
-		else:
-			move_chance = random.randint(1,9)
-			if move_border < move_chance:
-				screen.reset_hit_matrix()
-				player.user_input()
+				if player.buffs.immobilized > 0:
+					screen.reset_hit_matrix()
+					ui = getch(screen.displayx,screen.displayy,game_options.sfxmode,game_options.turnmode,mouse=game_options.mousepad)
+					if ui == 'x':
+						screen.render_brake()
+				else:
+					move_chance = random.randint(1,9)
+					if move_border < move_chance:
+						screen.reset_hit_matrix()
+						player.user_input()
 		
-		if exitgame == True:
-			running = False
+				if exitgame == True:
+					running = False
 				
 if __name__ == '__main__':
 	
