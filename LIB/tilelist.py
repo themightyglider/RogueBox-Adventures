@@ -1,6 +1,6 @@
 import cPickle as p
 from tile import tile
-from item_list import itemlist
+from itemlist import itemlist
 
 il = itemlist()
 
