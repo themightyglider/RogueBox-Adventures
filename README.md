@@ -42,7 +42,6 @@ You can download a build of RBA at: [https://github.com/themightyglider/RogueBox
 It is distributed in three ways:
 
 * A Windows-Standalone to run the game on Microsoft Windows PC's
-* A .apk file to install the game on a Android-Device like a smartphone or a tablet
 * A Source-Release that should be runable on any system with a working installation of Python2.7 and pygame. (So the game also runs on OSX, Linux, BSD* and so on) You can download Python at: https://www.python.org/ and pygame at: http://pygame.org. Afterward simply run the file main.py from the main directory of RBA.
 
 ## What is about the version numbers?
@@ -52,6 +51,8 @@ The first number will be changed when the new version isn't compatible with the 
 That means a saved game from version 1.0 will be playable on version 1.2 for example but not on version 2.0.
 
 The second number is changed by every release with bugfixes and smaller new features.
+
+In the time between two milestone releases snapshots with version names like 'S170216' will be released in order to ilustrate the progress. These snapshots arn't compatible to any other version.
 
 ## How do I Play? what are the keybindings?
 
