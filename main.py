@@ -347,7 +347,7 @@ class g_screen():
 		
 		s = pygame.Surface((480,360))
 		
-		for yy in range(-10,10):
+		for yy in range(-5,10):
 			for xx in range(-7,8):
 				
 				  
@@ -355,11 +355,14 @@ class g_screen():
 				t_replace = world.maplist[z][player.on_map].tilemap[y+yy][x+xx].replace
 					
 				if t_replace == None:
-					s.blit(gra_files.gdic['tile32'][t_pos[1]][t_pos[0]],((xx+7)*32,(yy+10)*32))
+					s.blit(gra_files.gdic['tile32'][t_pos[1]][t_pos[0]],((xx+7)*32,(yy+5)*32))
 				else:
-					#render the replaced tile under the replacing one. eg.: for stacks
-					s.blit(gra_files.gdic['tile32'][t_replace.tile_pos[1]][t_replace.tile_pos[0]],((xx+7)*32,(yy+10)*32))
-					s.blit(gra_files.gdic['tile32'][t_pos[1]][t_pos[0]],((xx+7)*32,(yy+10)*32))
+					try:
+						#render the replaced tile under the replacing one. eg.: for stacks
+						s.blit(gra_files.gdic['tile32'][t_replace.tile_pos[1]][t_replace.tile_pos[0]],((xx+7)*32,(yy+5)*32))
+						s.blit(gra_files.gdic['tile32'][t_pos[1]][t_pos[0]],((xx+7)*32,(yy+5)*32))
+					except:
+						None
 		
 		tmp_save_path = basic_path + os.sep + 'GRAPHIC' + os.sep + 'DISPLAY' + os.sep + 'tmp.png'
 					
@@ -389,6 +392,9 @@ class g_screen():
 			
 		if player.buffs.light > 0:
 			radius = 6
+			
+		if player.buffs.blind > 0:
+			radius = 0 
 		
 		s = pygame.Surface((640,360))
 		
@@ -2255,6 +2261,11 @@ class map():
 			if self.tilemap[spawnpoints[ran2][1]][spawnpoints[ran2][0]].civilisation == False:#spawn a wild monster
 				self.npcs[spawnpoints[ran2][1]][spawnpoints[ran2][0]] = deepcopy(ml.mlist[self.map_type][ran])#deepcopy is used that every monster on the map is saved seperate
 				self.set_monster_strange(spawnpoints[ran2][0],spawnpoints[ran2][1],depth)
+				try:
+					if player.difficulty == 4:
+						self.npcs[spawnpoints[ran2][1]][spawnpoints[ran2][0]].AI_style = 'ignore'
+				except:
+					None
 						
 			else:#spawn a civilian
 				self.npcs[spawnpoints[ran2][1]][spawnpoints[ran2][0]] = deepcopy(ml.mlist['civilian'][ran3])
@@ -2740,7 +2751,9 @@ class map():
 					if self.npcs[yy][xx] != 0:
 						if self.npcs[yy][xx].anger == style:
 							self.npcs[yy][xx] = deepcopy(ml.mlist['angry_monster'][self.npcs[yy][xx].anger_monster])
-							self.set_monster_strange(xx,yy,player.pos[2])		
+							self.set_monster_strange(xx,yy,player.pos[2])
+							if player.difficulty == 4:
+								self.npcs[yy][xx].AI_style = 'ignore'		
 				except:
 					None
 	
@@ -3013,10 +3026,10 @@ class map():
 								
 								self.containers[y][x] = 0 #del container
 								replace = self.tilemap[y][x].replace
-								self.tilemap[y][x] = deepcopy(tl.tlist['misc'][14])
+								self.tilemap[y][x] = deepcopy(tl.tlist['misc'][15])
 								self.tilemap[y][x].replace = replace
 							
-							if tile.techID == tl.tlist['misc'][14].techID:#let a giant mushroom die(5%)
+							if tile.techID == tl.tlist['misc'][15].techID:#let a giant mushroom die(5%)
 								
 								rand = random.randint(0,99)
 								if rand < 5:
@@ -4225,6 +4238,9 @@ class mob():
 			
 		if player.buffs.light > 0:
 			radius = 4
+			
+		if player.buffs.blind > 0:
+			radius = 1
 		
 		message.add(world.maplist[self.pos[2]][self.on_map].tilemap[self.pos[1]][self.pos[0]].move_mes,True)
 		
@@ -5337,7 +5353,6 @@ class player_class(mob):
 							run4 = False
 						
 				if self.difficulty == 4:
-				
 				
 					for i in range (0,len(world.maplist)-1):
 					
@@ -6774,7 +6789,21 @@ class inventory():
 			
 			player.inventory.materials.add('seeds', self.food[slot].give_seed)
 			
-			self.inv_mes = self.food[slot].eat_mes
+			if self.food[slot].rotten == False:
+				self.inv_mes = self.food[slot].eat_mes
+			else:
+				blind_coin = random.randint(0,1)
+				if blind_coin == 1:
+					blind_dur = random.randint(60,180)
+					player.buffs.set_buff('blind',blind_dur)
+					
+				poison_coin = random.randint(0,1)
+				if poison_coin == 1:
+					posion_dur = random.randint(60,240)
+					player.buffs.set_buff('poisoned',posion_dur)
+					
+				self.inv_mes = 'BAH! Rotten food...'
+			
 			self.food[slot] = self.nothing
 			
 	def render(self, category, slot):

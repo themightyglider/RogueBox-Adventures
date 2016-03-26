@@ -205,10 +205,10 @@ class item_food(item):
 			
 				if self.life_period <= 0:
 					self.rotten = True
-					self.satisfy_hunger *= -1
-					self.satisfy_thirst *= -1
-					self.satisfy_tiredness *= -1
-					self.heal *= -1
+					self.satisfy_hunger /= 4
+					self.satisfy_thirst /= 4
+					self.satisfy_tiredness /= 4
+					self.heal /= 4
 					self.name = 'rotten ' + self.name
 					return True
 		 

@@ -12,6 +12,7 @@ class buffs():
 		self.immobilized = 0
 		self.confused = 0
 		self.light = 0
+		self.blind = 0
 		
 	def set_buff(self,name,duration):
 		
@@ -27,7 +28,9 @@ class buffs():
 			self.confused += duration
 		elif name == 'light':
 			if duration > self.light:
-				self.light = duration#light can't be added on		
+				self.light = duration#light can't be added on
+		elif name == 'blind':
+			self.blind += duration
 			
 	def buff_tick(self):
 		
@@ -61,6 +64,11 @@ class buffs():
 		elif self.light < 0:
 			self.light = 0
 			
+		if self.blind > 0:
+			self.blind -= 1
+		elif self.blind < 0:
+			self.blind = 0
+			
 	def sget(self):
 	
 		slist = [' ']
@@ -83,7 +91,14 @@ class buffs():
 		if self.light > 0:
 			slist.append('LIGHT(' + str(self.light) + ')')
 			
+		if self.blind > 0:
+			slist.append('BLIND(' + str(self.light) + ')')
+			
 		if len(slist) > 1:
 			del slist[0]
+			
+		if len(slist) > 3:
+			new_list = [slist[0],slist[1],slist[2],'more...']
+			slist = new_list
 		
 		return slist

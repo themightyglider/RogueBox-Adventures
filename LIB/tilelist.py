@@ -958,7 +958,7 @@ class tilelist():
 					damage = 0, 
 					move_message = 'There is a scrub with blue berries here.', 
 					damage_message = None,
-					tile_pos = (15),
+					tile_pos = (1,5),
 					conected_items = (il.ilist['food'][27]),
 					conected_tiles = (('local',5)))
 		self.tlist['local'].append(t)
