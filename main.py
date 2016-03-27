@@ -214,7 +214,11 @@ class g_screen():
 				i = i.convert_alpha()
 				s.blit(i,(0,0))
 			except:
-				None
+				i_name = display_path + 'alt.png'
+				i = pygame.image.load(i_name)
+				i.set_colorkey((255,0,255),pygame.RLEACCEL)
+				i = i.convert_alpha()
+				s.blit(i,(0,0))
 				
 			s.blit(gra_files.gdic['display'][16],(0,0))
 			
@@ -767,7 +771,7 @@ class g_screen():
 			for y in range (-ymin,ymax+1):
 				for x in range (-xmin,xmax+1):
 				
-					if world.maplist[player.pos[2]][player.on_map].tilemap[player.pos[1]+y][player.pos[0]+x].move_groupe == 'soil' and world.maplist[player.pos[2]][player.on_map].tilemap[player.pos[1]+y][player.pos[0]+x].damage == False and world.maplist[player.pos[2]][player.on_map].tilemap[player.pos[1]+y][player.pos[0]+x].civilisation == False and world.maplist[player.pos[2]][player.on_map].npcs[player.pos[1]+y][player.pos[0]+x] == 0:
+					if world.maplist[player.pos[2]][player.on_map].tilemap[player.pos[1]+y][player.pos[0]+x].move_group == 'soil' and world.maplist[player.pos[2]][player.on_map].tilemap[player.pos[1]+y][player.pos[0]+x].damage == False and world.maplist[player.pos[2]][player.on_map].tilemap[player.pos[1]+y][player.pos[0]+x].civilisation == False and world.maplist[player.pos[2]][player.on_map].npcs[player.pos[1]+y][player.pos[0]+x] == 0:
 						built_here = 1
 						price += 2
 					elif world.maplist[player.pos[2]][player.on_map].tilemap[player.pos[1]+y][player.pos[0]+x].civilisation == True:
@@ -879,7 +883,7 @@ class g_screen():
 			for y in range (-ymin,ymax+1):
 				for x in range (-xmin,xmax+1):
 				
-					if world.maplist[player.pos[2]][player.on_map].tilemap[player.pos[1]+y][player.pos[0]+x].move_groupe == 'soil' and world.maplist[player.pos[2]][player.on_map].tilemap[player.pos[1]+y][player.pos[0]+x].damage == False and world.maplist[player.pos[2]][player.on_map].tilemap[player.pos[1]+y][player.pos[0]+x].civilisation == False and world.maplist[player.pos[2]][player.on_map].npcs[player.pos[1]+y][player.pos[0]+x] == 0:
+					if world.maplist[player.pos[2]][player.on_map].tilemap[player.pos[1]+y][player.pos[0]+x].move_group == 'soil' and world.maplist[player.pos[2]][player.on_map].tilemap[player.pos[1]+y][player.pos[0]+x].damage == False and world.maplist[player.pos[2]][player.on_map].tilemap[player.pos[1]+y][player.pos[0]+x].civilisation == False and world.maplist[player.pos[2]][player.on_map].npcs[player.pos[1]+y][player.pos[0]+x] == 0:
 						built_here = 1
 						price += 2
 					elif world.maplist[player.pos[2]][player.on_map].tilemap[player.pos[1]+y][player.pos[0]+x].civilisation == True:
@@ -971,7 +975,7 @@ class g_screen():
 		
 		elif style == 'Door':
 			
-			if world.maplist[player.pos[2]][player.on_map].tilemap[player.pos[1]+ymin][player.pos[0]+xmin].move_groupe == 'soil' and world.maplist[player.pos[2]][player.on_map].tilemap[player.pos[1]+ymin][player.pos[0]+xmin].damage == False and world.maplist[player.pos[2]][player.on_map].tilemap[player.pos[1]+ymin][player.pos[0]+xmin].civilisation == False and world.maplist[player.pos[2]][player.on_map].npcs[player.pos[1]+ymin][player.pos[0]+xmin] == 0:
+			if world.maplist[player.pos[2]][player.on_map].tilemap[player.pos[1]+ymin][player.pos[0]+xmin].move_group == 'soil' and world.maplist[player.pos[2]][player.on_map].tilemap[player.pos[1]+ymin][player.pos[0]+xmin].damage == False and world.maplist[player.pos[2]][player.on_map].tilemap[player.pos[1]+ymin][player.pos[0]+xmin].civilisation == False and world.maplist[player.pos[2]][player.on_map].npcs[player.pos[1]+ymin][player.pos[0]+xmin] == 0:
 				built_here = 1
 				price += 2
 			elif world.maplist[player.pos[2]][player.on_map].tilemap[player.pos[1]+ymin][player.pos[0]+xmin].civilisation == True:
@@ -1063,7 +1067,7 @@ class g_screen():
 
 			if player.pos[2] > 0:
 					
-				if world.maplist[player.pos[2]][player.on_map].tilemap[player.pos[1]+ymin][player.pos[0]+xmin].replace == None and world.maplist[player.pos[2]-1][player.on_map].tilemap[player.pos[1]+ymin][player.pos[0]+xmin].build_here == True and world.maplist[player.pos[2]][player.on_map].tilemap[player.pos[1]+ymin][player.pos[0]+xmin].build_here == True and world.maplist[player.pos[2]][player.on_map].tilemap[player.pos[1]+ymin][player.pos[0]+xmin].move_groupe == 'soil' and world.maplist[player.pos[2]][player.on_map].tilemap[player.pos[1]+ymin][player.pos[0]+xmin].damage == False:
+				if world.maplist[player.pos[2]][player.on_map].tilemap[player.pos[1]+ymin][player.pos[0]+xmin].replace == None and world.maplist[player.pos[2]-1][player.on_map].tilemap[player.pos[1]+ymin][player.pos[0]+xmin].build_here == True and world.maplist[player.pos[2]][player.on_map].tilemap[player.pos[1]+ymin][player.pos[0]+xmin].build_here == True and world.maplist[player.pos[2]][player.on_map].tilemap[player.pos[1]+ymin][player.pos[0]+xmin].move_group == 'soil' and world.maplist[player.pos[2]][player.on_map].tilemap[player.pos[1]+ymin][player.pos[0]+xmin].damage == False:
 					build_here = 0
 				else: 
 					build_here = 1
@@ -1142,7 +1146,7 @@ class g_screen():
 			
 			if player.pos[2] < 15:
 				
-				if world.maplist[player.pos[2]][player.on_map].tilemap[player.pos[1]+ymin][player.pos[0]+xmin].replace == None and world.maplist[player.pos[2]+1][player.on_map].tilemap[player.pos[1]+ymin][player.pos[0]+xmin].build_here == True and world.maplist[player.pos[2]][player.on_map].tilemap[player.pos[1]+ymin][player.pos[0]+xmin].build_here == True and world.maplist[player.pos[2]][player.on_map].tilemap[player.pos[1]+ymin][player.pos[0]+xmin].move_groupe == 'soil' and world.maplist[player.pos[2]][player.on_map].tilemap[player.pos[1]+ymin][player.pos[0]+xmin].damage == False:
+				if world.maplist[player.pos[2]][player.on_map].tilemap[player.pos[1]+ymin][player.pos[0]+xmin].replace == None and world.maplist[player.pos[2]+1][player.on_map].tilemap[player.pos[1]+ymin][player.pos[0]+xmin].build_here == True and world.maplist[player.pos[2]][player.on_map].tilemap[player.pos[1]+ymin][player.pos[0]+xmin].build_here == True and world.maplist[player.pos[2]][player.on_map].tilemap[player.pos[1]+ymin][player.pos[0]+xmin].move_group == 'soil' and world.maplist[player.pos[2]][player.on_map].tilemap[player.pos[1]+ymin][player.pos[0]+xmin].damage == False:
 					build_here = 0
 				else: 
 					build_here = 1
@@ -1224,7 +1228,7 @@ class g_screen():
 			for y in range (-ymin,ymax+1):
 				for x in range (-xmin,xmax+1):
 				
-					if world.maplist[player.pos[2]][player.on_map].tilemap[player.pos[1]+y][player.pos[0]+x].move_groupe == 'soil' and world.maplist[player.pos[2]][player.on_map].tilemap[player.pos[1]+y][player.pos[0]+x].damage == False and world.maplist[player.pos[2]][player.on_map].tilemap[player.pos[1]+y][player.pos[0]+x].civilisation == False and world.maplist[player.pos[2]][player.on_map].npcs[player.pos[1]+y][player.pos[0]+x] == 0:
+					if world.maplist[player.pos[2]][player.on_map].tilemap[player.pos[1]+y][player.pos[0]+x].move_group == 'soil' and world.maplist[player.pos[2]][player.on_map].tilemap[player.pos[1]+y][player.pos[0]+x].damage == False and world.maplist[player.pos[2]][player.on_map].tilemap[player.pos[1]+y][player.pos[0]+x].civilisation == False and world.maplist[player.pos[2]][player.on_map].npcs[player.pos[1]+y][player.pos[0]+x] == 0:
 						built_here = 1
 						price += 1
 					elif world.maplist[player.pos[2]][player.on_map].tilemap[player.pos[1]+y][player.pos[0]+x].civilisation == True:
@@ -1968,12 +1972,12 @@ class g_screen():
 		
 			if ui == 'e' and player.difficulty != 3:
 				player.respawn()
-				save(world,player,time,gods,basic_path,os.sep)
+				save(world,player,time,gods,save_path,os.sep)
 				run = False
 			elif ui == 'x':
 				player.respawn()
 				if player.difficulty != 3:
-					save(world,player,time,gods,basic_path,os.sep)
+					save(world,player,time,gods,save_path,os.sep)
 				run = False
 				exitgame = True
 					
@@ -2366,13 +2370,13 @@ class map():
 						try:
 								
 							monster_move_groups = self.npcs[y][x].move_groups
-							tile_move_groupe = self.tilemap[y+yy[i]][x+xx[i]].move_groupe
+							tile_move_group = self.tilemap[y+yy[i]][x+xx[i]].move_group
 							
-							move_groupe_check = False
+							move_group_check = False
 							
 							for j in range(0,len(monster_move_groups)):
-								if monster_move_groups[j] == tile_move_groupe:
-									move_groupe_check = True
+								if monster_move_groups[j] == tile_move_group:
+									move_group_check = True
 									
 							if self.npcs[y+yy[i]][x+xx[i]] == 0:
 								npc = False
@@ -2389,7 +2393,7 @@ class map():
 							else:
 								playerpos = False
 							
-							if move_groupe_check == True and npc == False and stair == False and playerpos == False:
+							if move_group_check == True and npc == False and stair == False and playerpos == False:
 									
 								moves.append((x+xx[i],y+yy[i]))
 									
@@ -2660,7 +2664,7 @@ class map():
 					for xx in range(x-1,x+2):
 						
 						if yy != player.pos[1] or xx!= player.pos[0]:
-							if self.npcs[yy][xx] == 0 and self.tilemap[yy][xx].move_groupe == 'soil' and self.tilemap[yy][xx].damage == 0:
+							if self.npcs[yy][xx] == 0 and self.tilemap[yy][xx].move_group == 'soil' and self.tilemap[yy][xx].damage == 0:
 								self.npcs[yy][xx] = deepcopy(ml.mlist['special'][2])#set vase monsters
 								self.set_monster_strange(xx,yy,player.pos[2])
 								if player.difficulty == 4:
@@ -3164,10 +3168,10 @@ class map():
 				moveable = False
 				
 				if ignore_water == True:
-					if self.tilemap[y][x].move_groupe == 'soil':
+					if self.tilemap[y][x].move_group == 'soil':
 						moveable = True
 				else:
-					if self.tilemap[y][x].move_groupe == 'soil' or self.tilemap[y][x].move_groupe == 'low_liquid':
+					if self.tilemap[y][x].move_group == 'soil' or self.tilemap[y][x].move_group == 'low_liquid':
 						moveable = True
 				
 				if moveable == True and self.tilemap[y][x].damage == False and self.tilemap[y][x].techID != tl.tlist['misc'][0].techID:
@@ -4109,7 +4113,7 @@ class mob():
 	def move(self, x=0, y=0):
 		
 		mc = self.move_check(x,y)
-		tile_move_groupe = world.maplist[self.pos[2]][self.on_map].tilemap[self.pos[1]+y][self.pos[0]+x].move_groupe
+		tile_move_group = world.maplist[self.pos[2]][self.on_map].tilemap[self.pos[1]+y][self.pos[0]+x].move_group
 		player_move_groups = ['soil','low_liquid','holy','shop']
 		
 		swim_check = True
@@ -4124,7 +4128,7 @@ class mob():
 		move_check2 = False	
 		
 		for j in player_move_groups:
-			if j == tile_move_groupe:
+			if j == tile_move_group:
 				move_check2 = True
 		
 		if mc == True:
@@ -4189,7 +4193,7 @@ class mob():
 			else:
 				None
 				
-			if world.maplist[self.pos[2]][self.on_map].tilemap[self.pos[1]+y][self.pos[0]+x].move_groupe == 'tree':
+			if world.maplist[self.pos[2]][self.on_map].tilemap[self.pos[1]+y][self.pos[0]+x].move_group == 'tree':
 				
 				if player.inventory.wearing['Hold(R)'].classe == 'axe': #if player has a axe in his hand
 										
@@ -4299,21 +4303,21 @@ class mob():
 					
 	def enter(self):
 		
-		if world.maplist[self.pos[2]][self.on_map].tilemap[self.pos[1]][self.pos[0]].techID == tl.tlist['functional'][1].techID: #this is a stair down
+		if world.maplist[self.pos[2]][self.on_map].tilemap[self.pos[1]][self.pos[0]].use_group == 'stair_down':
 			if world.maplist[self.pos[2]+1][self.on_map].tilemap[self.pos[1]][self.pos[0]].techID == tl.tlist['functional'][2].techID: #if there is a stair up below this
 				player.pos[2] += 1
 				player.stand_check()#to unveil the surroundings
 			else:
 				message.add('This stair seem to be blocked.')
 			
-		elif world.maplist[self.pos[2]][self.on_map].tilemap[self.pos[1]][self.pos[0]].techID == tl.tlist['functional'][2].techID: #this is a stair up
+		elif world.maplist[self.pos[2]][self.on_map].tilemap[self.pos[1]][self.pos[0]].use_group == 'stair_up': #this is a stair up
 			if world.maplist[self.pos[2]-1][self.on_map].tilemap[self.pos[1]][self.pos[0]].techID == tl.tlist['functional'][1].techID: #if there is a stair down above
 				player.pos[2] -= 1
 				player.stand_check()#to unveil the surroundings
 			else:
 				message.add('This stair seem to be blocked.')
 			
-		elif world.maplist[self.pos[2]][self.on_map].tilemap[self.pos[1]][self.pos[0]].techID == tl.tlist['functional'][7].techID or world.maplist[self.pos[2]][self.on_map].tilemap[self.pos[1]][self.pos[0]].techID == tl.tlist['misc'][0].techID:#this is a low wather or a fontain
+		elif world.maplist[self.pos[2]][self.on_map].tilemap[self.pos[1]][self.pos[0]].use_group == 'drink':#this is a low wather or a fontain
 			#drink water
 			if player.attribute.thirst < player.attribute.thirst_max:
 				message.add('You take a sip of water.')
@@ -4323,19 +4327,20 @@ class mob():
 			else:
 				message.add('You are not thirsty right now.')
 				
-		elif world.maplist[self.pos[2]][self.on_map].tilemap[self.pos[1]][self.pos[0]].techID == tl.tlist['local'][16].techID:#this is a flowering herb
-			#get some herbs
-			test = player.inventory.materials.add('herbs',1)
+		elif world.maplist[self.pos[2]][self.on_map].tilemap[self.pos[1]][self.pos[0]].use_group == 'resource':
+			res = world.maplist[self.pos[2]][self.on_map].tilemap[self.pos[1]][self.pos[0]].conected_resources[0]
+			num = world.maplist[self.pos[2]][self.on_map].tilemap[self.pos[1]][self.pos[0]].conected_resources[1]
+			connected_tile = orld.maplist[self.pos[2]][self.on_map].tilemap[self.pos[1]][self.pos[0]].conected_tiles[0]
+			test = player.inventory.materials.add(res,num)
 			if test != 'Full!':
-				message.add('You gather some herbs')
-				if world.maplist[self.pos[2]][self.on_map].tilemap[self.pos[1]][self.pos[0]].techID == tl.tlist['local'][16].techID:#this is a flowering herb
-					replace = world.maplist[self.pos[2]][self.on_map].tilemap[self.pos[1]][self.pos[0]].replace
-					world.maplist[self.pos[2]][self.on_map].tilemap[self.pos[1]][self.pos[0]] = tl.tlist['local'][15]#set a herb here
-					world.maplist[self.pos[2]][self.on_map].tilemap[self.pos[1]][self.pos[0]].replace = replace
+				message.add(test)
+				replace = world.maplist[self.pos[2]][self.on_map].tilemap[self.pos[1]][self.pos[0]].replace
+				world.maplist[self.pos[2]][self.on_map].tilemap[self.pos[1]][self.pos[0]] == deepcopy(tl.tlist[conneced_tile[0]][connected_tile[1]])
+				world.maplist[self.pos[2]][self.on_map].tilemap[self.pos[1]][self.pos[0]].replace = replace
 			else:
 				message.add(test)
 				
-		elif world.maplist[self.pos[2]][self.on_map].tilemap[self.pos[1]][self.pos[0]].techID == tl.tlist['functional'][8].techID:#this is a bed
+		elif world.maplist[self.pos[2]][self.on_map].tilemap[self.pos[1]][self.pos[0]].use_group == 'sleep':#this is a bed
 			#sleep a bit
 			sleep = True
 			
@@ -4445,7 +4450,7 @@ class mob():
 			else:
 				message.add('Your inventory is full.')
 				
-		elif world.maplist[self.pos[2]][self.on_map].tilemap[self.pos[1]][self.pos[0]].techID == tl.tlist['functional'][9].techID: 
+		elif world.maplist[self.pos[2]][self.on_map].tilemap[self.pos[1]][self.pos[0]].use_group == 'carpenter': 
 			#this is a carpenter's workbench
 			
 			run = True
@@ -4475,7 +4480,7 @@ class mob():
 					if test == True:
 						
 						if player.inventory.materials.wood >= 10:
-							gc = screen.get_choice('What do you want to produce?', ('Carpenter\'s Workbench', 'Carver\'s Workbench', 'Stonecuter\'s Workbench', 'Forger\'s Workbench', 'Alchemist\'s Workshop', 'Furniture'),False)
+							gc = screen.get_choice('What do you want to produce?', ('Carpenter\'s Workbench', 'Carver\'s Workbench', 'Stonecuter\'s Workbench', 'Forger\'s Workbench', 'Alchemist\'s Workshop', 'Furniture'),True)
 							
 							if gc < 5:# give the choosen workbench to the player
 								items = (il.ilist['misc'][3],il.ilist['misc'][4],il.ilist['misc'][5],il.ilist['misc'][6],il.ilist['misc'][7])
@@ -4508,7 +4513,7 @@ class mob():
 					
 					run = False
 					
-		elif world.maplist[self.pos[2]][self.on_map].tilemap[self.pos[1]][self.pos[0]].techID == tl.tlist['functional'][10].techID: 
+		elif world.maplist[self.pos[2]][self.on_map].tilemap[self.pos[1]][self.pos[0]].use_group == 'carver': 
 			#this is a carvers's workbench
 			
 			run = True
@@ -4539,16 +4544,16 @@ class mob():
 						if player.inventory.materials.wood >= 5:
 							
 							final_choice = 'Foo'
-							gc = screen.get_choice('What do you want to prodcuce exactly?', ('Tool', 'Weapon', 'Armor','Jewelry'), False)
+							gc = screen.get_choice('What do you want to prodcuce exactly?', ('Tool', 'Weapon', 'Armor','Jewelry'), True)
 							
 							if gc == 0: #make a tool
 								items = (il.ilist['misc'][14], il.ilist['misc'][44], item_wear('axe',0,0), item_wear('pickaxe',0,0))
-								final_choice = screen.get_choice('What do you want to prodcuce exactly?', ('Fishing rod','Torch','Axe','Pickaxe'),False)
+								final_choice = screen.get_choice('What do you want to prodcuce exactly?', ('Fishing rod','Torch','Axe','Pickaxe'),True)
 							elif gc == 1: #make a weapon
 								items = (item_wear('spear',0,0), item_wear('sword',0,0), item_wear('hammer',0,0), item_wear('wand',0,0), item_wear('rune',0,0), item_wear('rune staff',0,0), item_wear('artefact',0,0))
 							elif gc == 2: #make some armor
 								items = (item_wear('shoes',0,0), item_wear('cuisse',0,0), item_wear('helmet',0,0), item_wear('armor',0,0))
-								final_choice = screen.get_choice('What do you want to prodcuce?', ('Shoes','Cuisse','Helmet','Armor'), False)
+								final_choice = screen.get_choice('What do you want to prodcuce?', ('Shoes','Cuisse','Helmet','Armor'), True)
 							else:#make some jewlry
 								items = (item_wear('ring',0,0),  item_wear('amulet',0,0),  item_wear('necklace',0,0), item_wear('talisman',0,0))
 							if final_choice == 'Foo':	
@@ -4580,7 +4585,7 @@ class mob():
 					run = False
 									
 		
-		elif world.maplist[self.pos[2]][self.on_map].tilemap[self.pos[1]][self.pos[0]].techID == tl.tlist['functional'][11].techID: 
+		elif world.maplist[self.pos[2]][self.on_map].tilemap[self.pos[1]][self.pos[0]].use_group == 'stonecutter': 
 			#this is a stonecutter's workbench
 			
 			run = True
@@ -4610,7 +4615,7 @@ class mob():
 					if test == True:
 						if player.inventory.materials.stone >= 10:
 							
-							gc = screen.get_choice('What do you want to produce?' ,('Functional Things', 'Decorative Things'), False)
+							gc = screen.get_choice('What do you want to produce?' ,('Functional Things', 'Decorative Things'), True)
 							
 							if gc == 0: #make something functional
 								items = (il.ilist['misc'][0], il.ilist['misc'][8], il.ilist['misc'][9])
@@ -4644,7 +4649,7 @@ class mob():
 					
 					run = False
 					
-		elif world.maplist[self.pos[2]][self.on_map].tilemap[self.pos[1]][self.pos[0]].techID == tl.tlist['functional'][12].techID or world.maplist[self.pos[2]][self.on_map].tilemap[self.pos[1]][self.pos[0]].techID == tl.tlist['functional'][23].techID: 
+		elif world.maplist[self.pos[2]][self.on_map].tilemap[self.pos[1]][self.pos[0]].use_group == 'forger': 
 			#this is a forger's workbench or a master forge
 			
 			run = True
@@ -4684,15 +4689,15 @@ class mob():
 							if world.maplist[self.pos[2]][self.on_map].tilemap[self.pos[1]][self.pos[0]].techID == tl.tlist['functional'][23].techID: #this is a master forge
 								material = 20 #magnicum only
 							final_choice = 'Foo'
-							gc = screen.get_choice('What do you want to procuce?', ('Tool', 'Weapon', 'Armor','Jewelry'), False)
+							gc = screen.get_choice('What do you want to procuce?', ('Tool', 'Weapon', 'Armor','Jewelry'), True)
 							
 							if gc == 0: #make a tool
-								final_choice = screen.get_choice('What do you want to procuce exactly?', ('Axe', 'Pickaxe'), False)
+								final_choice = screen.get_choice('What do you want to procuce exactly?', ('Axe', 'Pickaxe'), True)
 								items = (item_wear('axe',material,0), item_wear('pickaxe',material,0)) 
 							elif gc == 1: #make a weapon
 								items = (item_wear('spear',material,0), item_wear('sword',material,0), item_wear('hammer',material,0), item_wear('wand',material,0), item_wear('rune',material,0), item_wear('rune staff',material,0), item_wear('artefact',material,0))
 							elif gc == 2: #make some armor
-								final_choice = screen.get_choice('What do you want to procuce exactly?', ('Shoes', 'Cuisse', 'Helmet', 'Armor'), False)
+								final_choice = screen.get_choice('What do you want to procuce exactly?', ('Shoes', 'Cuisse', 'Helmet', 'Armor'), True)
 								items = (item_wear('shoes',material,0), item_wear('cuisse',material,0), item_wear('helmet',material,0), item_wear('armor',material,0))
 							else:#make some  jewelry
 								items = (item_wear('ring',material,0),  item_wear('amulet',material,0),  item_wear('necklace',material,0), item_wear('talisman',material,0))
@@ -4725,7 +4730,8 @@ class mob():
 					
 					run = False
 		
-		elif world.maplist[self.pos[2]][self.on_map].tilemap[self.pos[1]][self.pos[0]].techID == tl.tlist['functional'][13].techID: #this is a alchemists's workshop
+		elif world.maplist[self.pos[2]][self.on_map].tilemap[self.pos[1]][self.pos[0]].use_group == 'alchemist': 
+			#this is a alchemists's workshop
 			
 			run = True
 			
@@ -4795,7 +4801,8 @@ class mob():
 					
 					run = False
 		
-		elif world.maplist[self.pos[2]][self.on_map].tilemap[self.pos[1]][self.pos[0]].techID == tl.tlist['functional'][14].techID: #this is a furnace
+		elif world.maplist[self.pos[2]][self.on_map].tilemap[self.pos[1]][self.pos[0]].use_group == 'furnace': 
+			#this is a furnace
 			
 			run = True
 			
@@ -4854,7 +4861,8 @@ class mob():
 					
 					run = False
 		
-		elif world.maplist[self.pos[2]][self.on_map].tilemap[self.pos[1]][self.pos[0]].techID == tl.tlist['functional'][15].techID: #this is a altar
+		elif world.maplist[self.pos[2]][self.on_map].tilemap[self.pos[1]][self.pos[0]].use_group == 'altar':
+			 #this is a altar
 			
 			run = True
 			
@@ -5596,7 +5604,7 @@ class player_class(mob):
 						for y in range (-ymin,ymax+1):
 							for x in range (-xmin,xmax+1):
 				
-								if world.maplist[player.pos[2]][player.on_map].tilemap[player.pos[1]+y][player.pos[0]+x].move_groupe == 'soil' and world.maplist[player.pos[2]][player.on_map].tilemap[player.pos[1]+y][player.pos[0]+x].damage == False and world.maplist[player.pos[2]][player.on_map].npcs[player.pos[1]+y][player.pos[0]+x] == 0:
+								if world.maplist[player.pos[2]][player.on_map].tilemap[player.pos[1]+y][player.pos[0]+x].move_group == 'soil' and world.maplist[player.pos[2]][player.on_map].tilemap[player.pos[1]+y][player.pos[0]+x].damage == False and world.maplist[player.pos[2]][player.on_map].npcs[player.pos[1]+y][player.pos[0]+x] == 0:
 									built_here = True
 								elif world.maplist[player.pos[2]][player.on_map].tilemap[player.pos[1]+y][player.pos[0]+x].civilisation == True:
 									built_here = True
@@ -5630,7 +5638,7 @@ class player_class(mob):
 						for y in range (-ymin,ymax+1):
 							for x in range (-xmin,xmax+1):
 				
-								if world.maplist[player.pos[2]][player.on_map].tilemap[player.pos[1]+y][player.pos[0]+x].move_groupe == 'soil' and world.maplist[player.pos[2]][player.on_map].tilemap[player.pos[1]+y][player.pos[0]+x].damage == False and world.maplist[player.pos[2]][player.on_map].npcs[player.pos[1]+y][player.pos[0]+x] == 0:
+								if world.maplist[player.pos[2]][player.on_map].tilemap[player.pos[1]+y][player.pos[0]+x].move_group == 'soil' and world.maplist[player.pos[2]][player.on_map].tilemap[player.pos[1]+y][player.pos[0]+x].damage == False and world.maplist[player.pos[2]][player.on_map].npcs[player.pos[1]+y][player.pos[0]+x] == 0:
 									built_here = True
 								elif world.maplist[player.pos[2]][player.on_map].tilemap[player.pos[1]+y][player.pos[0]+x].civilisation == True:
 									built_here = True
@@ -5658,7 +5666,7 @@ class player_class(mob):
 						player.inventory.materials.wood -= res_need[0]
 						player.inventory.materials.stone -= res_need[1]
 						
-						if world.maplist[player.pos[2]][player.on_map].tilemap[player.pos[1]+ymin][player.pos[0]+xmin].move_groupe == 'soil' and world.maplist[player.pos[2]][player.on_map].tilemap[player.pos[1]+ymin][player.pos[0]+xmin].damage == False and world.maplist[player.pos[2]][player.on_map].npcs[player.pos[1]+ymin][player.pos[0]+xmin] == 0:
+						if world.maplist[player.pos[2]][player.on_map].tilemap[player.pos[1]+ymin][player.pos[0]+xmin].move_group == 'soil' and world.maplist[player.pos[2]][player.on_map].tilemap[player.pos[1]+ymin][player.pos[0]+xmin].damage == False and world.maplist[player.pos[2]][player.on_map].npcs[player.pos[1]+ymin][player.pos[0]+xmin] == 0:
 							built_here = True
 						elif world.maplist[player.pos[2]][player.on_map].tilemap[player.pos[1]+ymin][player.pos[0]+xmin].civilisation == True:
 							built_here = True
@@ -5679,7 +5687,7 @@ class player_class(mob):
 					if res_need[0] <= player.inventory.materials.wood and res_need[1] <= player.inventory.materials.stone:
 						if player.pos[2] > 0:
 					
-							if world.maplist[player.pos[2]][player.on_map].tilemap[player.pos[1]+ymin][player.pos[0]+xmin].replace == None and world.maplist[player.pos[2]-1][player.on_map].tilemap[player.pos[1]+ymin][player.pos[0+xmin]].build_here == True and world.maplist[player.pos[2]][player.on_map].tilemap[player.pos[1]+ymin][player.pos[0]+xmin].build_here == True and world.maplist[player.pos[2]][player.on_map].tilemap[player.pos[1]+ymin][player.pos[0]+xmin].move_groupe == 'soil' and world.maplist[player.pos[2]][player.on_map].tilemap[player.pos[1]+ymin][player.pos[0]+xmin].damage == False:
+							if world.maplist[player.pos[2]][player.on_map].tilemap[player.pos[1]+ymin][player.pos[0]+xmin].replace == None and world.maplist[player.pos[2]-1][player.on_map].tilemap[player.pos[1]+ymin][player.pos[0+xmin]].build_here == True and world.maplist[player.pos[2]][player.on_map].tilemap[player.pos[1]+ymin][player.pos[0]+xmin].build_here == True and world.maplist[player.pos[2]][player.on_map].tilemap[player.pos[1]+ymin][player.pos[0]+xmin].move_group == 'soil' and world.maplist[player.pos[2]][player.on_map].tilemap[player.pos[1]+ymin][player.pos[0]+xmin].damage == False:
 								build_here = 0
 							else: 
 								build_here = 1
@@ -5701,7 +5709,7 @@ class player_class(mob):
 					if res_need[0] <= player.inventory.materials.wood and res_need[1] <= player.inventory.materials.stone:
 						if player.pos[2] < 15:
 							
-							if world.maplist[player.pos[2]][player.on_map].tilemap[player.pos[1]+ymin][player.pos[0]+xmin].replace == None and world.maplist[player.pos[2]+1][player.on_map].tilemap[player.pos[1]+ymin][player.pos[0]+xmin].build_here == True and world.maplist[player.pos[2]][player.on_map].tilemap[player.pos[1]+ymin][player.pos[0]+xmin].build_here == True and world.maplist[player.pos[2]][player.on_map].tilemap[player.pos[1]][player.pos[0]].move_groupe == 'soil' and world.maplist[player.pos[2]][player.on_map].tilemap[player.pos[1]][player.pos[0]].damage == False:
+							if world.maplist[player.pos[2]][player.on_map].tilemap[player.pos[1]+ymin][player.pos[0]+xmin].replace == None and world.maplist[player.pos[2]+1][player.on_map].tilemap[player.pos[1]+ymin][player.pos[0]+xmin].build_here == True and world.maplist[player.pos[2]][player.on_map].tilemap[player.pos[1]+ymin][player.pos[0]+xmin].build_here == True and world.maplist[player.pos[2]][player.on_map].tilemap[player.pos[1]][player.pos[0]].move_group == 'soil' and world.maplist[player.pos[2]][player.on_map].tilemap[player.pos[1]][player.pos[0]].damage == False:
 								build_here = 0
 							else: 
 								build_here = 1
@@ -5726,7 +5734,7 @@ class player_class(mob):
 						for y in range (-ymin,ymax+1):
 							for x in range (-xmin,xmax+1):
 				
-								if world.maplist[player.pos[2]][player.on_map].tilemap[player.pos[1]+y][player.pos[0]+x].move_groupe == 'soil' and world.maplist[player.pos[2]][player.on_map].tilemap[player.pos[1]+y][player.pos[0]+x].damage == False and world.maplist[player.pos[2]][player.on_map].npcs[player.pos[1]+y][player.pos[0]+x] == 0:
+								if world.maplist[player.pos[2]][player.on_map].tilemap[player.pos[1]+y][player.pos[0]+x].move_group == 'soil' and world.maplist[player.pos[2]][player.on_map].tilemap[player.pos[1]+y][player.pos[0]+x].damage == False and world.maplist[player.pos[2]][player.on_map].npcs[player.pos[1]+y][player.pos[0]+x] == 0:
 									built_here = True
 								elif world.maplist[player.pos[2]][player.on_map].tilemap[player.pos[1]+y][player.pos[0]+x].civilisation == True:
 									built_here = True
@@ -6126,7 +6134,6 @@ class player_class(mob):
 			self.attribute = attribute(2,2,2,2,2,10,10)#reset attribute
 		elif self. difficulty == 3:#the player plays on Roguelike
 			#del everything
-			save_path = basic_path + os.sep + 'SAVE' + os.sep
 			
 			try:
 				player_path = save_path + 'player.data'
