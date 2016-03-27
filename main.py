@@ -3097,9 +3097,9 @@ class map():
 						if tile.techID == tl.tlist['misc'][10].techID: #let a water lily get a blossom (20%)
 							rand = random.randint(0,99)
 							if rand < 20:
-								self.tilemap[y][x] = tl.tlist['misc'][13]
+								self.tilemap[y][x] = tl.tlist['misc'][14]
 								
-						if tile.techID == tl.tlist['misc'][13].techID: #let a water lily lose its blossom (20%)
+						if tile.techID == tl.tlist['misc'][14].techID: #let a water lily lose its blossom (20%)
 							rand = random.randint(0,99)
 							if rand < 20:
 								self.tilemap[y][x] = tl.tlist['misc'][10]
@@ -3521,7 +3521,7 @@ class world_class():
 				if coin == 0:
 					m.tilemap[pos[1]][pos[0]] = tl.tlist['misc'][10]#set a water lily
 				else:
-					m.tilemap[pos[1]][pos[0]] = tl.tlist['misc'][13]#set a water lily with blossom
+					m.tilemap[pos[1]][pos[0]] = tl.tlist['misc'][14]#set a water lily with blossom
 					
 			except:
 				None
@@ -4330,12 +4330,12 @@ class mob():
 		elif world.maplist[self.pos[2]][self.on_map].tilemap[self.pos[1]][self.pos[0]].use_group == 'resource':
 			res = world.maplist[self.pos[2]][self.on_map].tilemap[self.pos[1]][self.pos[0]].conected_resources[0]
 			num = world.maplist[self.pos[2]][self.on_map].tilemap[self.pos[1]][self.pos[0]].conected_resources[1]
-			connected_tile = orld.maplist[self.pos[2]][self.on_map].tilemap[self.pos[1]][self.pos[0]].conected_tiles[0]
+			conected_tile = world.maplist[self.pos[2]][self.on_map].tilemap[self.pos[1]][self.pos[0]].conected_tiles[0]
 			test = player.inventory.materials.add(res,num)
 			if test != 'Full!':
 				message.add(test)
 				replace = world.maplist[self.pos[2]][self.on_map].tilemap[self.pos[1]][self.pos[0]].replace
-				world.maplist[self.pos[2]][self.on_map].tilemap[self.pos[1]][self.pos[0]] == deepcopy(tl.tlist[conneced_tile[0]][connected_tile[1]])
+				world.maplist[self.pos[2]][self.on_map].tilemap[self.pos[1]][self.pos[0]] = deepcopy(tl.tlist[conected_tile[0]][conected_tile[1]])
 				world.maplist[self.pos[2]][self.on_map].tilemap[self.pos[1]][self.pos[0]].replace = replace
 			else:
 				message.add(test)
@@ -4485,19 +4485,22 @@ class mob():
 							if gc < 5:# give the choosen workbench to the player
 								items = (il.ilist['misc'][3],il.ilist['misc'][4],il.ilist['misc'][5],il.ilist['misc'][6],il.ilist['misc'][7])
 								choose = gc
-							else:
+							elif gc == 5:
 								items = (il.ilist['misc'][1], il.ilist['misc'][2],il.ilist['misc'][10],il.ilist['misc'][11],il.ilist['misc'][13])
 								#chest, bed, table, w. seat, bookshelf
 								choose = random.randint(0, len(items)-1)
-							
-							if world.maplist[self.pos[2]][self.on_map].containers[self.pos[1]][self.pos[0]] == 0: 
-								world.maplist[self.pos[2]][self.on_map].containers[self.pos[1]][self.pos[0]] = container([items[choose]])
-							else:
-								world.maplist[self.pos[2]][self.on_map].containers[self.pos[1]][self.pos[0]].items.append(items[choose])
+							try:
+								if world.maplist[self.pos[2]][self.on_map].containers[self.pos[1]][self.pos[0]] == 0: 
+									world.maplist[self.pos[2]][self.on_map].containers[self.pos[1]][self.pos[0]] = container([items[choose]])
+								else:
+									world.maplist[self.pos[2]][self.on_map].containers[self.pos[1]][self.pos[0]].items.append(items[choose])
+									
+								message_string = 'You produced a ' + items[choose].name + '.'
+								message.add(message_string)
+								player.inventory.materials.wood -= 10
+							except:
+								None
 								
-							message_string = 'You produced a ' + items[choose].name + '.'
-							message.add(message_string)
-							player.inventory.materials.wood -= 10
 							run = False
 						
 						else:
@@ -4554,21 +4557,25 @@ class mob():
 							elif gc == 2: #make some armor
 								items = (item_wear('shoes',0,0), item_wear('cuisse',0,0), item_wear('helmet',0,0), item_wear('armor',0,0))
 								final_choice = screen.get_choice('What do you want to prodcuce?', ('Shoes','Cuisse','Helmet','Armor'), True)
-							else:#make some jewlry
+							elif gc == 3:#make some jewlry
 								items = (item_wear('ring',0,0),  item_wear('amulet',0,0),  item_wear('necklace',0,0), item_wear('talisman',0,0))
+							
 							if final_choice == 'Foo':	
 								choose = random.randint(0, len(items)-1)
 							else:
 								choose = final_choice
-							
-							if world.maplist[self.pos[2]][self.on_map].containers[self.pos[1]][self.pos[0]] == 0: 
-								world.maplist[self.pos[2]][self.on_map].containers[self.pos[1]][self.pos[0]] = container([items[choose]])
-							else:
-								world.maplist[self.pos[2]][self.on_map].containers[self.pos[1]][self.pos[0]].items.append(items[choose])
+							try:
+								if world.maplist[self.pos[2]][self.on_map].containers[self.pos[1]][self.pos[0]] == 0: 
+									world.maplist[self.pos[2]][self.on_map].containers[self.pos[1]][self.pos[0]] = container([items[choose]])
+								else:
+									world.maplist[self.pos[2]][self.on_map].containers[self.pos[1]][self.pos[0]].items.append(items[choose])
 								
-							message_string = 'You produced a ' + items[choose].name + '.'
-							message.add(message_string)
-							player.inventory.materials.wood -= 5
+								message_string = 'You produced a ' + items[choose].name + '.'
+								message.add(message_string)
+								player.inventory.materials.wood -= 5
+							except:
+								None
+								
 							run = False
 						
 						else:
@@ -4625,15 +4632,18 @@ class mob():
 								#items: stone seat, pilar ---> have to become more
 							
 							choose = random.randint(0, len(items)-1)
-							
-							if world.maplist[self.pos[2]][self.on_map].containers[self.pos[1]][self.pos[0]] == 0: 
-								world.maplist[self.pos[2]][self.on_map].containers[self.pos[1]][self.pos[0]] = container([items[choose]])
-							else:
-								world.maplist[self.pos[2]][self.on_map].containers[self.pos[1]][self.pos[0]].items.append(items[choose])
+							try:
+								if world.maplist[self.pos[2]][self.on_map].containers[self.pos[1]][self.pos[0]] == 0: 
+									world.maplist[self.pos[2]][self.on_map].containers[self.pos[1]][self.pos[0]] = container([items[choose]])
+								else:
+									world.maplist[self.pos[2]][self.on_map].containers[self.pos[1]][self.pos[0]].items.append(items[choose])
 								
-							message_string = 'You produced a ' + items[choose].name + '.'
-							message.add(message_string)
-							player.inventory.materials.stone -= 10
+								message_string = 'You produced a ' + items[choose].name + '.'
+								message.add(message_string)
+								player.inventory.materials.stone -= 10
+							except:
+								None
+								
 							run = False
 						
 						else:
@@ -4668,7 +4678,7 @@ class mob():
 						screen.render_request('[e] -     XXXXXXXXXXXX            ', '[b] - take a produced item', '[x] - leave')
 				else:
 					string = '[e] - produce something (-' + str(price) + ' Ore)', '[b] -      XXXXXXXXXXXX   ', '[x] - leave'
-					screen.render_request(string)
+					screen.render_request(string[0],string[1],string[2])
 					
 				ui = getch(screen.displayx,screen.displayy,game_options.sfxmode,game_options.turnmode,mouse=game_options.mousepad)
 				
@@ -4688,6 +4698,7 @@ class mob():
 							material = random.randint(6,20)#tin to magnicum
 							if world.maplist[self.pos[2]][self.on_map].tilemap[self.pos[1]][self.pos[0]].techID == tl.tlist['functional'][23].techID: #this is a master forge
 								material = 20 #magnicum only
+							
 							final_choice = 'Foo'
 							gc = screen.get_choice('What do you want to procuce?', ('Tool', 'Weapon', 'Armor','Jewelry'), True)
 							
@@ -4699,22 +4710,25 @@ class mob():
 							elif gc == 2: #make some armor
 								final_choice = screen.get_choice('What do you want to procuce exactly?', ('Shoes', 'Cuisse', 'Helmet', 'Armor'), True)
 								items = (item_wear('shoes',material,0), item_wear('cuisse',material,0), item_wear('helmet',material,0), item_wear('armor',material,0))
-							else:#make some  jewelry
+							elif gc == 3:#make some  jewelry
 								items = (item_wear('ring',material,0),  item_wear('amulet',material,0),  item_wear('necklace',material,0), item_wear('talisman',material,0))
 							
 							if final_choice == 'Foo':	
 								choose = random.randint(0, len(items)-1)
 							else:
 								choose = final_choice
-							
-							if world.maplist[self.pos[2]][self.on_map].containers[self.pos[1]][self.pos[0]] == 0: 
-								world.maplist[self.pos[2]][self.on_map].containers[self.pos[1]][self.pos[0]] = container([items[choose]])
-							else:
-								world.maplist[self.pos[2]][self.on_map].containers[self.pos[1]][self.pos[0]].items.append(items[choose])
+							try:
+								if world.maplist[self.pos[2]][self.on_map].containers[self.pos[1]][self.pos[0]] == 0: 
+									world.maplist[self.pos[2]][self.on_map].containers[self.pos[1]][self.pos[0]] = container([items[choose]])
+								else:
+									world.maplist[self.pos[2]][self.on_map].containers[self.pos[1]][self.pos[0]].items.append(items[choose])
 								
-							message_string = 'You produced a ' + items[choose].name + '.'
-							message.add(message_string)
-							player.inventory.materials.ore -= price
+								message_string = 'You produced a ' + items[choose].name + '.'
+								message.add(message_string)
+								player.inventory.materials.ore -= price
+							except:
+								None
+								
 							run = False
 						
 						else:

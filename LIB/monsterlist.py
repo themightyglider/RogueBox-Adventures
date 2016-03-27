@@ -782,13 +782,13 @@ class monsterlist():
 				corps_style = 'vanish',
 				corps_lvl = 5,
 				personal_id = 'None',
-				move_groups = ('shop'), 
-				behavior = 'shop', 
+				move_groups = ('shop','shop'), 
+				behavior = 'talk', 
 				attack_were = ('Legs','Feet'),
 				possible_effect = None, 
 				effect_duration = 0,
 				effect_probability = 0,
-				message = 'None')
+				message = 'The shopkeeper greets you.')
 		techID+=1
 		self.mlist['shop'].append(m)
 		#1
@@ -802,13 +802,13 @@ class monsterlist():
 				corps_style = 'vanish',
 				corps_lvl = 5,
 				personal_id = 'None',
-				move_groups = ('shop'), 
-				behavior = 'shop', 
+				move_groups = ('shop','shop'), 
+				behavior = 'talk', 
 				attack_were = ('Legs','Feet'),
 				possible_effect = None, 
 				effect_duration = 0,
 				effect_probability = 0,
-				message = 'None')
+				message = 'The shopkeeper greets you.')
 		techID+=1
 		self.mlist['shop'].append(m)
 		#2
@@ -822,12 +822,12 @@ class monsterlist():
 				corps_style = 'vanish',
 				corps_lvl = 5,
 				personal_id = 'None',
-				move_groups = ('shop'), 
-				behavior = 'shop', 
+				move_groups = ('shop','shop'), 
+				behavior = 'talk', 
 				attack_were = ('Legs','Feet'),
 				possible_effect = None, 
 				effect_duration = 0,
 				effect_probability = 0,
-				message = 'None')
+				message = 'The shopkeeper greets you.')
 		techID+=1
 		self.mlist['shop'].append(m)

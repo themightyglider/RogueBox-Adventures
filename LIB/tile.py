@@ -1,13 +1,13 @@
 class tile():
 	
-	def __init__(self,techID, name, tile_color, use_groupe, move_groupe, grow_groupe, damage, move_message, damage_message, destroy = False, replace = None, civilisation = False, can_grown = False, build_here = True, tile_pos = (0,0), transparency = True, conected_items = None, conected_tiles = None, conected_resources = None):
+	def __init__(self,techID, name, tile_color, use_group, move_group, grow_group, damage, move_message, damage_message, destroy = False, replace = None, civilisation = False, can_grown = False, build_here = True, tile_pos = (0,0), transparency = True, conected_items = None, conected_tiles = None, conected_resources = None):
 		
 		self.techID = techID
 		self.name = name
 		self.tile_color = tile_color
-		self.use_groupe = use_groupe
-		self.move_groupe = move_groupe
-		self.grow_groupe = grow_groupe
+		self.use_group = use_group
+		self.move_group = move_group
+		self.grow_group = grow_group
 		self.damage = damage
 		self.move_mes = move_message
 		self.damage_mes = damage_message
