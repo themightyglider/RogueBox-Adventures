@@ -92,7 +92,7 @@ class buffs():
 			slist.append('LIGHT(' + str(self.light) + ')')
 			
 		if self.blind > 0:
-			slist.append('BLIND(' + str(self.light) + ')')
+			slist.append('BLIND(' + str(self.blind) + ')')
 			
 		if len(slist) > 1:
 			del slist[0]
