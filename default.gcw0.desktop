@@ -1,0 +1,7 @@
+[Desktop Entry]
+Name=RogueBox Adventures
+Type=Application
+Exec=main.py
+Icon=icon_small
+Terminal=false
+Categories=games;
