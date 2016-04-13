@@ -735,6 +735,8 @@ class g_screen():
 			string = 'Generate elfish fortress...'
 		elif num == 17:
 			string = 'Generate orcish mines...'
+		elif num == 18:
+			string = 'Generate desert...'
 		
 		######add more here
 		
@@ -1992,6 +1994,7 @@ class map():
 		self.visit = visit
 		self.last_visit = 0 #-------test only
 		self.map_type = map_type
+		self.build_type = 'Full' #Full: build everything you want, Part: no stairs, None: Buildmode is not callable
 		self.countdowns = []
 		self.npcs = []
 		
@@ -2681,7 +2684,7 @@ class map():
 				if ran <= self.npcs[y][x].corps_lvl: #the corps_lvl determinates the chance of getting a present
 					
 					replace = self.tilemap[y][x]
-					self.tilemap[y][x] = deepcopy(tl.tlist['misc'][12])#set a present
+					self.tilemap[y][x] = deepcopy(tl.tlist['misc'][13])#set a present
 					self.tilemap[y][x].replace = replace
 						
 					item_ran = random.randint(0,99)
@@ -3137,7 +3140,7 @@ class map():
 			for x in range (0,max_map_size):
 				
 				if self.tilemap[y][x].techID == tile.techID:
-					return (x,y)
+					return [x,y]
 		
 		return False
 					
@@ -3415,6 +3418,8 @@ class world_class():
 			
 			self.border_generator(15)
 			
+			screen.render_load(18)
+			self.desert_generator(20)
 			
 			screen.render_load(5)
 			
@@ -4021,11 +4026,82 @@ class world_class():
 		
 		m.set_frame(tl.tlist['functional'][0])
 		
+		#set guidepost
+		y = max_map_size -2
+		x = random.randint(2,max_map_size-2)
+		m.tilemap[y][x] = tl.tlist['extra'][6]
+		m.tilemap[y][x].replace = tl.tlist['local'][0]#grass
+		m.tilemap[y-1][x] = tl.tlist['local'][0]#grass
+		
 		m.spawn_monsters(0)
 					
 		self.maplist[0][name] = m
 		
 		return pos
+		
+	def desert_generator(self,chance_cactus):
+		# chance_scrubs and chance_trees must be between 0 and 99
+		name = 'desert_0_0'
+		
+		tilemap = []
+		for a in range (0,max_map_size):
+			tilemap.append([])
+			for b in range (0,max_map_size):
+				tilemap[a].append(0)
+	
+		m = map(name,tilemap)
+		m.map_type = 'desert'
+		m.build_type = 'Part'
+		
+		m.fill(tl.tlist['extra'][0])
+		
+		y_river = random.randint((15),(max_map_size-15))
+		river_offset = random.randint(-3,3)
+		plus = 0
+		minus = 0
+		
+		for c in range (0,max_map_size):
+			
+			for g in range (-2,7):
+				m.tilemap[y_river+river_offset+g][c] = tl.tlist['local'][0]#set grass
+				
+			for w in range (0,5):
+				m.tilemap[y_river+river_offset+w][c] = tl.tlist['misc'][0]#set low water
+				
+			if river_offset < 5:
+				plus = 1
+			else:
+				plus = 0
+				
+			if river_offset > -5:
+				minus = -1
+			else:
+				minus = 0
+				
+			offset_change = random.randint(minus,plus)
+			river_offset += offset_change
+		
+		for y in range (0,max_map_size):
+			for x in range (0,max_map_size):
+				if m.tilemap[y][x].techID == tl.tlist['extra'][0].techID:
+					chance = random.randint(0,99)
+					if chance < chance_cactus:
+						coin = random.randint(3,5)
+						m.tilemap[y][x] = tl.tlist['extra'][coin]
+						m.tilemap[y][x].replace = tl.tlist['extra'][0]#sand
+		
+		m.set_frame(tl.tlist['functional'][0])
+		
+		#set guidepost
+		y = 2
+		x = random.randint(2,max_map_size-2)
+		m.tilemap[y][x] = tl.tlist['extra'][7]
+		m.tilemap[y][x].replace = tl.tlist['extra'][0]#sand
+		m.tilemap[y+1][x] = tl.tlist['extra'][0]#sand
+		
+		#m.spawn_monsters(0)
+					
+		self.maplist[0][name] = m
 		
 	def choose_size(self):
 		#this is a all in one function with render, choose and set
@@ -4330,13 +4406,19 @@ class mob():
 		elif world.maplist[self.pos[2]][self.on_map].tilemap[self.pos[1]][self.pos[0]].use_group == 'resource':
 			res = world.maplist[self.pos[2]][self.on_map].tilemap[self.pos[1]][self.pos[0]].conected_resources[0]
 			num = world.maplist[self.pos[2]][self.on_map].tilemap[self.pos[1]][self.pos[0]].conected_resources[1]
-			conected_tile = world.maplist[self.pos[2]][self.on_map].tilemap[self.pos[1]][self.pos[0]].conected_tiles[0]
+			try:
+				conected_tile = world.maplist[self.pos[2]][self.on_map].tilemap[self.pos[1]][self.pos[0]].conected_tiles[0]
+			except:
+				None
 			test = player.inventory.materials.add(res,num)
 			if test != 'Full!':
 				message.add(test)
 				replace = world.maplist[self.pos[2]][self.on_map].tilemap[self.pos[1]][self.pos[0]].replace
-				world.maplist[self.pos[2]][self.on_map].tilemap[self.pos[1]][self.pos[0]] = deepcopy(tl.tlist[conected_tile[0]][conected_tile[1]])
-				world.maplist[self.pos[2]][self.on_map].tilemap[self.pos[1]][self.pos[0]].replace = replace
+				try:
+					world.maplist[self.pos[2]][self.on_map].tilemap[self.pos[1]][self.pos[0]] = deepcopy(tl.tlist[conected_tile[0]][conected_tile[1]])
+					world.maplist[self.pos[2]][self.on_map].tilemap[self.pos[1]][self.pos[0]].replace = replace
+				except:
+					world.maplist[self.pos[2]][self.on_map].tilemap[self.pos[1]][self.pos[0]] = replace
 			else:
 				message.add(test)
 				
@@ -4371,84 +4453,32 @@ class mob():
 				if monster_test == True:#wake up because a monster borders the players sleep
 					message.add('You wake up with a sense of danger.')
 					sleep = False
+		
+		elif world.maplist[self.pos[2]][self.on_map].tilemap[self.pos[1]][self.pos[0]].use_group == 'gather':
+			help_container = container([world.maplist[self.pos[2]][self.on_map].tilemap[self.pos[1]][self.pos[0]].conected_items])
+			item_name = help_container.items[0].name
+			test_loot = help_container.loot(0)
+			if test_loot == True:
+				string = 'You take ' + item_name + '.'
+				message.add(string)
+				world.maplist[self.pos[2]][self.on_map].tilemap[self.pos[1]][self.pos[0]] = world.maplist[self.pos[2]][self.on_map].tilemap[self.pos[1]][self.pos[0]].replace
+			else:
+				message.add('Your inventory is full!')
 				
-		elif world.maplist[self.pos[2]][self.on_map].tilemap[self.pos[1]][self.pos[0]].techID == tl.tlist['local'][2].techID: #this is a scrub whit red berrys 
-			test = world.maplist[self.pos[2]][self.on_map].containers[self.pos[1]][self.pos[0]].loot(0) #give player a berry
-			if test == True:
-				message.add('You gater some red berries.')
-				replace = world.maplist[self.pos[2]][self.on_map].tilemap[self.pos[1]][self.pos[0]].replace# set a scrub without berrys here
-				world.maplist[self.pos[2]][self.on_map].tilemap[self.pos[1]][self.pos[0]] = tl.tlist['local'][1]
+		elif world.maplist[self.pos[2]][self.on_map].tilemap[self.pos[1]][self.pos[0]].use_group == 'gather_scrub':
+			help_container = container([world.maplist[self.pos[2]][self.on_map].tilemap[self.pos[1]][self.pos[0]].conected_items])
+			item_name = help_container.items[0].name
+			test_loot = help_container.loot(0)
+			if test_loot == True:
+				string = 'You take ' + item_name + '.'
+				message.add(string)
+				cat = world.maplist[self.pos[2]][self.on_map].tilemap[self.pos[1]][self.pos[0]].conected_tiles[1][0]
+				num = world.maplist[self.pos[2]][self.on_map].tilemap[self.pos[1]][self.pos[0]].conected_tiles[1][1]
+				replace = world.maplist[self.pos[2]][self.on_map].tilemap[self.pos[1]][self.pos[0]].replace
+				world.maplist[self.pos[2]][self.on_map].tilemap[self.pos[1]][self.pos[0]] = tl.tlist[cat][num]
 				world.maplist[self.pos[2]][self.on_map].tilemap[self.pos[1]][self.pos[0]].replace = replace
-				world.maplist[self.pos[2]][self.on_map].containers[self.pos[1]][self.pos[0]] = 0 #del the container
 			else:
-				message.add('Your inventory is full.')
-		
-		elif world.maplist[self.pos[2]][self.on_map].tilemap[self.pos[1]][self.pos[0]].techID == tl.tlist['local'][17].techID: #this is a scrub whit blue berrys 
-			test = world.maplist[self.pos[2]][self.on_map].containers[self.pos[1]][self.pos[0]].loot(0) #give player a berry
-			if test == True:
-				message.add('You gater some blue berries.')
-				replace = world.maplist[self.pos[2]][self.on_map].tilemap[self.pos[1]][self.pos[0]].replace# set a scrub without berrys here
-				world.maplist[self.pos[2]][self.on_map].tilemap[self.pos[1]][self.pos[0]] = tl.tlist['local'][1]
-				world.maplist[self.pos[2]][self.on_map].tilemap[self.pos[1]][self.pos[0]].replace = replace
-				world.maplist[self.pos[2]][self.on_map].containers[self.pos[1]][self.pos[0]] = 0 #del the container
-			else:
-				message.add('Your inventory is full.')
-				
-		elif world.maplist[self.pos[2]][self.on_map].tilemap[self.pos[1]][self.pos[0]].techID == tl.tlist['local'][18].techID: #this is a scrub whit yellow berrys 
-			test = world.maplist[self.pos[2]][self.on_map].containers[self.pos[1]][self.pos[0]].loot(0) #give player a berry
-			if test == True:
-				message.add('You gater some yellow berries.')
-				replace = world.maplist[self.pos[2]][self.on_map].tilemap[self.pos[1]][self.pos[0]].replace# set a scrub without berrys here
-				world.maplist[self.pos[2]][self.on_map].tilemap[self.pos[1]][self.pos[0]] = tl.tlist['local'][1]
-				world.maplist[self.pos[2]][self.on_map].tilemap[self.pos[1]][self.pos[0]].replace = replace
-				world.maplist[self.pos[2]][self.on_map].containers[self.pos[1]][self.pos[0]] = 0 #del the container
-			else:
-				message.add('Your inventory is full.')
-			
-		elif world.maplist[self.pos[2]][self.on_map].tilemap[self.pos[1]][self.pos[0]].techID == tl.tlist['misc'][6].techID: #this is a blue mushroom
-			test = world.maplist[self.pos[2]][self.on_map].containers[self.pos[1]][self.pos[0]].loot(0) #give player a blue mushroom
-			if test == True:
-				message.add('You gater a blue mushroom.')
-				world.maplist[self.pos[2]][self.on_map].tilemap[self.pos[1]][self.pos[0]] = world.maplist[self.pos[2]][self.on_map].tilemap[self.pos[1]][self.pos[0]].replace#del the mushroom
-				world.maplist[self.pos[2]][self.on_map].containers[self.pos[1]][self.pos[0]] = 0 #del the container
-			else:
-				message.add('Your inventory is full.')
-		
-		elif world.maplist[self.pos[2]][self.on_map].tilemap[self.pos[1]][self.pos[0]].techID == tl.tlist['misc'][7].techID: #this is a brown mushroom
-			test = world.maplist[self.pos[2]][self.on_map].containers[self.pos[1]][self.pos[0]].loot(0) #give player a brown mushroom
-			if test == True:
-				message.add('You gater a brown mushroom.')
-				world.maplist[self.pos[2]][self.on_map].tilemap[self.pos[1]][self.pos[0]] = world.maplist[self.pos[2]][self.on_map].tilemap[self.pos[1]][self.pos[0]].replace#del the mushroom
-				world.maplist[self.pos[2]][self.on_map].containers[self.pos[1]][self.pos[0]] = 0 #del the container
-			else:
-				message.add('Your inventory is full.')
-		
-		elif world.maplist[self.pos[2]][self.on_map].tilemap[self.pos[1]][self.pos[0]].techID == tl.tlist['misc'][8].techID: #this is a purple mushroom
-			test = world.maplist[self.pos[2]][self.on_map].containers[self.pos[1]][self.pos[0]].loot(0) #give player a purple mushroom
-			if test == True:
-				message.add('You gater a purple mushroom.')
-				world.maplist[self.pos[2]][self.on_map].tilemap[self.pos[1]][self.pos[0]] = world.maplist[self.pos[2]][self.on_map].tilemap[self.pos[1]][self.pos[0]].replace#del the mushroom
-				world.maplist[self.pos[2]][self.on_map].containers[self.pos[1]][self.pos[0]] = 0 #del the container
-			else:
-				message.add('Your inventory is full.')
-		
-		elif world.maplist[self.pos[2]][self.on_map].tilemap[self.pos[1]][self.pos[0]].techID == tl.tlist['building'][7].techID: #this are some crops
-			test = world.maplist[self.pos[2]][self.on_map].containers[self.pos[1]][self.pos[0]].loot(0) #give player crops
-			if test == True:
-				message.add('You harvest some crops.')
-				world.maplist[self.pos[2]][self.on_map].tilemap[self.pos[1]][self.pos[0]] = tl.tlist['building'][4]#del the crops
-				world.maplist[self.pos[2]][self.on_map].containers[self.pos[1]][self.pos[0]] = 0 #del the container
-			else:
-				message.add('Your inventory is full.')
-		
-		elif world.maplist[self.pos[2]][self.on_map].tilemap[self.pos[1]][self.pos[0]].techID == tl.tlist['building'][8].techID: #this is a agriculture mushroom
-			test = world.maplist[self.pos[2]][self.on_map].containers[self.pos[1]][self.pos[0]].loot(0) #give player a cult. mushroom
-			if test == True:
-				message.add('You harvest a cultivated mushroom.')
-				world.maplist[self.pos[2]][self.on_map].tilemap[self.pos[1]][self.pos[0]] = tl.tlist['building'][4]#del the cult.mushroom
-				world.maplist[self.pos[2]][self.on_map].containers[self.pos[1]][self.pos[0]] = 0 #del the container
-			else:
-				message.add('Your inventory is full.')
+				message.add('Your inventory is full!')
 				
 		elif world.maplist[self.pos[2]][self.on_map].tilemap[self.pos[1]][self.pos[0]].use_group == 'carpenter': 
 			#this is a carpenter's workbench
@@ -4981,41 +5011,23 @@ class mob():
 					
 					run = False
 		
-		elif world.maplist[self.pos[2]][self.on_map].tilemap[self.pos[1]][self.pos[0]].techID == tl.tlist['misc'][9].techID: #this is a lost gem
-			
-			if player.inventory.materials.gem < player.inventory.materials.gem_max:
-				world.maplist[self.pos[2]][self.on_map].tilemap[self.pos[1]][self.pos[0]] = world.maplist[self.pos[2]][self.on_map].tilemap[self.pos[1]][self.pos[0]].replace
-				player.inventory.materials.gem += 1
-				message.add('You take the gem.')
-			else:
-				message.add('Your bags are already full of gems.')
+		elif world.maplist[self.pos[2]][self.on_map].tilemap[self.pos[1]][self.pos[0]].use_group == 'go_desert':
+			pos = world.maplist[self.pos[2]]['desert_0_0'].find_first(tl.tlist['extra'][7])
+			pos[1] += 1
+			player.pos[0] = pos[0]
+			player.pos[1] = pos[1]
+			player.pos[2] = 0#only to be sure
+			player.on_map = 'desert_0_0'
+			player.stand_check()
 		
-		elif world.maplist[self.pos[2]][self.on_map].tilemap[self.pos[1]][self.pos[0]].techID == tl.tlist['misc'][11].techID: #this is some lost ore
-			
-			if player.inventory.materials.ore < player.inventory.materials.ore_max:
-				world.maplist[self.pos[2]][self.on_map].tilemap[self.pos[1]][self.pos[0]] = world.maplist[self.pos[2]][self.on_map].tilemap[self.pos[1]][self.pos[0]].replace
-				player.inventory.materials.ore += 1
-				message.add('You take the ore.')
-			else:
-				message.add('Your bags are already full of ore.')
-		
-		elif world.maplist[self.pos[2]][self.on_map].tilemap[self.pos[1]][self.pos[0]].techID == tl.tlist['misc'][13].techID: #this is a water lily with blossom
-			
-			if player.inventory.materials.herb < player.inventory.materials.herb_max:
-				world.maplist[self.pos[2]][self.on_map].tilemap[self.pos[1]][self.pos[0]] = tl.tlist['misc'][10]
-				player.inventory.materials.herb += 1
-				message.add('You put the blossom in your herbs bag.')
-			else:
-				message.add('Your bags are already full of herbs.')
-		
-		elif world.maplist[self.pos[2]][self.on_map].tilemap[self.pos[1]][self.pos[0]].techID == tl.tlist['elfish'][2].techID: #this is a elfish agriculture
-			
-			if player.inventory.materials.seeds < player.inventory.materials.seeds_max:
-				world.maplist[self.pos[2]][self.on_map].tilemap[self.pos[1]][self.pos[0]] = tl.tlist['elfish'][6]
-				player.inventory.materials.seeds += 1
-				message.add('You gather some seeds.')
-			else:
-				message.add('Your bags are already full of seeds.')
+		elif world.maplist[self.pos[2]][self.on_map].tilemap[self.pos[1]][self.pos[0]].use_group == 'return_desert':
+			pos = world.maplist[self.pos[2]]['local_0_0'].find_first(tl.tlist['extra'][6])
+			pos[1] -= 1
+			player.pos[0] = pos[0]
+			player.pos[1] = pos[1]
+			player.pos[2] = 0#only to be sure
+			player.on_map = 'local_0_0'
+			player.stand_check()
 								
 		elif world.maplist[self.pos[2]][self.on_map].containers[self.pos[1]][self.pos[0]] != 0:#interaction with a container eg.: a chest
 			
@@ -5455,8 +5467,11 @@ class player_class(mob):
 			
 		if ui == 'b':
 			if screen.fire_mode == 0:
-				self.built()
-				time.tick()
+				if world.maplist[self.pos[2]][self.on_map].build_type != 'None':
+					self.built()
+					time.tick()
+				else:
+					message.add('You can\'t build here!')
 		
 		if ui == 'f':
 			if screen.fire_mode == 0:
@@ -5594,7 +5609,10 @@ class player_class(mob):
 					style = 'Door'
 					
 				elif style == 'Door':
-					style = 'Stair up'
+					if world.maplist[self.pos[2]][self.on_map].build_type != 'Part':
+						style = 'Stair up'
+					else:
+						style = 'Agriculture'
 					
 				elif style == 'Stair up':
 					style = 'Stair down'

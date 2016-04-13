@@ -158,6 +158,9 @@ class itemlist():
 		t=item_misc(techID, 'Sepling', 'place', 'local', 10)
 		self.ilist['misc'].append(t)
 		techID += 1
+		t=item_misc(techID, 'Small cactus', 'place', 'extra', 3)
+		self.ilist['misc'].append(t)
+		techID += 1
 
 		#food items
 
