@@ -247,7 +247,7 @@ class monsterlist():
 				attribute_prev = (0,2,0,2,2),
 				worn_equipment = (0,0,0,0,0),
 				AI_style = 'flee',
-				corps_style = 'human',
+				corps_style = 'animal',
 				corps_lvl = 1,
 				personal_id = 'None',
 				move_groups = ('soil','low_liquid'), 

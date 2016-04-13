@@ -361,7 +361,7 @@ class tilelist():
 		techID+=1
 	
 		self.tlist['functional'] = []
-	
+		#0
 		t=tile(techID = techID,
 					name = 'Border',
 					tile_color = 'white',
@@ -376,7 +376,7 @@ class tilelist():
 					transparency = False)
 		self.tlist['functional'].append(t)
 		techID+=1
-	
+		#1
 		t=tile(techID = techID,
 					name = 'Stair down',
 					tile_color = 'white',
@@ -390,8 +390,8 @@ class tilelist():
 					build_here = False,
 					tile_pos = (3,4))
 		self.tlist['functional'].append(t)
-		techID+=1
-	
+		te1chID+=1
+		#2
 		t=tile(techID = techID,
 					name = 'Stair up',
 					tile_color = 'white',
@@ -406,7 +406,7 @@ class tilelist():
 					tile_pos = (3,3))
 		self.tlist['functional'].append(t)
 		techID+=1
-	
+		#3
 		t=tile(techID = techID,
 					name = 'Empty chest',
 					tile_color = 'white',
@@ -420,7 +420,7 @@ class tilelist():
 					tile_pos = (5,10))
 		self.tlist['functional'].append(t)
 		techID+=1
-	
+		#4
 		t=tile(techID = techID,
 					name = 'Chest',
 					tile_color = 'white',
@@ -434,7 +434,7 @@ class tilelist():
 					tile_pos = (6,9))
 		self.tlist['functional'].append(t)
 		techID+=1
-	
+		#5
 		t=tile(techID = techID,
 					name = 'Stack',
 					tile_color = 'white',
@@ -447,7 +447,7 @@ class tilelist():
 					tile_pos = (3,5))
 		self.tlist['functional'].append(t)
 		techID+=1
-	
+		#6
 		t=tile(techID = techID,
 					name = 'Humanoid remains',
 					tile_color = 'white',
@@ -460,7 +460,7 @@ class tilelist():
 					tile_pos = (3,9))
 		self.tlist['functional'].append(t)
 		techID+=1
-	
+		#7
 		t=tile(techID = techID,
 					name = 'Fontain',
 					tile_color = 'blue',
@@ -474,7 +474,7 @@ class tilelist():
 					tile_pos = (6,3))
 		self.tlist['functional'].append(t)
 		techID+=1
-	
+		#8
 		t=tile(techID = techID,
 					name = 'Bed',
 					tile_color = 'white',
@@ -488,7 +488,7 @@ class tilelist():
 					tile_pos = (8,6))
 		self.tlist['functional'].append(t)
 		techID+=1
-	
+		#9
 		t=tile(techID = techID,
 					name = 'Carpenter\'s workbench',
 					tile_color = 'white',
@@ -502,7 +502,7 @@ class tilelist():
 					tile_pos = (8,2))
 		self.tlist['functional'].append(t)
 		techID+=1
-	
+		#10
 		t=tile(techID = techID,
 					name = 'Carvers\'s workbench',
 					tile_color = 'white',
@@ -516,7 +516,7 @@ class tilelist():
 					tile_pos = (8,1))
 		self.tlist['functional'].append(t)
 		techID+=1
-	
+		#11
 		t=tile(techID = techID,
 					name = 'Stonecutter\'s workbench',
 					tile_color = 'white',
@@ -530,7 +530,7 @@ class tilelist():
 					tile_pos = (3,2))
 		self.tlist['functional'].append(t)
 		techID+=1
-	
+		#12
 		t=tile(techID = techID,
 					name = 'Forger\'s workbench',
 					tile_color = 'white',
@@ -544,7 +544,7 @@ class tilelist():
 					tile_pos = (8,0))
 		self.tlist['functional'].append(t)
 		techID+=1
-	
+		#13
 		t=tile(techID = techID,
 					name = 'alchemist\'s workshop',
 					tile_color = 'white',
@@ -558,7 +558,7 @@ class tilelist():
 					tile_pos = (8,4))
 		self.tlist['functional'].append(t)
 		techID+=1
-	
+		#14
 		t=tile(techID = techID,
 					name = 'Furnace',
 					tile_color = 'white',
@@ -572,7 +572,7 @@ class tilelist():
 					tile_pos = (5,2))
 		self.tlist['functional'].append(t)
 		techID+=1
-	
+		#15
 		t=tile(techID = techID,
 					name = 'Altar',
 					tile_color = 'white',
@@ -586,7 +586,7 @@ class tilelist():
 					tile_pos = (8,3))
 		self.tlist['functional'].append(t)
 		techID+=1
-	
+		#16
 		t=tile(techID = techID,
 					name = 'Table',
 					tile_color = 'white',
@@ -600,7 +600,7 @@ class tilelist():
 					tile_pos = (3,1))
 		self.tlist['functional'].append(t)
 		techID+=1
-	
+		#17
 		t=tile(techID = techID,
 					name = 'Wooden seat',
 					tile_color = 'white',
@@ -614,7 +614,7 @@ class tilelist():
 					tile_pos = (3,6))
 		self.tlist['functional'].append(t)
 		techID+=1
-	
+		#18
 		t=tile(techID = techID,
 					name = 'Stone seat',
 					tile_color = 'white',
@@ -628,7 +628,7 @@ class tilelist():
 					tile_pos = (3,7))
 		self.tlist['functional'].append(t)
 		techID+=1
-	
+		#19
 		t=tile(techID = techID,
 					name = 'Bookshelf',
 					tile_color = 'white',
@@ -643,7 +643,7 @@ class tilelist():
 					transparency = False)
 		self.tlist['functional'].append(t)
 		techID+=1
-	
+		#20
 		t=tile(techID = techID,
 					name = 'Divine gift',
 					tile_color = 'light_purple',
@@ -657,7 +657,7 @@ class tilelist():
 					tile_pos = (6,8))
 		self.tlist['functional'].append(t)
 		techID+=1
-	
+		#21
 		t=tile(techID = techID,
 					name = 'Animal remains',
 					tile_color = 'white',
@@ -672,7 +672,7 @@ class tilelist():
 					conected_items = il.ilist['food'][9])
 		self.tlist['functional'].append(t)
 		techID+=1
-	
+		#22
 		t=tile(techID = techID,
 					name = 'Pilar',
 					tile_color = 'white',
@@ -687,7 +687,7 @@ class tilelist():
 					transparency = False)
 		self.tlist['functional'].append(t)
 		techID+=1
-	
+		#23
 		t=tile(techID = techID,
 					name = 'Master forge',
 					tile_color = 'purple',

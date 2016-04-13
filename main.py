@@ -5823,11 +5823,11 @@ class player_class(mob):
 			bodypart = world.maplist[self.pos[2]][self.on_map].npcs[y][x].attack_were[random.randint(0,len(world.maplist[self.pos[2]][self.on_map].npcs[y][x].attack_were))-1]
 			
 			monster_strange  = 0
-			for i in range(0,world.maplist[self.pos[2]][self.on_map].npcs[y][x].basic_attribute.p_strange + self.pos[2]):
+			for i in range(0,world.maplist[self.pos[2]][self.on_map].npcs[y][x].basic_attribute.p_strange):
 				 monster_strange += random.randint(1,6)
 				 
 			player_defense = 0
-			for j in range(0,self.attribute.p_defense + self.inventory.wearing[bodypart].attribute.p_defense + self.lvl):
+			for j in range(0,self.attribute.p_defense + self.inventory.wearing[bodypart].attribute.p_defense):
 				player_defense += random.randint(1,6)
 			
 			if monster_strange >= player_defense:
@@ -5879,11 +5879,11 @@ class player_class(mob):
 		elif world.maplist[self.pos[2]][self.on_map].npcs[y][x].behavior == 'attack_magic' or random_attack == 'magic':
 			
 			monster_strange = 0
-			for i in range(world.maplist[self.pos[2]][self.on_map].npcs[y][x].basic_attribute.m_strange + self.pos[2]):
+			for i in range(world.maplist[self.pos[2]][self.on_map].npcs[y][x].basic_attribute.m_strange):
 				monster_strange += random.randint(1,6)
 				
 			player_defense = 0
-			for j in range(0,player.attribute.p_defense + player.inventory.wearing['Neck'].attribute.m_defense + self.inventory.wearing['Hand'].attribute.m_defense + self.pos[2]):
+			for j in range(0,player.attribute.p_defense + player.inventory.wearing['Neck'].attribute.m_defense + self.inventory.wearing['Hand'].attribute.m_defense):
 				player_defense += random.randint(1,6)
 			
 			if monster_strange >= player_defense:
@@ -5954,17 +5954,12 @@ class player_class(mob):
 		
 		if style == 'magic':
 			
-			bonus = 0
-			
-			if world.maplist[self.pos[2]][self.on_map].npcs[y][x].basic_attribute.m_defense != 0:
-				bonus = self.pos[2] #the levelbonus for monsters == the deep of the level were they spawn
-			
 			player_strange = 0
 			for i in range(0,self.attribute.m_strange + self.inventory.wearing['Hold(L)'].attribute.m_strange + self.lvl):
 				player_strange += random.randint(1,6)
 				
 			monster_defense = 0
-			for j in range(0,world.maplist[self.pos[2]][self.on_map].npcs[y][x].basic_attribute.m_defense + bonus):
+			for j in range(0,world.maplist[self.pos[2]][self.on_map].npcs[y][x].basic_attribute.m_defense):
 				monster_defense += random.randint(1,6)
 			
 			player_luck = self.attribute.luck + self.inventory.wearing['Hand'].attribute.luck +self.inventory.wearing['Neck'].attribute.luck
@@ -6035,17 +6030,12 @@ class player_class(mob):
 				screen.write_hit_matrix(x,y,3)
 		else:
 			
-			bonus = 0
-			
-			if world.maplist[self.pos[2]][self.on_map].npcs[y][x].basic_attribute.p_defense != 0:
-				bonus = self.pos[2] #the levelbonus for monsters == the deep of the level were they spawn
-			
 			player_strange = 0
 			for i in range(0,player.attribute.p_strange + player.inventory.wearing['Hold(R)'].attribute.p_strange):
 				player_strange += random.randint(1,6)
 				
 			monster_defense = 0
-			for i in range(0,world.maplist[self.pos[2]][self.on_map].npcs[y][x].basic_attribute.p_defense + bonus):
+			for i in range(0,world.maplist[self.pos[2]][self.on_map].npcs[y][x].basic_attribute.p_defense):
 				monster_defense += random.randint(1,6)
 			
 			player_luck = self.attribute.luck + self.inventory.wearing['Hand'].attribute.luck +self.inventory.wearing['Neck'].attribute.luck
