@@ -2786,42 +2786,34 @@ class map():
 						#######Life of plants######
 						
 						#1. Scrub
-						if tile.techID == tl.tlist['local'][1].techID: #make a scrub to a scrub with buds(50%)
+						if tile.grow_group == 'scrub':
 							rand = random.randint(0,99)
 							if rand < 50:
 								replace = self.tilemap[y][x].replace
-								self.tilemap[y][x] = deepcopy(tl.tlist['local'][3])
+								self.tilemap[y][x] = deepcopy(tl.tlist[tile.conected_tiles[0]][tile.conected_tiles[1]])
 								self.tilemap[y][x].replace = replace
 							
-						if tile.techID == tl.tlist['local'][3].techID: #make a scrub with buds to a scrub with blossoms(90%)
+						if tile.grow_group == 'scrub_buds':
 							rand = random.randint(0,99)
 							if rand < 90:
 								replace = self.tilemap[y][x].replace
-								self.tilemap[y][x] = deepcopy(tl.tlist['local'][4])
+								self.tilemap[y][x] = deepcopy(tl.tlist[tile.conected_tiles[0]][tile.conected_tiles[1]])
 								self.tilemap[y][x].replace = replace
 						
-						if tile.techID == tl.tlist['local'][4].techID: #make a scrub with blossoms to a scrub with berrys(80%) or a scrub(10%)
+						if tile.grow_group == 'scrub_blossom':
 							rand = random.randint(0,99)
 							if rand < 80:
-								scrubs = (2,17,18)
-								berries = (0,27,28)
-								ran = random.randint(0,len(scrubs)-1)
+								scrubs = random.randint(0,2)
 								replace = self.tilemap[y][x].replace
-								self.tilemap[y][x] = deepcopy(tl.tlist['local'][scrubs[ran]])
-								self.tilemap[y][x].replace = replace
-								self.containers[y][x] = container([deepcopy(il.ilist['food'][berries[ran]])])#make a container with berries inside (1x)
-							else:
-								replace = self.tilemap[y][x].replace
-								self.tilemap[y][x] = deepcopy(tl.tlist['local'][1])
+								self.tilemap[y][x] = deepcopy(tl.tlist[tile.conected_tiles[scrubs][0]][tile.conected_tiles[scrubs][1]])
 								self.tilemap[y][x].replace = replace
 							
-						if tile.techID == tl.tlist['local'][2].techID or tile.techID == tl.tlist['local'][2].techID or tile.techID == tl.tlist['local'][2].techID: #make a scrub with berrys to a scrub with scruffy berrys(50%) or let grow new scrubs(25%) or do nothing
+						if tile.grow_group == 'scrub_berries':
 							rand = random.randint(0,99)
 							if rand < 50:
 								replace = self.tilemap[y][x].replace
-								self.tilemap[y][x] = deepcopy(tl.tlist['local'][5])
+								self.tilemap[y][x] = deepcopy(tl.tlist[tile.conected_tiles[0][0]][tile.conected_tiles[0][1]])
 								self.tilemap[y][x].replace = replace
-								self.containers[y][x] = 0 #del container
 							elif rand > 49 and rand < 75:
 								numbers =(-1,1)
 								
@@ -2829,160 +2821,83 @@ class map():
 									for xx in numbers:
 										try:
 											
-											if self.tilemap[y+yy][x+xx].techID == tl.tlist['local'][0]:#this is grass
+											if self.tilemap[y+yy][x+xx].can_grown == True:
 											
 												coin = random.randint(0,99)
 												
 												if coin < 25: #25%
 													replace = self.tilemap[y+yy][x+xx]
-													self.tilemap[y+yy][x+xx] = deepcopy(tl.tlist['local'][6])
+													self.tilemap[y+yy][x+xx] = deepcopy([tile.conected_tiles[1][0]][tile.conected_tiles[1][1]])
 													self.tilemap[y+yy][x+xx].replace = replace
 										except:
 											None
 											
-						if tile.techID == tl.tlist['local'][5].techID: #make a scrub with scruffy berrys to a scrub(90%) or a death scrub(10%)
+						if tile.grow_group == 'scrub_scruffy':
 							rand = random.randint(0,99)
 							if rand < 90:
 								replace = self.tilemap[y][x].replace
-								self.tilemap[y][x] = deepcopy(tl.tlist['local'][1])
+								self.tilemap[y][x] = deepcopy(tl.tlist[tile.conected_tiles[0][0]][tile.conected_tiles[0][1]])
 								self.tilemap[y][x].replace = replace
 							else:
 								replace = self.tilemap[y][x].replace
-								self.tilemap[y][x] = deepcopy(tl.tlist['local'][9])
+								self.tilemap[y][x] = deepcopy(tl.tlist[tile.conected_tiles[1][0]][tile.conected_tiles[1][1]])
 								self.tilemap[y][x].replace = replace
 								
-						if tile.techID == tl.tlist['local'][9].techID: #make a dead scrub to a scrub(10%) or let it disapear(10%) or do nothing(80%)
-							ran = random.randint(0,99)
-							if rand < 10:
-								replace = self.tilemap[y][x].replace
-								self.tilemap[y][x] = deepcopy(tl.tlist['local'][1])
-								self.tilemap[y][x].replace = replace
-							elif rand > 9 and rand < 20:
-								self.tilemap[y][x] = self.tilemap[y][x].replace
 						
-						if tile.techID == tl.tlist['local'][6].techID: #make a scrub seed to a scrub sepling(90%) or let it disapear(10%)
+						if tile.grow_group == 'scrub_grow':
 							rand = random.randint(0,99)
 							if rand < 90:
 								replace = self.tilemap[y][x].replace
-								self.tilemap[y][x] = deepcopy(tl.tlist['local'][7])
+								self.tilemap[y][x] = deepcopy(tl.tlist[tile.conected_tiles[0]][tile.conected_tiles[1]])
 								self.tilemap[y][x].replace = replace
-							else:
-								self.tilemap[y][x] = self.tilemap[y][x].replace
-								
-						if tile.techID == tl.tlist['local'][7].techID: #make a scrub sepling to a small scrub(90%) or let it disapear(10%)
-							rand = random.randint(0,99)
-							if rand < 90:
-								replace = self.tilemap[y][x].replace
-								self.tilemap[y][x] = deepcopy(tl.tlist['local'][8])
-								self.tilemap[y][x].replace = replace
-							else:
-								self.tilemap[y][x] = self.tilemap[y][x].replace		
-						
-						if tile.techID == tl.tlist['local'][8].techID: #make a small scrub to a scrub(90%) or let it disappear(10%)
-							rand = random.randint(0,99)
-							if rand < 90:
-								replace = self.tilemap[y][x].replace
-								self.tilemap[y][x] = deepcopy(tl.tlist['local'][1])
-								self.tilemap[y][x].replace = replace
-							else:
-								self.tilemap[y][x] = self.tilemap[y][x].replace
 								
 						#2.Tree
 						
-						if tile.techID == tl.tlist['local'][10].techID: #make a young tree out of a sepling(80%) or let it disappear(20%)
+						if tile.grow_group == 'tree_grow':
 							rand = random.randint(0,99)
 							if rand < 80:
 								replace = self.tilemap[y][x].replace
-								self.tilemap[y][x] = deepcopy(tl.tlist['local'][11])
+								self.tilemap[y][x] = deepcopy(tl.tlist[tile.conected_tiles[0]][tile.conected_tiles[1]])
 								self.tilemap[y][x].replace = replace
-							else:
-								self.tilemap[y][x] = self.tilemap[y][x].replace
 						
-						if tile.techID == tl.tlist['local'][11].techID: #make a tree out of a young tree(80%) or let it disappear(20%)
-							rand = random.randint(0,99)
-							if rand < 80:
-								replace = self.tilemap[y][x].replace
-								self.tilemap[y][x] = deepcopy(tl.tlist['local'][12])
-								self.tilemap[y][x].replace = replace
-							else:
-								self.tilemap[y][x] = self.tilemap[y][x].replace
-						
-						if tile.techID == tl.tlist['local'][12].techID: #let grow new trees(25%) or let the tree die(5%) or do nothing
+						if tile.grow_group == 'tree':
 							rand = random.randint(0,99)
 							if rand < 5:
 								replace = self.tilemap[y][x].replace
-								self.tilemap[y][x] = deepcopy(tl.tlist['local'][13])
+								self.tilemap[y][x] = deepcopy(tl.tlist[tile.conected_tiles[1][0]][tile.conected_tiles[1][1]])
 								self.tilemap[y][x].replace = replace
 
-							elif rand > 49 and rand < 75:
+							elif rand > 49:
 								numbers =(-2,2)
 								
 								for yy in numbers:
 									for xx in numbers:
 										try:
 											
-											if self.tilemap[y+yy][x+xx].techID == tl.tlist['local'][0].techID:#this is grass
+											if self.tilemap[y+yy][x+xx].can_grown == True:
 											
 												coin = random.randint(0,1)
 												
 												if coin == 1:
 													replace = self.tilemap[y+yy][x+xx]
-													self.tilemap[y+yy][x+xx] = deepcopy(tl.tlist['local'][10])
+													self.tilemap[y+yy][x+xx] = deepcopy(tl.tlist[tile.conected_tiles[0][0]][tile.conected_tiles[0][1]])
 													self.tilemap[y+yy][x+xx].replace = replace
 										except:
 											None
-						
-						if tile.techID == tl.tlist['local'][13].techID: #let a dead tree disappear(10%)
-							rand = random.randint(0,99)
-							if rand < 90:
-								None
-							else:
-								self.tilemap[y][x] = self.tilemap[y][x].replace
 						
 						#3.Herb
 						
-						if tile.techID == tl.tlist['local'][15].techID: #make a flowering herb out of a herb(10%) or let it disappear(20%)
+						if tile.grow_group == 'herblike':
 							rand = random.randint(0,99)
-							if rand < 10:
+							if rand < 20:
 								replace = self.tilemap[y][x].replace
-								self.tilemap[y][x] = deepcopy(tl.tlist['local'][16])
+								self.tilemap[y][x] = deepcopy(tl.tlist[tile.conected_tiles[0]][tile.conected_tiles[1]])
 								self.tilemap[y][x].replace = replace
-							else:
-								self.tilemap[y][x] = self.tilemap[y][x].replace
 								
-						if tile.techID == tl.tlist['local'][16].techID: #let grow new herbs(5%) or let the herb die(5%) or let it become a ordenary herb
-							rand = random.randint(0,99)
-							if rand < 5:
-								self.tilemap[y][x] = tl.tlist['local'][0]
-
-							elif rand > 4 and rand < 10:
-								
-								numbers =(-2,2)
-								
-								for yy in numbers:
-									for xx in numbers:
-										try:
-											
-											if self.tilemap[y+yy][x+xx].techID == tl.tlist['local'][0].techID:#this is grass
-											
-												coin = random.randint(0,1)
-												
-												if coin == 1:
-													replace = self.tilemap[y+yy][x+xx]
-													self.tilemap[y+yy][x+xx] = deepcopy(tl.tlist['local'][15])
-													self.tilemap[y+yy][x+xx].replace = replace
-										except:
-											None
-							
-							else:
-								
-								replace = self.tilemap[y][x].replace
-								self.tilemap[y][x] = deepcopy(tl.tlist['local'][15])#let flowering herb lose it flowers
-								self.tilemap[y][x].replace = replace
 						
 						#4. Blue Mushrooms
 						
-						if tile.techID == tl.tlist['misc'][6].techID: #let grow new mushrooms and let the old ones die(5%)
+						if tile.grow_group == 'mushroom_mud':
 							
 							rand = random.randint(0,99)
 							
@@ -2998,16 +2913,14 @@ class map():
 												
 												if cent < 25 :
 													replace = self.tilemap[y+yy][x+xx]
-													self.tilemap[y+yy][x+xx] = deepcopy(tl.tlist['misc'][6])
+													self.tilemap[y+yy][x+xx] = deepcopy(tl.tlist[tile.conected_tiles[0]][tile.conected_tiles[1]])
 													self.tilemap[y+yy][x+xx].replace = replace
-													
-													self.containers[y][x] = container([deepcopy(il.ilist['food'][1])])
 										except:
 											None
 						
 						#5. Brown Mushrooms
 						
-						if tile.techID == tl.tlist['misc'][7].techID: #let grow new mushrooms and let the old ones die(5%)
+						if tile.grow_group == 'mushroom_treelike':
 							rand = random.randint(0,99)
 							if rand < 5:
 								
@@ -3021,30 +2934,21 @@ class map():
 												
 												if cent < 25 :
 													replace = self.tilemap[y+yy][x+xx]
-													self.tilemap[y+yy][x+xx] = deepcopy(tl.tlist['misc'][7])
+													self.tilemap[y+yy][x+xx] = deepcopy(tl.tlist[tile.conected_tiles[0][0]][tile.conected_tiles[0][1]])
 													self.tilemap[y+yy][x+xx].replace = replace
-													
-													self.containers[y][x] = container([deepcopy(il.ilist['food'][1])])
 													
 										except:
 											None
 							
 							elif rand < 30:#make a giant mushroom
 								
-								self.containers[y][x] = 0 #del container
 								replace = self.tilemap[y][x].replace
-								self.tilemap[y][x] = deepcopy(tl.tlist['misc'][15])
+								self.tilemap[y][x] = deepcopy(tl.tlist[tile.conected_tiles[1][0]][tile.conected_tiles[1][1]])
 								self.tilemap[y][x].replace = replace
-							
-							if tile.techID == tl.tlist['misc'][15].techID:#let a giant mushroom die(5%)
-								
-								rand = random.randint(0,99)
-								if rand < 5:
-									self.tilemap[y][x] = self.tilemap[y][x].replace
 									
 						#6. Purple Mushrooms
 						
-						if tile.techID == tl.tlist['misc'][8].techID: #let grow new mushrooms and let the old ones die(5%)
+						if tile.grow_group == 'mushroom': #let grow new mushrooms and let the old ones die(5%)
 							rand = random.randint(0,99)
 							if rand < 5:
 								
@@ -3058,59 +2962,33 @@ class map():
 												
 												if cent < 25 :
 													replace = self.tilemap[y+yy][x+xx]
-													self.tilemap[y+yy][x+xx] = deepcopy(tl.tlist['misc'][8])
+													self.tilemap[y+yy][x+xx] = deepcopy(tl.tlist[tile.conected_tiles[0]][tile.conected_tiles[1]])
 													self.tilemap[y+yy][x+xx].replace = replace
-													
-													self.containers[y][x] = container([deepcopy(il.ilist['food'][1])])
 												
 										except:
 											None
 											
 						#7. Agriculture
 						
-						if tile.techID == tl.tlist['building'][4].techID: #let something grow on a acriculture (50%)
+						if tile.grow_group == 'agri0':
 							rand = random.randint(0,99)
 							if rand < 50:
 								if self.map_type == 'overworld': 
-									self.tilemap[y][x] = tl.tlist['building'][5]
+									self.tilemap[y][x] = tl.tlist[tile.conected_tiles[0][0]][tile.conected_tiles[0][1]]
 								elif self.map_type == 'cave':
-									self.tilemap[y][x] = tl.tlist['building'][6]
+									self.tilemap[y][x] = tl.tlist[tile.conected_tiles[1][0]][tile.conected_tiles[1][1]]
 									
-						if tile.techID == tl.tlist['building'][5].techID: #let something grow on a acriculture (final, at the overworld) (50%)
+						if tile.grow_group == 'agri1': #let something grow on a acriculture (final, at the overworld) (50%)
 							rand = random.randint(0,99)
 							if rand < 50:
-									self.tilemap[y][x] = tl.tlist['building'][7]
-									self.containers[y][x] = container([deepcopy(il.ilist['food'][6])])	
+									self.tilemap[y][x] = tl.tlist[tile.conected_tiles[0]][tile.conected_tiles[1]]
 						
-						if tile.techID == tl.tlist['building'][6].techID: #let something grow on a acriculture (final, at the caves) (50%)
+						#8. Vanish
+						if tile.grow_group == 'vanish':
 							rand = random.randint(0,99)
 							if rand < 50:
-									self.tilemap[y][x] = tl.tlist['building'][8]	
-									self.containers[y][x] = container([deepcopy(il.ilist['food'][11])])
-						
-						#8. Elfish Agriculture
-						
-						if tile.techID == tl.tlist['elfish'][6].techID: #let something grow on a elfish acriculture (25%)
-							rand = random.randint(0,99)
-							if rand < 25:
-								self.tilemap[y][x] = tl.tlist['elfish'][2]
-								
-						#9. Water Lily
-						
-						if tile.techID == tl.tlist['misc'][10].techID: #let a water lily get a blossom (20%)
-							rand = random.randint(0,99)
-							if rand < 20:
-								self.tilemap[y][x] = tl.tlist['misc'][14]
-								
-						if tile.techID == tl.tlist['misc'][14].techID: #let a water lily lose its blossom (20%)
-							rand = random.randint(0,99)
-							if rand < 20:
-								self.tilemap[y][x] = tl.tlist['misc'][10]
-						
-						#10. Misc
-						if tile.techID == tl.tlist['functional'][5].techID or tile.techID == tl.tlist['functional'][6].techID or tile.techID == tl.tlist['functional'][21].techID: #del remains and stacks
-							self.tilemap[y][x] = self.tilemap[y][x].replace
-							self.containers[y][x] = 0 
+								self.tilemap[y][x] = self.tilemap[y][x].replace
+								self.containers[y][x] = 0
 							
 						#########add other events for growing plants ect here########
 			
@@ -3179,7 +3057,7 @@ class map():
 				
 				if moveable == True and self.tilemap[y][x].damage == False and self.tilemap[y][x].techID != tl.tlist['misc'][0].techID:
 					cordinates_list.append((x,y))
-					
+						
 		if len(cordinates_list) > 0:
 			return cordinates_list
 				
@@ -4055,7 +3933,7 @@ class world_class():
 		
 		m.fill(tl.tlist['extra'][0])
 		
-		y_river = random.randint((15),(max_map_size-15))
+		y_river = random.randint((17),(max_map_size-17))
 		river_offset = random.randint(-3,3)
 		plus = 0
 		minus = 0
@@ -4080,9 +3958,76 @@ class world_class():
 				
 			offset_change = random.randint(minus,plus)
 			river_offset += offset_change
+			
+		m.exchange_when_surrounded(tl.tlist['misc'][0],tl.tlist['misc'][3],7)
 		
+		for b in range(2,max_map_size-2,10):
+			#north side of the river
+			building_offset =random.randint(0,4)
+			
+			for y in range(y_river-12,y_river-7):
+				for x in range(b+building_offset,b+building_offset+5):
+					
+					if x == b+building_offset or x == b+building_offset+4:
+						if y == y_river-10:
+							m.tilemap[y][x] = deepcopy(tl.tlist['extra'][9])
+						else:
+							m.tilemap[y][x] = deepcopy(tl.tlist['extra'][2])
+					elif y == y_river-12 or y == y_river-8:
+						if x == b+building_offset+2:
+							m.tilemap[y][x] = deepcopy(tl.tlist['extra'][9])
+						else:
+							m.tilemap[y][x] = deepcopy(tl.tlist['extra'][2])
+					else:
+						m.tilemap[y][x] = deepcopy(tl.tlist['extra'][1])
+						
+					if x == b+building_offset+1 or x == b+building_offset+3:
+						if y == y_river-10:
+							ran = random.randint(5,6)
+							m.npcs[y][x] = deepcopy(ml.mlist['special'][ran])
+							
+			#south side of the river			
+			building_offset =random.randint(0,4)
+			
+			for y in range(y_river+8,y_river+13):
+				for x in range(b+building_offset,b+building_offset+5):
+					
+					if x == b+building_offset or x == b+building_offset+4:
+						if y == y_river+10:
+							m.tilemap[y][x] = deepcopy(tl.tlist['extra'][9])
+						else:
+							m.tilemap[y][x] = deepcopy(tl.tlist['extra'][2])
+					elif y == y_river+12 or y == y_river+8:
+						if x == b+building_offset+2:
+							m.tilemap[y][x] = deepcopy(tl.tlist['extra'][9])
+						else:
+							m.tilemap[y][x] = deepcopy(tl.tlist['extra'][2])
+					else:
+						m.tilemap[y][x] = deepcopy(tl.tlist['extra'][1])
+		
+					if x == b+building_offset+1 or x == b+building_offset+3:
+						if y == y_river+10:
+							ran = random.randint(5,6)
+							m.npcs[y][x] = deepcopy(ml.mlist['special'][ran])
+		
+		x_pos = random.randint(3,10)
+		make_bridges = True
+		
+		while make_bridges:
+			x_pos_plus = random.randint(5,15)
+			x_pos += x_pos_plus
+			
+			if x_pos > max_map_size:
+				make_bridges = False
+			if make_bridges == True:
+				for y in range(0,max_map_size):
+					if m.tilemap[y][x_pos].techID == tl.tlist['misc'][0].techID or m.tilemap[y][x_pos].techID == tl.tlist['misc'][3].techID: #this is low wather or deep water
+						replace = deepcopy(m.tilemap[y][x_pos])
+						m.tilemap[y][x_pos] = deepcopy(tl.tlist['extra'][8])
+						m.tilemap[y][x_pos].replace = replace
+				
 		for y in range (0,max_map_size):
-			for x in range (0,max_map_size):
+			for x in range (0,max_map_size): 
 				if m.tilemap[y][x].techID == tl.tlist['extra'][0].techID:
 					chance = random.randint(0,99)
 					if chance < chance_cactus:
@@ -4099,7 +4044,7 @@ class world_class():
 		m.tilemap[y][x].replace = tl.tlist['extra'][0]#sand
 		m.tilemap[y+1][x] = tl.tlist['extra'][0]#sand
 		
-		#m.spawn_monsters(0)
+		m.spawn_monsters(0)
 					
 		self.maplist[0][name] = m
 		
@@ -4190,7 +4135,7 @@ class mob():
 		
 		mc = self.move_check(x,y)
 		tile_move_group = world.maplist[self.pos[2]][self.on_map].tilemap[self.pos[1]+y][self.pos[0]+x].move_group
-		player_move_groups = ['soil','low_liquid','holy','shop']
+		player_move_groups = ['soil','low_liquid','holy','shop','house']
 		
 		swim_check = True
 		
@@ -5395,6 +5340,11 @@ class player_class(mob):
 							
 								if world.maplist[i]['local_0_0'].npcs[y][x] != 0:
 									world.maplist[i]['local_0_0'].npcs[y][x].AI_style = 'ignore'
+								try:	
+									if world.maplist[i]['desert_0_0'].npcs[y][x] != 0:
+										world.maplist[i]['desert_0_0'].npcs[y][x].AI_style = 'ignore'
+								except:
+									None
 					
 			###############
 			mob.__init__(self, name, on_map, attribute, pos)
@@ -6137,6 +6087,7 @@ class player_class(mob):
 		self.pos[2] = 0
 		self.pos[0] = world.startx
 		self.pos[1] = world.starty
+		self.on_map = 'local_0_0'
 		
 		self.xp = 0 #the player always lose all xp on dead
 		self.lp = self.attribute.max_lp
@@ -6180,6 +6131,9 @@ class player_class(mob):
 				os.remove(time_path)
 			except:
 				None
+		
+		self.stand_check()
+		
 			
 class messager():
 	
@@ -7394,7 +7348,7 @@ class time_class():
 				self.day_total +=1
 				self.hour = 0
 				screen.render_load(5)
-				save(world,player,time,gods,basic_path,os.sep)#save the game
+				save(world,player,time,gods,save_path,os.sep)#save the game
 				
 				if self.day > 28:
 						
@@ -7528,10 +7482,10 @@ def main():
 	tl = tilelist()
 	il = itemlist()
 	ml = monsterlist()
-	bgm = bgM()
-	bgm.check_for_song(True)
 	master_loop = True
 	while master_loop:
+		bgm = bgM()
+		bgm.check_for_song(True)
 		screen.render_main_menu()
 		if playing == True:
 			exitgame = False

@@ -54,7 +54,7 @@ The second number is changed by every release with bugfixes and smaller new feat
 
 In the time between two milestone releases snapshots with version names like 'S170216' will be released in order to ilustrate the progress. These snapshots arn't compatible to any other version.
 
-## How do I Play? what are the keybindings?
+## How do I Play? What are the keybindings?
 
 RBA can be played with the keybord, mouse/touchscreen or a gamepad.
 
@@ -63,15 +63,17 @@ The keybindings are:
     w,a,s,d/Arrow-keys/gamepad hat : Move/Navigate trough the menus
     e/ENTER/gamepad Button1        : Interaction/Choose/Use
     i/BACKSPACE/gamepad Button4    : Open Inventory
-    b/Space/gamepad Button3        : Open Build menu/Switch mode/Done/Drop
+    b/SPACE/gamepad Button3        : Open Build menu/Switch mode/Done/Drop
     x/ESCAPE/gamepad Button2       : Open main menu/Abrot/Back
     f       /gamepad Button5       : Fire mode on/off
 
-## I've found a bug. I want to make a suggestion.
+## I've found a bug. I want to make a suggestion. I want to constribute something.
 
 You can report bugs on GitHub at: [https://github.com/themightyglider/RogueBox-Adventures](https://github.com/themightyglider/RogueBox-Adventures)
 
 Or you can mail me at: themightyglider@gmx.de (love- or hate-mail is welcome as well)
+
+Constributors please push your changes to the development branch of the git repositority.
 
 ## Have Fun!
 

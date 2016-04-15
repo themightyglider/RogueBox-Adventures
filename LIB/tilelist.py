@@ -101,11 +101,12 @@ class tilelist():
 					tile_color = 'white',
 					use_group = 'gather',
 					move_group = 'soil',
-					grow_group = 'mushroom',
+					grow_group = 'mushroom_mud',
 					damage = 0, 
 					move_message = 'A blue mushroom grows here.', 
 					damage_message = None,
 					tile_pos = (1,6),
+					conected_tiles = ['misc',6],
 					conected_items = (il.ilist['food'][1]))
 		self.tlist['misc'].append(t)
 		techID+=1
@@ -115,11 +116,12 @@ class tilelist():
 					tile_color = 'white',
 					use_group = 'gather',
 					move_group = 'soil',
-					grow_group = 'mushroom',
+					grow_group = 'mushroom_treelike',
 					damage = 0, 
 					move_message = 'A brown mushroom grows here.', 
 					damage_message = None,
 					tile_pos = (5,8),
+					conected_tiles = [('misc',7),('misc',15)],
 					conected_items = (il.ilist['food'][2]))
 		self.tlist['misc'].append(t)
 		techID+=1
@@ -134,6 +136,7 @@ class tilelist():
 					move_message = 'A purple mushroom grows here.', 
 					damage_message = None,
 					tile_pos = (5,6),
+					conected_tiles = ['misc',8],
 					conected_items = (il.ilist['food'][3]))
 		self.tlist['misc'].append(t)
 		techID+=1
@@ -162,7 +165,7 @@ class tilelist():
 					move_message = 'A water lily grows here.', 
 					damage_message = None,
 					tile_pos = (1,1),
-					conected_tiles = ('misc',14))
+					conected_tiles = ['misc',14])
 		self.tlist['misc'].append(t)
 		techID+=1
 		#11
@@ -181,16 +184,15 @@ class tilelist():
 		techID+=1
 		#12
 		t=tile(techID = techID,
-					name = 'Lost gem',
+					name = 'Unused',
 					tile_color = 'red',
-					use_group = 'resource',
+					use_group = 'None',
 					move_group = 'soil',
-					grow_group = 'vanish',
+					grow_group = 'None',
 					damage = 0, 
-					move_message = 'A gem lies on the ground right here.', 
+					move_message = 'UNUSED', 
 					damage_message = None,
-					tile_pos = (1,8),
-					conected_resources = ('gem',1))
+					tile_pos = (1,8))
 		self.tlist['misc'].append(t)
 		techID+=1
 		#13
@@ -212,12 +214,12 @@ class tilelist():
 					tile_color = 'white',
 					use_group = 'resource',
 					move_group = 'soil',
-					grow_group = 'None',
+					grow_group = 'herblike',
 					damage = 0, 
 					move_message = 'A water lily with a beautiful blossom grows here.', 
 					damage_message = None,
 					tile_pos = (1,0),
-					conected_tiles = [('misc',10)],
+					conected_tiles = ['misc',10],
 					conected_resources = ('herbs',1))
 		self.tlist['misc'].append(t)
 		techID+=1
@@ -227,7 +229,7 @@ class tilelist():
 					tile_color = 'white',
 					use_group = 'tree',
 					move_group = 'tree',
-					grow_group = 'tree',
+					grow_group = 'vanish',
 					damage = 0, 
 					move_message = 'There is a giant mushroom here.', 
 					damage_message = None,
@@ -390,7 +392,7 @@ class tilelist():
 					build_here = False,
 					tile_pos = (3,4))
 		self.tlist['functional'].append(t)
-		te1chID+=1
+		techID+=1
 		#2
 		t=tile(techID = techID,
 					name = 'Stair up',
@@ -727,7 +729,7 @@ class tilelist():
 					move_message = 'There is a scrub here.', 
 					damage_message = None,
 					tile_pos = (6,1),
-					conected_tiles = [('local',4)])
+					conected_tiles = ['local',3])
 		self.tlist['local'].append(t)
 		techID+=1
 		#2
@@ -742,7 +744,7 @@ class tilelist():
 					damage_message = None,
 					tile_pos = (6,1),
 					conected_items = (il.ilist['food'][0]),
-					conected_tiles = [('local',5),('local',1)])
+					conected_tiles = [('local',5),('local',6)])
 		self.tlist['local'].append(t)
 		techID+=1
 		#3
@@ -756,7 +758,7 @@ class tilelist():
 					move_message = 'There is a scrub with some buds here.', 
 					damage_message = None,
 					tile_pos = (5,4),
-					conected_tiles = [('local',4)])
+					conected_tiles = ['local',4])
 		self.tlist['local'].append(t)
 		techID+=1
 		#4
@@ -770,7 +772,7 @@ class tilelist():
 					move_message = 'There is a scrub with beautiful blossoms here.', 
 					damage_message = None,
 					tile_pos = (1,4),
-					conected_tiles = [('local',2),('local',18),('local',19)])
+					conected_tiles = [('local',2),('local',17),('local',18)])
 		self.tlist['local'].append(t)
 		techID+=1
 		#5
@@ -793,13 +795,13 @@ class tilelist():
 					tile_color = 'brown',
 					use_group = 'gather',
 					move_group = 'soil',
-					grow_group = 'scrub_seed',
+					grow_group = 'scrub_groew',
 					damage = 0, 
 					move_message = 'There are some seeds on the ground here.', 
 					damage_message = None,
 					tile_pos = (5,3),
 					conected_items = (il.ilist['misc'][47]),
-					conected_tiles = [('local',7)])
+					conected_tiles = ['local',7])
 		self.tlist['local'].append(t)
 		techID+=1
 		#7
@@ -808,12 +810,12 @@ class tilelist():
 					tile_color = 'green',
 					use_group = 'None',
 					move_group = 'soil',
-					grow_group = 'scrub_sepling',
+					grow_group = 'scrub_grow',
 					damage = 0, 
 					move_message = 'Something starts to grow here.', 
 					damage_message = None,
 					tile_pos = (5,7),
-					conected_tiles = [('local',8)])
+					conected_tiles = ['local',8])
 		self.tlist['local'].append(t)
 		techID+=1
 		#8
@@ -822,12 +824,12 @@ class tilelist():
 					tile_color = 'green',
 					use_group = 'None',
 					move_group = 'soil',
-					grow_group = 'small_scrub',
+					grow_group = 'scrub_grow',
 					damage = 0, 
 					move_message = 'There is a small scrub at this place.', 
 					damage_message = None,
 					tile_pos = (1,3),
-					conected_tiles = [('local',1)])
+					conected_tiles = ['local',1])
 		self.tlist['local'].append(t)
 		techID+=1
 		#9
@@ -849,13 +851,13 @@ class tilelist():
 					tile_color = 'brown',
 					use_group = 'gather',
 					move_group = 'soil',
-					grow_group = 'tree_sepling',
+					grow_group = 'tree_grow',
 					damage = 0, 
 					move_message = 'There is a sepling here.', 
 					damage_message = None,
 					tile_pos = (4,1),
 					conected_items = (il.ilist['misc'][48]),
-					conected_tiles = [('local',11)])
+					conected_tiles = ['local',11])
 		self.tlist['local'].append(t)
 		techID+=1
 		#11
@@ -864,12 +866,12 @@ class tilelist():
 					tile_color = 'brown',
 					use_group = 'None',
 					move_group = 'tree',
-					grow_group = 'tree_young',
+					grow_group = 'tree_grow',
 					damage = 0, 
 					move_message = 'There is a young tree here.', 
 					damage_message = None,
 					tile_pos = (4,0),
-					conected_tiles = [('local',12)],
+					conected_tiles = ['local',12],
 					conected_resources = ('wood',1))
 		self.tlist['local'].append(t)
 		techID+=1
@@ -930,7 +932,7 @@ class tilelist():
 					move_message = 'Herbs grow at the ground.', 
 					damage_message = None,
 					tile_pos = (1,9),
-					conected_tiles = (('local',16)))
+					conected_tiles = ['local',16])
 		self.tlist['local'].append(t)
 		techID+=1
 		#16
@@ -939,12 +941,12 @@ class tilelist():
 					tile_color = 'white',
 					use_group = 'resource',
 					move_group = 'soil',
-					grow_group = 'None',
+					grow_group = 'herblike',
 					damage = 0, 
 					move_message = 'Flowering herbs grow at the ground.', 
 					damage_message = None,
 					tile_pos = (0,9),
-					conected_tiles = [('local',15)],
+					conected_tiles = ['local',15],
 					conected_resources = ('herbs',1))
 		self.tlist['local'].append(t)
 		techID+=1
@@ -960,7 +962,7 @@ class tilelist():
 					damage_message = None,
 					tile_pos = (1,5),
 					conected_items = (il.ilist['food'][27]),
-					conected_tiles = [('local',5),('local',1)])
+					conected_tiles = [('local',5),('local',6)])
 		self.tlist['local'].append(t)
 		techID+=1
 		#18
@@ -975,7 +977,7 @@ class tilelist():
 					damage_message = None,
 					tile_pos = (4,4),
 					conected_items = (il.ilist['food'][28]),
-					conected_tiles = [('local',5),('local',1)])
+					conected_tiles = [('local',5),('local',6)])
 		self.tlist['local'].append(t)
 		techID+=1
 
@@ -1068,7 +1070,7 @@ class tilelist():
 					damage_message = None,
 					civilisation = True,
 					tile_pos = (8,8),
-					conected_tiles = [('building',7)])
+					conected_tiles = ['building',7])
 		self.tlist['building'].append(t)
 		techID+=1
 		#6
@@ -1083,7 +1085,7 @@ class tilelist():
 					damage_message = None,
 					civilisation = True,
 					tile_pos = (9,8),
-					conected_tiles = [('building',8)])
+					conected_tiles = ['building',8])
 		self.tlist['building'].append(t)
 		techID+=1
 		#7
@@ -1613,7 +1615,7 @@ class tilelist():
 					move_message = 'Some strange plants grow at this field.', 
 					damage_message = None,
 					tile_pos = (7,9),
-					conected_tiles = [('elfish',6)],
+					conected_tiles = ['elfish',6],
 					conected_resources = ('seeds',1))
 		self.tlist['elfish'].append(t)
 		techID+=1
@@ -1673,7 +1675,7 @@ class tilelist():
 					move_message = 'You are walking on bare fields.', 
 					damage_message = None,
 					tile_pos = (9,7),
-					conected_tiles = [('elfish',2)])
+					conected_tiles = ['elfish',2])
 		self.tlist['elfish'].append(t)
 		techID+=1
 		
@@ -1694,7 +1696,7 @@ class tilelist():
 		techID+=1
 		#1
 		t=tile(techID = techID,
-					name = 'Sandstone_floor',
+					name = 'Sandstone floor',
 					tile_color = 'light_red',
 					use_group = 'None',
 					move_group = 'house',
@@ -1717,6 +1719,7 @@ class tilelist():
 					move_message = 'There is a wall here.', 
 					damage_message = None,
 					build_here = False,
+					transparency = False,
 					tile_pos = (4,7))
 		self.tlist['extra'].append(t)
 		techID+=1
@@ -1732,7 +1735,7 @@ class tilelist():
 					damage_message = None,
 					tile_pos = (2,7),
 					conected_items = (il.ilist['misc'][49]),
-					conected_tiles = [('extra',4)])
+					conected_tiles = ['extra',4])
 		self.tlist['extra'].append(t)
 		techID+=1
 		#4
@@ -1746,7 +1749,7 @@ class tilelist():
 					move_message = 'There is a young cactus here.', 
 					damage_message = None,
 					tile_pos = (2,8),
-					conected_tiles = [('extra',5)],
+					conected_tiles = ['extra',5],
 					conected_resources = ('wood',1))
 		self.tlist['extra'].append(t)
 		techID+=1
@@ -1792,5 +1795,33 @@ class tilelist():
 					damage_message = None,
 					build_here = False,
 					tile_pos = (9,9))
+		self.tlist['extra'].append(t)
+		techID+=1
+		#8
+		t=tile(techID = techID,
+					name = 'Bridge (N-S)',
+					tile_color = 'light_brown',
+					use_group = 'None',
+					move_group = 'soil',
+					grow_group = 'None',
+					damage = 0, 
+					move_message = 'You walk over a wooden bridge.', 
+					damage_message = None,
+					build_here = False,
+					tile_pos = (4,8))
+		self.tlist['extra'].append(t)
+		techID+=1
+		#9
+		t=tile(techID = techID,
+					name = 'Sandstone door',
+					tile_color = 'light_red',
+					use_group = 'None',
+					move_group = 'house',
+					grow_group = 'None',
+					damage = 0, 
+					move_message = 'You walk trough a door.', 
+					damage_message = None,
+					build_here = False,
+					tile_pos = (9,10))
 		self.tlist['extra'].append(t)
 		techID+=1
