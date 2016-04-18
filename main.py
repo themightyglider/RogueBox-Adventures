@@ -4375,6 +4375,10 @@ class mob():
 				screen.render_load(12)
 				time.tick()
 				player.attribute.tiredness += 5
+				if player.buffs.adrenalised_max > 0:
+					player.buffs.adrenalised_max -= 5
+				elif player.buffs.adrenalised_max < 0:
+					player.buffs.adrenalised_max = 0
 				
 				if player.attribute.tiredness >= player.attribute.tiredness_max:#wake up because you've slept enough
 					player.attribute.tiredness = player.attribute.tiredness_max +1 #the +1 is because the player will lose one point at the same round so you would get just 99%
