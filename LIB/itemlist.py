@@ -152,13 +152,13 @@ class itemlist():
 		t=item_misc(techID, 'Spellbook of Light', 'read', None, None, 7)
 		self.ilist['misc'].append(t)
 		techID += 1
-		t=item_misc(techID, 'Scrub seed', 'place', 'local', 6)
+		t=item_misc(techID, 'Scrub seed', 'plant', 'local', 6)
 		self.ilist['misc'].append(t)
 		techID += 1
-		t=item_misc(techID, 'Sepling', 'place', 'local', 10)
+		t=item_misc(techID, 'Sepling', 'plant', 'local', 10)
 		self.ilist['misc'].append(t)
 		techID += 1
-		t=item_misc(techID, 'Small cactus', 'place', 'extra', 3)
+		t=item_misc(techID, 'Small cactus', 'plant', 'extra', 3)
 		self.ilist['misc'].append(t)
 		techID += 1
 

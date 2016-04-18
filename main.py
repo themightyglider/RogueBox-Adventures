@@ -4017,7 +4017,7 @@ class world_class():
 			x_pos_plus = random.randint(5,15)
 			x_pos += x_pos_plus
 			
-			if x_pos > max_map_size:
+			if x_pos >= max_map_size:
 				make_bridges = False
 			if make_bridges == True:
 				for y in range(0,max_map_size):
@@ -4404,7 +4404,7 @@ class mob():
 			item_name = help_container.items[0].name
 			test_loot = help_container.loot(0)
 			if test_loot == True:
-				string = 'You take ' + item_name + '.'
+				string = '+[' + item_name + ']'
 				message.add(string)
 				world.maplist[self.pos[2]][self.on_map].tilemap[self.pos[1]][self.pos[0]] = world.maplist[self.pos[2]][self.on_map].tilemap[self.pos[1]][self.pos[0]].replace
 			else:
@@ -6440,14 +6440,22 @@ class inventory():
 		
 		if self.misc[slot] != self.nothing:
 			
-			if self.misc[slot].use_name == 'place':
-			
-				if world.maplist[player.pos[2]][player.on_map].tilemap[player.pos[1]][player.pos[0]].replace == None and world.maplist[player.pos[2]][player.on_map].tilemap[player.pos[1]][player.pos[0]].damage == 0:
+			if self.misc[slot].use_name == 'place' or self.misc[slot].use_name == 'plant':
+				
+				if self.misc[slot].use_name == 'plant':
+					grown_check = world.maplist[player.pos[2]][player.on_map].tilemap[player.pos[1]][player.pos[0]].can_grown
+				else:
+					grown_check = True
+				
+				if world.maplist[player.pos[2]][player.on_map].tilemap[player.pos[1]][player.pos[0]].replace == None and world.maplist[player.pos[2]][player.on_map].tilemap[player.pos[1]][player.pos[0]].damage == 0 and grown_check == True:
 				
 					replace = deepcopy(world.maplist[player.pos[2]][player.on_map].tilemap[player.pos[1]][player.pos[0]])
 					world.maplist[player.pos[2]][player.on_map].tilemap[player.pos[1]][player.pos[0]] = deepcopy(tl.tlist[self.misc[slot].place_cat][self.misc[slot].place_num])
 					world.maplist[player.pos[2]][player.on_map].tilemap[player.pos[1]][player.pos[0]].replace = replace
-					message.add('You placed a %s' %(self.misc[slot].name))
+					if self.misc[slot].use_name == 'plant':
+						message.add('You planted a %s' %(self.misc[slot].name))
+					else:
+						message.add('You placed a %s' %(self.misc[slot].name))
 					if self.misc[slot].name == 'Bomb':
 						world.maplist[player.pos[2]][player.on_map].countdowns.append(countdown('bomb3',player.pos[0],player.pos[1],1))
 					self.misc[slot] = self.nothing
@@ -6757,9 +6765,7 @@ class inventory():
 				player.attribute.thirst = player.attribute.thirst_max+1 #the +1 is because the attribute will fall one point at the same turn
 			
 			
-			player.attribute.tiredness += self.food[slot].satisfy_tiredness
-			if player.attribute.tiredness > player.attribute.tiredness_max:
-				player.attribute.tiredness = player.attribute.tiredness_max+1 #the +1 is because the attribute will fall one point at the same turn
+			player.buffs.set_buff('adrenalised',self.food[slot].satisfy_tiredness)
 			
 			player.lp += self.food[slot].heal
 			if player.lp > player.attribute.max_lp:
@@ -7312,7 +7318,7 @@ class time_class():
 			player.attribute.hunger -= change
 		if player.attribute.thirst > 0:	
 			player.attribute.thirst -= change
-		if player.attribute.tiredness > 0:
+		if player.attribute.tiredness > 0 and player.buffs.adrenalised <= 0:
 			player.attribute.tiredness -= change
 		
 		if player.attribute.hunger <= 0 or player.attribute.thirst <= 0 or player.attribute.tiredness <= 0:

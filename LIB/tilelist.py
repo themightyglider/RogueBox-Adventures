@@ -1691,6 +1691,7 @@ class tilelist():
 					move_message = 'You walk over hot sand.', 
 					damage_message = None,
 					build_here = True,
+					can_grown = True,
 					tile_pos = (4,5))
 		self.tlist['extra'].append(t)
 		techID+=1
