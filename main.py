@@ -3778,8 +3778,6 @@ class world_class():
 							replace = m.tilemap[y][x]
 							m.tilemap[y][x] = tl.tlist['misc'][6]
 							m.tilemap[y][x].replace = replace
-							
-							m.containers[y][x] = container([deepcopy(il.ilist['food'][1])])
 					
 					if m.tilemap[y][x].techID == tl.tlist['global_caves'][0].techID:#this is cave ground
 						
@@ -3791,15 +3789,11 @@ class world_class():
 							m.tilemap[y][x] = tl.tlist['misc'][7]
 							m.tilemap[y][x].replace = replace
 							
-							m.containers[y][x] = container([deepcopy(il.ilist['food'][2])])
-							
 						elif cent < 15: #its a chance of 5% that a purple mushroom spawns here
 							
 							replace = m.tilemap[y][x]
 							m.tilemap[y][x] = tl.tlist['misc'][8]
 							m.tilemap[y][x].replace = replace
-							
-							m.containers[y][x] = container([deepcopy(il.ilist['food'][3])])
 			
 			m.set_frame(tl.tlist['functional'][0])
 			
