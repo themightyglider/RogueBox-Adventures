@@ -4,6 +4,18 @@
 import time
 import sys
 import os
+
+for t in sys.argv:
+	if t == '-l':
+		low_res = True
+	else:
+		low_res = False
+		
+	if t == '-g':
+		gcwz_input = True
+	else:
+		gcwz_input = False
+
 basic_path = os.path.dirname(os.path.realpath('main.py')) #just get the execution path for resources
 lib_path = basic_path + os.sep + 'LIB'
 data_path = basic_path + os.sep + 'DATA'
@@ -14,7 +26,10 @@ max_map_size = 202
 monitor = [0,0]
 import pickle as p
 import random
-from getch import *
+if gcwz_input == True:
+	from getch_gcwz import *
+else:
+	from getch import *
 from tile import tile
 from attribute import attribute
 from item import *
