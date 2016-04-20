@@ -5,16 +5,16 @@ import time
 import sys
 import os
 
+low_res = False
+gcwz_input = False
+
 for t in sys.argv:
+	
 	if t == '-l':
 		low_res = True
-	else:
-		low_res = False
 		
 	if t == '-g':
 		gcwz_input = True
-	else:
-		gcwz_input = False
 
 basic_path = os.path.dirname(os.path.realpath('main.py')) #just get the execution path for resources
 lib_path = basic_path + os.sep + 'LIB'
