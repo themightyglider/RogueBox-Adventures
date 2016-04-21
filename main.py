@@ -3955,12 +3955,12 @@ class world_class():
 			for w in range (0,5):
 				m.tilemap[y_river+river_offset+w][c] = tl.tlist['misc'][0]#set low water
 				
-			if river_offset < 5:
+			if river_offset < 4:
 				plus = 1
 			else:
 				plus = 0
 				
-			if river_offset > -5:
+			if river_offset > -4:
 				minus = -1
 			else:
 				minus = 0
@@ -3971,8 +3971,10 @@ class world_class():
 		m.exchange_when_surrounded(tl.tlist['misc'][0],tl.tlist['misc'][3],7)
 		
 		for b in range(2,max_map_size-2,10):
+			
 			#north side of the river
 			building_offset =random.randint(0,4)
+			number_beds = 0
 			
 			for y in range(y_river-12,y_river-7):
 				for x in range(b+building_offset,b+building_offset+5):
@@ -3991,12 +3993,30 @@ class world_class():
 						m.tilemap[y][x] = deepcopy(tl.tlist['extra'][1])
 						
 					if x == b+building_offset+1 or x == b+building_offset+3:
-						if y == y_river-10:
-							ran = random.randint(5,6)
-							m.npcs[y][x] = deepcopy(ml.mlist['special'][ran])
+						if y == y_river-11 or y == y_river-9:
+							
+							obj_here = random.randint(0,2) #0: nothing, 1:bed 2:workbench
+							
+							if number_beds == 0:
+								obj_here = 1
+								
+							if obj_here != 0:
+								if obj_here == 1:
+									obj = ('functional',8)
+									number_beds += 1
+								else:
+									ran = random.randint(9,15)
+									obj = ('functional',ran)
+								
+								m.tilemap[y][x] = deepcopy(tl.tlist[obj[0]][obj[1]])
+								m.tilemap[y][x].replace = deepcopy(tl.tlist['extra'][1])
+								m.tilemap[y][x].civilisation = False
+								m.tilemap[y][x].build_here = False
+								m.tilemap[y][x].move_group = 'house'
 							
 			#south side of the river			
 			building_offset =random.randint(0,4)
+			number_beds = 0
 			
 			for y in range(y_river+8,y_river+13):
 				for x in range(b+building_offset,b+building_offset+5):
@@ -4015,9 +4035,26 @@ class world_class():
 						m.tilemap[y][x] = deepcopy(tl.tlist['extra'][1])
 		
 					if x == b+building_offset+1 or x == b+building_offset+3:
-						if y == y_river+10:
-							ran = random.randint(5,6)
-							m.npcs[y][x] = deepcopy(ml.mlist['special'][ran])
+						if y == y_river+9 or y == y_river+11:
+							
+							obj_here = random.randint(0,2) #0: nothing, 1:bed 2:workbench
+							
+							if number_beds == 0:
+								obj_here = 1
+								
+							if obj_here != 0:
+								if obj_here == 1:
+									obj = ('functional',8)
+									number_beds += 1
+								else:
+									ran = random.randint(9,15)
+									obj = ('functional',ran)
+								
+								m.tilemap[y][x] = deepcopy(tl.tlist[obj[0]][obj[1]])
+								m.tilemap[y][x].replace = deepcopy(tl.tlist['extra'][1])
+								m.tilemap[y][x].civilisation = False
+								m.tilemap[y][x].build_here = False
+								m.tilemap[y][x].move_group = 'house'
 		
 		x_pos = random.randint(3,10)
 		make_bridges = True
@@ -4043,6 +4080,11 @@ class world_class():
 						coin = random.randint(3,5)
 						m.tilemap[y][x] = tl.tlist['extra'][coin]
 						m.tilemap[y][x].replace = tl.tlist['extra'][0]#sand
+						
+				if m.tilemap[y][x].techID == tl.tlist['functional'][8].techID:#bed
+					ran = random.randint(5,6)
+					m.npcs[y][x] = deepcopy(ml.mlist['special'][ran])
+					
 		
 		m.set_frame(tl.tlist['functional'][0])
 		
