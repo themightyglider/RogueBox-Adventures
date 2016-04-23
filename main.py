@@ -7,6 +7,9 @@ import os
 
 low_res = False
 gcwz_input = False
+home_save = False
+
+basic_path = os.path.dirname(os.path.realpath('main.py')) #just get the execution path for resources
 
 for t in sys.argv:
 	
@@ -15,16 +18,36 @@ for t in sys.argv:
 		
 	if t == '-g':
 		gcwz_input = True
-
-basic_path = os.path.dirname(os.path.realpath('main.py')) #just get the execution path for resources
+		
+	if t == '-h':
+		home_save = True
+		
+		p = os.path.expanduser('~')
+		path = p + os.sep + '.config' + os.sep + 'RogueBox-Adventures'
+		print(os.path.exists(path))
+		if os.path.exists(path) == False:
+			for c in range(0,5):
+				ph = path + os.sep + 'SAVE' + os.sep + 'World' + str(c)
+				os.makedirs(ph)
+		del p
+		del path
+		
 lib_path = basic_path + os.sep + 'LIB'
 data_path = basic_path + os.sep + 'DATA'
-save_path = basic_path + os.sep + 'SAVE' + os.sep + 'World0'
+if home_save == False:
+	save_path = basic_path + os.sep + 'SAVE' + os.sep + 'World0'
+else:
+	save_path = os.path.expanduser(basic_path) + os.sep + 'SAVE' + os.sep + 'World0'
 playing = False
 sys.path.append(lib_path)
 max_map_size = 202
 monitor = [0,0]
-import pickle as p
+
+try:
+	import cPickle as p
+except:
+	import pickle as p
+
 import random
 if gcwz_input == True:
 	from getch_gcwz import *
@@ -49,10 +72,12 @@ class game_options():
 	
 	def __init__(self):
 		
-		name = basic_path + os.sep + 'SAVE' + os.sep + 'options.data'
+		if home_save == False:
+			name = basic_path + os.sep + 'SAVE' + os.sep + 'options.data'
+		else:
+			name = os.path.expanduser('~') + os.sep + '.config' + os.sep + 'RogueBox-Adventures' + os.sep + 'SAVE' + os.sep + 'options.data'
 		
 		try:
-			
 			f = file(name, 'r')
 			temp = p.load(f)
 			self.screenmode = temp.screenmode
@@ -71,7 +96,10 @@ class game_options():
 			
 	def save(self):
 		
-		name = basic_path + os.sep + 'SAVE' + os.sep + 'options.data'
+		if home_save == False:
+			name = basic_path + os.sep + 'SAVE' + os.sep + 'options.data'
+		else:
+			name = os.path.expanduser('~') + os.sep + '.config' + os.sep + 'RogueBox-Adventures' + os.sep + 'SAVE' + os.sep + 'options.data'
 	
 		f = file(name, 'w')
 		p.dump(self,f)
@@ -213,7 +241,13 @@ class g_screen():
 		
 	def render_main_menu(self):
 		
-		display_path = basic_path +os.sep + 'GRAPHIC' + os.sep + 'DISPLAY' + os.sep
+		if home_save == False:
+			display_path = basic_path +os.sep + 'GRAPHIC' + os.sep + 'DISPLAY' + os.sep
+			alt_path = display_path
+		else:
+			display_path = os.path.expanduser('~') + os.sep + '.config' + os.sep + 'RogueBox-Adventures' + os.sep
+			alt_path = basic_path +os.sep + 'GRAPHIC' + os.sep + 'DISPLAY' + os.sep
+	
 		
 		num = 0
 		
@@ -229,7 +263,7 @@ class g_screen():
 				i = i.convert_alpha()
 				s.blit(i,(0,0))
 			except:
-				i_name = display_path + 'alt.png'
+				i_name = alt_path + 'alt.png'
 				i = pygame.image.load(i_name)
 				i.set_colorkey((255,0,255),pygame.RLEACCEL)
 				i = i.convert_alpha()
@@ -290,13 +324,18 @@ class g_screen():
 		global save_path
 		global playing
 		
+		if home_save == True:
+			path = os.path.expanduser('~') + os.sep + '.config' + os.sep + 'RogueBox-Adventures'
+		else:
+			path = basic_path
+		
 		run = True
 		while run:
 			
 			menu_items = []
 		
 			for c in range(0,5):
-				save_path = basic_path + os.sep + 'SAVE' + os.sep + 'World' + str(c)
+				save_path = path + os.sep + 'SAVE' + os.sep + 'World' + str(c)
 				p_attribute = attribute(2,2,2,2,2,10,10)
 				p_inventory = inventory()
 				player_help = player_class ('-EMPTY SLOT-', 'local_0_0', p_attribute,p_inventory, build= 'Auto')
@@ -314,7 +353,7 @@ class g_screen():
 			choice = screen.get_choice('Choose a saved game',menu_items,False)
 				
 			if choice < 5:
-				save_path = basic_path + os.sep + 'SAVE' + os.sep + 'World' + str(choice)
+				save_path = path + os.sep + 'SAVE' + os.sep + 'World' + str(choice)
 				playing = True
 				run = False
 				
@@ -330,7 +369,7 @@ class g_screen():
 				
 				if choice2 < 5:
 						
-					save_path = basic_path + os.sep + 'SAVE' + os.sep + 'World' + str(choice2)
+					save_path = path + os.sep + 'SAVE' + os.sep + 'World' + str(choice2)
 						
 					try:	
 						
@@ -383,7 +422,10 @@ class g_screen():
 					except:
 						None
 		
-		tmp_save_path = basic_path + os.sep + 'GRAPHIC' + os.sep + 'DISPLAY' + os.sep + 'tmp.png'
+		if home_save == False:
+			tmp_save_path = basic_path +os.sep + 'GRAPHIC' + os.sep + 'DISPLAY' + os.sep + 'tmp.png'
+		else:
+			tmp_save_path = os.path.expanduser('~') + os.sep + '.config' + os.sep + 'RogueBox-Adventures' + os.sep + 'tmp.png'
 					
 		pygame.image.save(s,tmp_save_path)
 							
