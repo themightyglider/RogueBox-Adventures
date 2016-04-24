@@ -1826,3 +1826,79 @@ class tilelist():
 					tile_pos = (9,10))
 		self.tlist['extra'].append(t)
 		techID+=1
+		#10
+		t=tile(techID = techID,
+					name = 'Palm sepling',
+					tile_color = 'brown',
+					use_group = 'gather',
+					move_group = 'soil',
+					grow_group = 'tree_grow',
+					damage = 0, 
+					move_message = 'There is a palm sepling here.', 
+					damage_message = None,
+					tile_pos = (10,3),
+					conected_items = (il.ilist['misc'][50]),
+					conected_tiles = ['extra',11])
+		self.tlist['extra'].append(t)
+		techID+=1
+		#11
+		t=tile(techID = techID,
+					name = 'Palm young',
+					tile_color = 'brown',
+					use_group = 'None',
+					move_group = 'tree',
+					grow_group = 'tree_grow',
+					damage = 0, 
+					move_message = 'There is a young palm here.', 
+					damage_message = None,
+					tile_pos = (10,2),
+					conected_tiles = ['extra',12],
+					conected_resources = ('wood',1))
+		self.tlist['extra'].append(t)
+		techID+=1
+		#12
+		t=tile(techID = techID,
+					name = 'Palm',
+					tile_color = 'brown',
+					use_group = 'None',
+					move_group = 'tree',
+					grow_group = 'tree',
+					damage = 0, 
+					move_message = 'There is a palm here.', 
+					damage_message = None,
+					tile_pos = (10,1),
+					transparency = False,
+					conected_tiles = [('extra',10),('extra',13)],
+					conected_resources = ('wood',5))
+		self.tlist['extra'].append(t)
+		techID+=1
+		#13
+		t=tile(techID = techID,
+					name = 'Palm dead',
+					tile_color = 'brown',
+					use_group = 'None',
+					move_group = 'tree',
+					grow_group = 'vanish',
+					damage = 0, 
+					move_message = 'There is a dead palm here.', 
+					damage_message = None,
+					tile_pos = (10,4),
+					transparency = False,
+					conected_resources = ('wood',3))
+		self.tlist['extra'].append(t)
+		techID+=1
+		#14
+		t=tile(techID = techID,
+					name = 'Desert rock',
+					tile_color = 'grey',
+					use_group = 'None',
+					move_group = 'solide',
+					grow_group = 'None',
+					damage = 0, 
+					move_message = 'You break a big rock.', 
+					damage_message = None,
+					destroy = 2,
+					tile_pos = (10,0),
+					conected_resources = ('stone',1))
+		self.tlist['extra'].append(t)
+		techID+=1

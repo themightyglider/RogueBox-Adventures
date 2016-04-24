@@ -3968,7 +3968,7 @@ class world_class():
 		
 		return pos
 		
-	def desert_generator(self,chance_cactus):
+	def desert_generator(self,chance_object):
 		# chance_scrubs and chance_trees must be between 0 and 99
 		name = 'desert_0_0'
 		
@@ -4098,16 +4098,21 @@ class world_class():
 								m.tilemap[y][x].build_here = False
 								m.tilemap[y][x].move_group = 'house'
 		
-		x_pos = random.randint(3,10)
 		make_bridges = True
+		num_bridges = 0
+		num_bridges_max = ((max_map_size/50)*3)+1
 		
-		while make_bridges:
-			x_pos_plus = random.randint(5,15)
-			x_pos += x_pos_plus
-			
-			if x_pos >= max_map_size:
-				make_bridges = False
-			if make_bridges == True:
+		while num_bridges < num_bridges_max:
+			x_pos = random.randint(0,max_map_size)
+				
+			num_wall = 0
+				
+			for test in range(0,max_map_size):
+				if m.tilemap[test][x_pos].techID == tl.tlist['extra'][2].techID:
+					num_wall += 1
+				
+			if num_wall == 0:
+				num_bridges += 1
 				for y in range(0,max_map_size):
 					if m.tilemap[y][x_pos].techID == tl.tlist['misc'][0].techID or m.tilemap[y][x_pos].techID == tl.tlist['misc'][3].techID: #this is low wather or deep water
 						replace = deepcopy(m.tilemap[y][x_pos])
@@ -4118,10 +4123,24 @@ class world_class():
 			for x in range (0,max_map_size): 
 				if m.tilemap[y][x].techID == tl.tlist['extra'][0].techID:
 					chance = random.randint(0,99)
-					if chance < chance_cactus:
-						coin = random.randint(3,5)
-						m.tilemap[y][x] = tl.tlist['extra'][coin]
+					if chance < chance_object:
+						obj_numbers = (3,4,5,14)
+						coin = random.randint(0,len(obj_numbers)-1)
+						m.tilemap[y][x] = tl.tlist['extra'][obj_numbers[coin]]
 						m.tilemap[y][x].replace = tl.tlist['extra'][0]#sand
+				elif m.tilemap[y][x].techID == tl.tlist['local'][0].techID:
+					chance = random.randint(0,99)
+					if chance < chance_object:
+						coin = random.randint(10,13)
+						m.tilemap[y][x] = tl.tlist['extra'][coin]
+						m.tilemap[y][x].replace = tl.tlist['local'][0]#grass
+				elif m.tilemap[y][x].techID == tl.tlist['extra'][9].techID:
+					for yy in range(y-1,y+2):
+						if m.tilemap[yy][x].replace != None:
+							m.tilemap[yy][x] = m.tilemap[yy][x].replace
+					for xx in range(x-1,x+2):
+						if m.tilemap[y][xx].replace != None:
+							m.tilemap[y][xx] = m.tilemap[y][xx].replace
 						
 				if m.tilemap[y][x].techID == tl.tlist['functional'][8].techID:#bed
 					ran = random.randint(5,6)
