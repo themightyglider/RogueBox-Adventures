@@ -2052,6 +2052,8 @@ class map():
 		self.last_visit = 0 #-------test only
 		self.map_type = map_type
 		self.build_type = 'Full' #Full: build everything you want, Part: no stairs, None: Buildmode is not callable
+		self.thirst_multi_day = 1
+		self.thirst_multi_night = 1
 		self.countdowns = []
 		self.npcs = []
 		
@@ -3789,6 +3791,8 @@ class world_class():
 				m.map_type = 'cave'
 			else:
 				m.map_type = 'lava_cave'
+				m.thirst_multi_day = 2
+				m.thirst_multi_night = 2
 			
 			if d > 9:
 				m.exchange(tl.tlist['global_caves'][4],tl.tlist['misc'][2])#exchange lava against hot cave ground
@@ -3981,6 +3985,7 @@ class world_class():
 		m = map(name,tilemap)
 		m.map_type = 'desert'
 		m.build_type = 'Part'
+		m.thirst_multi_day = 2
 		
 		m.fill(tl.tlist['extra'][0])
 		
@@ -4103,7 +4108,7 @@ class world_class():
 		num_bridges_max = ((max_map_size/50)*3)+1
 		
 		while num_bridges < num_bridges_max:
-			x_pos = random.randint(0,max_map_size)
+			x_pos = random.randint(5,max_map_size-5)
 				
 			num_wall = 0
 				
@@ -7422,6 +7427,11 @@ class time_class():
 		
 		self.minute += 1
 		
+		if self.hour > 6 and self.hour < 20:
+			thirst_multi = world.maplist[player.pos[2]][player.on_map].thirst_multi_day
+		else:
+			thirst_multi = world.maplist[player.pos[2]][player.on_map].thirst_multi_night
+		
 		if player.buffs.hexed <= 0:
 			change = 1
 		else:
@@ -7433,7 +7443,7 @@ class time_class():
 		if player.attribute.hunger > 0:
 			player.attribute.hunger -= change
 		if player.attribute.thirst > 0:	
-			player.attribute.thirst -= change
+			player.attribute.thirst -= change * thirst_multi
 		if player.attribute.tiredness > 0 and player.buffs.adrenalised <= 0:
 			player.attribute.tiredness -= change
 		
