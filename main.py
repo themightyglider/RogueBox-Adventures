@@ -13,6 +13,29 @@ basic_path = os.path.dirname(os.path.realpath('main.py')) #just get the executio
 
 for t in sys.argv:
 	
+	if t == '-m':
+		p = os.path.expanduser(basic_path)
+		lf = open('rba.desktop','w')
+		lf.write('[Desktop Entry]\n')
+		lf.write('Type=Application\n')
+		lf.write('Name=RogueBox Adventures\n')
+		lf.write('Comment=A RogueBox Game\n')
+		lf.write('Exec=sh ' + p + os.sep + 'LIB' + os.sep + 'run.sh\n')
+		lf.write('Icon=' + p + os.sep + 'icon_big.png\n')
+		lf.write('Terminal=false\n')
+		lf.write('Categories=Game;')
+		lf.close()
+		
+		rf_path = p + os.sep + 'LIB' + os.sep + 'run.sh'
+		rf = open(rf_path,'w')
+		rf.write('#This file was generated automatically. Please don\'t change anything.\n')
+		rf.write('cd ' + p + '\n')
+		rf.write('python ' + p + os.sep + 'main.py')
+		
+		sys_com = 'chmod +x ' + p + os.sep + 'rba.desktop'
+		os.system(sys_com)
+		exit(0)
+	
 	if t == '-l':
 		low_res = True
 		
