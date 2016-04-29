@@ -1595,7 +1595,7 @@ class g_screen():
 			text_image = screen.menu_font.render('~*~ Credits ~*~        [Press [x] to leave]',1,(255,255,255))
 			s.blit(text_image,(5,2))#menue title
 			
-			credit_items = ('Idea & Code: Marian Luck aka Nothing', 'BGM: Yubatake & Avgvsta [opengameart.org]' , 'SFX: Little Robot Sound Factory', 'Font: Cody Boisclair' )
+			credit_items = ('Code & Art: Marian Luck aka Nothing', 'BGM: Yubatake, Avgvsta & RevampedPRO [opengameart.org]' , 'SFX: Little Robot Sound Factory', 'Font: Cody Boisclair', 'GCW-Zero port: cxong', ' ', 'Special Thanks: taknamay & !freegaming@quitter.se')
 		
 			for i in range (0,len(credit_items)):
 			
