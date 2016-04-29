@@ -13,6 +13,8 @@ class buffs():
 		self.confused = 0
 		self.light = 0
 		self.blind = 0
+		self.adrenalised = 0
+		self.adrenalised_max = 0
 		
 	def set_buff(self,name,duration):
 		
@@ -31,6 +33,16 @@ class buffs():
 				self.light = duration#light can't be added on
 		elif name == 'blind':
 			self.blind += duration
+		elif name == 'adrenalised':
+			self.adrenalised_max += duration
+			if self.adrenalised_max <= 1440:
+				self.adrenalised += duration
+			else:
+				test = duration - (self.adrenalised_max - 1440)
+				if test > 0:
+					self.adrenalised += test
+				
+			
 			
 	def buff_tick(self):
 		
@@ -68,6 +80,11 @@ class buffs():
 			self.blind -= 1
 		elif self.blind < 0:
 			self.blind = 0
+		
+		if self.adrenalised > 0:
+			self.adrenalised -= 1
+		elif self.adrenalised < 0:
+			self.adrenalised = 0
 			
 	def sget(self):
 	
@@ -93,6 +110,9 @@ class buffs():
 			
 		if self.blind > 0:
 			slist.append('BLIND(' + str(self.blind) + ')')
+			
+		if self.adrenalised > 0:
+			slist.append('ADRENALISED(' + str(self.adrenalised) + ')')
 			
 		if len(slist) > 1:
 			del slist[0]

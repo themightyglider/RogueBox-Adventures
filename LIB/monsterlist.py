@@ -97,7 +97,7 @@ class monsterlist():
 				name = 'hill orc',
 				sprite_pos = (1,7),
 				move_border = 2,
-				attribute_prev = (3,1,0,1,1),
+				attribute_prev = (3,0,0,1,1),
 				worn_equipment = (1,0,1,0,0),
 				AI_style = 'hostile',
 				corps_style = 'human',
@@ -247,7 +247,7 @@ class monsterlist():
 				attribute_prev = (0,2,0,2,2),
 				worn_equipment = (0,0,0,0,0),
 				AI_style = 'flee',
-				corps_style = 'human',
+				corps_style = 'animal',
 				corps_lvl = 1,
 				personal_id = 'None',
 				move_groups = ('soil','low_liquid'), 
@@ -435,7 +435,7 @@ class monsterlist():
 		#angry_monsters
 		
 		self.mlist['angry_monster'] = []
-				
+		#0		
 		m=monster(techID = techID,
 				name = 'male elf',
 				sprite_pos = (2,0),
@@ -455,7 +455,7 @@ class monsterlist():
 				message = 'None')
 		techID+=1
 		self.mlist['angry_monster'].append(m)
-
+		#1
 		m=monster(techID = techID,
 				name = 'female elf',
 				sprite_pos = (2,1),
@@ -475,7 +475,7 @@ class monsterlist():
 				message = 'None')
 		techID+=1
 		self.mlist['angry_monster'].append(m)
-		
+		#2
 		m=monster(techID = techID,
 				name = 'angry dryade',
 				sprite_pos = (2,8),
@@ -495,7 +495,47 @@ class monsterlist():
 				message = 'None')
 		techID+=1
 		self.mlist['angry_monster'].append(m)
-
+		#3
+		m=monster(techID = techID,
+				name = 'male neko',
+				sprite_pos = (2,10),
+				move_border = 0,
+				attribute_prev = (2,2,0,1,2),
+				worn_equipment = (1,0,1,0,0),
+				AI_style = 'hostile',
+				corps_style = 'human',
+				corps_lvl = 3,
+				personal_id = 'None',
+				move_groups = ('soil','low_liquid','house'), 
+				behavior = 'attack_melee', 
+				attack_were = ('Head','Body','Legs','Feet'),
+				possible_effect = None, 
+				effect_duration = 0, 
+				effect_probability = 0, 
+				message = 'None')
+		techID+=1
+		self.mlist['angry_monster'].append(m)
+		#4
+		m=monster(techID = techID,
+				name = 'female female',
+				sprite_pos = (2,9),
+				move_border = 0,
+				attribute_prev = (0,1,2,2,2),
+				worn_equipment = (0,1,0,1,1),
+				AI_style = 'hostile',
+				corps_style = 'human',
+				corps_lvl = 3,
+				personal_id = 'None',
+				move_groups = ('soil','low_liquid','house'), 
+				behavior = 'attack_magic', 
+				attack_were = ('Head','Body','Legs','Feet'),
+				possible_effect = None, 
+				effect_duration = 0, 
+				effect_probability = 0, 
+				message = 'None')
+		techID+=1
+		self.mlist['angry_monster'].append(m)
+		
 		#grot
 
 		self.mlist['grot'] = []
@@ -667,7 +707,7 @@ class monsterlist():
 		#special
 
 		self.mlist['special'] = []
-		
+		#0
 		m=monster(techID = techID,
 				name = 'vase',
 				sprite_pos = (0,3),
@@ -687,7 +727,7 @@ class monsterlist():
 				message = 'None')
 		techID+=1
 		self.mlist['special'].append(m)
-
+		#1
 		m=monster(techID = techID,
 				name = 'monster vase',
 				sprite_pos = (0,3),
@@ -707,7 +747,7 @@ class monsterlist():
 				message = 'None')
 		techID+=1
 		self.mlist['special'].append(m)
-
+		#2
 		m=monster(techID = techID,
 				name = 'vase monster',
 				sprite_pos = (0,2),
@@ -727,7 +767,7 @@ class monsterlist():
 				message = 'None')
 		techID+=1
 		self.mlist['special'].append(m)
-
+		#3
 		m=monster(techID = techID,
 				name = 'sleeping mimic',
 				sprite_pos = (1,1),
@@ -747,7 +787,7 @@ class monsterlist():
 				message = 'None')
 		techID+=1
 		self.mlist['special'].append(m)
-
+		#4
 		m=monster(techID = techID,
 				name = 'mimic',
 				sprite_pos = (0,7),
@@ -765,6 +805,50 @@ class monsterlist():
 				effect_duration = 0,
 				effect_probability = 0,
 				message = 'None')
+		techID+=1
+		self.mlist['special'].append(m)
+		#5
+		m=monster(techID = techID,
+				name = 'female neko',
+				sprite_pos = (2,9),
+				move_border = 0,
+				attribute_prev = (2,2,2,2,2),
+				worn_equipment = (1,1,1,1,1),
+				AI_style = 'ignore',
+				corps_style = 'vanish',
+				corps_lvl = 5,
+				personal_id = 'None',
+				move_groups = ('house','house'), 
+				behavior = 'talk', 
+				attack_were = ('Legs','Feet'),
+				possible_effect = None, 
+				effect_duration = 0,
+				effect_probability = 0,
+				message = 'The female neko blinks feiendly.',
+				anger = 'kill_neko',
+				anger_monster = 4)
+		techID+=1
+		self.mlist['special'].append(m)
+		#6
+		m=monster(techID = techID,
+				name = 'male neko',
+				sprite_pos = (2,10),
+				move_border = 0,
+				attribute_prev = (2,2,2,2,2),
+				worn_equipment = (1,1,1,1,1),
+				AI_style = 'ignore',
+				corps_style = 'vanish',
+				corps_lvl = 5,
+				personal_id = 'None',
+				move_groups = ('house','house'), 
+				behavior = 'talk', 
+				attack_were = ('Legs','Feet'),
+				possible_effect = None, 
+				effect_duration = 0,
+				effect_probability = 0,
+				message = 'The male neko blinks friendly.',
+				anger = 'kill_neko',
+				anger_monster = 3)
 		techID+=1
 		self.mlist['special'].append(m)
 		
@@ -831,3 +915,86 @@ class monsterlist():
 				message = 'The shopkeeper greets you.')
 		techID+=1
 		self.mlist['shop'].append(m)
+		
+		#desert monster
+		self.mlist['desert'] = []
+		#0
+		m=monster(techID = techID,
+				name = 'desert snake',
+				sprite_pos = (3,3),
+				move_border = 4,
+				attribute_prev = (3,1,0,0,2),
+				worn_equipment = (0,0,0,0,0),
+				AI_style = 'hostile',
+				corps_style = 'animal',
+				corps_lvl = 1,
+				personal_id = 'None',
+				move_groups = ('soil','soil'), 
+				behavior = 'attack_melee', 
+				attack_were = ('Legs','Feet'),
+				possible_effect = 'poisoned', 
+				effect_duration = 240, 
+				effect_probability = 80, 
+				message = 'Poison runs trough your veins!')
+		techID+=1
+		self.mlist['desert'].append(m)
+		#1
+		m=monster(techID = techID,
+				name = 'yellow blob',
+				sprite_pos = (3,4),
+				move_border = 4,
+				attribute_prev = (2,2,0,1,1),
+				worn_equipment = (0,0,0,0,0),
+				AI_style = 'hostile',
+				corps_style = 'vanish',
+				corps_lvl = 5,
+				personal_id = 'None',
+				move_groups = ('soil','soil'), 
+				behavior = 'attack_melee', 
+				attack_were = ('Legs','Feet'),
+				possible_effect = None, 
+				effect_duration = 0, 
+				effect_probability = 0, 
+				message = 'None')
+		techID+=1
+		self.mlist['desert'].append(m)
+		#2
+		m=monster(techID = techID,
+				name = 'scarab',
+				sprite_pos = (3,5),
+				move_border = 2,
+				attribute_prev = (2,2,0,2,2),
+				worn_equipment = (0,0,0,0,0),
+				AI_style = 'hostile',
+				corps_style = 'vanish',
+				corps_lvl = 5,
+				personal_id = 'None',
+				move_groups = ('soil','soil'), 
+				behavior = 'attack_melee', 
+				attack_were = ('Legs','Feet'),
+				possible_effect = None, 
+				effect_duration = 0, 
+				effect_probability = 0, 
+				message = 'None')
+		techID+=1
+		self.mlist['desert'].append(m)
+		#3
+		m=monster(techID = techID,
+				name = 'lizard',
+				sprite_pos = (3,6),
+				move_border = 0,
+				attribute_prev = (0,1,0,1,1),
+				worn_equipment = (0,0,0,0,0),
+				AI_style = 'flee',
+				corps_style = 'animal',
+				corps_lvl = 1,
+				personal_id = 'None',
+				move_groups = ('soil','soil'), 
+				behavior = 'attack_melee', 
+				attack_were = ('Feet'),
+				possible_effect = None, 
+				effect_duration = 0, 
+				effect_probability = 0, 
+				message = 'None')
+		techID+=1
+		self.mlist['desert'].append(m)

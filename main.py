@@ -4,17 +4,78 @@
 import time
 import sys
 import os
+
+low_res = False
+gcwz_input = False
+home_save = False
+
 basic_path = os.path.dirname(os.path.realpath('main.py')) #just get the execution path for resources
+
+for t in sys.argv:
+	
+	if t == '-m':
+		p = os.path.expanduser(basic_path)
+		lf = open('rba.desktop','w')
+		lf.write('[Desktop Entry]\n')
+		lf.write('Type=Application\n')
+		lf.write('Name=RogueBox Adventures\n')
+		lf.write('Comment=A RogueBox Game\n')
+		lf.write('Exec=sh ' + p + os.sep + 'LIB' + os.sep + 'run.sh\n')
+		lf.write('Icon=' + p + os.sep + 'icon_big.png\n')
+		lf.write('Terminal=false\n')
+		lf.write('Categories=Game;')
+		lf.close()
+		
+		rf_path = p + os.sep + 'LIB' + os.sep + 'run.sh'
+		rf = open(rf_path,'w')
+		rf.write('#This file was generated automatically. Please don\'t change anything.\n')
+		rf.write('cd ' + p + '\n')
+		rf.write('python ' + p + os.sep + 'main.py')
+		
+		sys_com = 'chmod +x ' + p + os.sep + 'rba.desktop'
+		os.system(sys_com)
+		exit(0)
+	
+	if t == '-l':
+		low_res = True
+		
+	if t == '-g':
+		gcwz_input = True
+		
+	if t == '-h':
+		home_save = True
+		
+		p = os.path.expanduser('~')
+		path = p + os.sep + '.config' + os.sep + 'RogueBox-Adventures'
+		print(os.path.exists(path))
+		if os.path.exists(path) == False:
+			for c in range(0,5):
+				ph = path + os.sep + 'SAVE' + os.sep + 'World' + str(c)
+				os.makedirs(ph)
+		del p
+		del path
+		
 lib_path = basic_path + os.sep + 'LIB'
 data_path = basic_path + os.sep + 'DATA'
-save_path = basic_path + os.sep + 'SAVE' + os.sep + 'World0'
+if home_save == False:
+	save_path = basic_path + os.sep + 'SAVE' + os.sep + 'World0'
+else:
+	save_path = os.path.expanduser(basic_path) + os.sep + 'SAVE' + os.sep + 'World0'
 playing = False
 sys.path.append(lib_path)
 max_map_size = 202
 monitor = [0,0]
-import pickle as p
+
+try:
+	import cPickle as p
+except:
+	import pickle as p
+
 import random
-from getch import *
+if gcwz_input == True:
+	from getch_gcwz import *
+else:
+	from getch import *
 from tile import tile
 from attribute import attribute
 from item import *
@@ -34,10 +95,12 @@ class game_options():
 	
 	def __init__(self):
 		
-		name = basic_path + os.sep + 'SAVE' + os.sep + 'options.data'
+		if home_save == False:
+			name = basic_path + os.sep + 'SAVE' + os.sep + 'options.data'
+		else:
+			name = os.path.expanduser('~') + os.sep + '.config' + os.sep + 'RogueBox-Adventures' + os.sep + 'SAVE' + os.sep + 'options.data'
 		
 		try:
-			
 			f = file(name, 'r')
 			temp = p.load(f)
 			self.screenmode = temp.screenmode
@@ -56,7 +119,10 @@ class game_options():
 			
 	def save(self):
 		
-		name = basic_path + os.sep + 'SAVE' + os.sep + 'options.data'
+		if home_save == False:
+			name = basic_path + os.sep + 'SAVE' + os.sep + 'options.data'
+		else:
+			name = os.path.expanduser('~') + os.sep + '.config' + os.sep + 'RogueBox-Adventures' + os.sep + 'SAVE' + os.sep + 'options.data'
 	
 		f = file(name, 'w')
 		p.dump(self,f)
@@ -198,7 +264,13 @@ class g_screen():
 		
 	def render_main_menu(self):
 		
-		display_path = basic_path +os.sep + 'GRAPHIC' + os.sep + 'DISPLAY' + os.sep
+		if home_save == False:
+			display_path = basic_path +os.sep + 'GRAPHIC' + os.sep + 'DISPLAY' + os.sep
+			alt_path = display_path
+		else:
+			display_path = os.path.expanduser('~') + os.sep + '.config' + os.sep + 'RogueBox-Adventures' + os.sep
+			alt_path = basic_path +os.sep + 'GRAPHIC' + os.sep + 'DISPLAY' + os.sep
+	
 		
 		num = 0
 		
@@ -214,7 +286,7 @@ class g_screen():
 				i = i.convert_alpha()
 				s.blit(i,(0,0))
 			except:
-				i_name = display_path + 'alt.png'
+				i_name = alt_path + 'alt.png'
 				i = pygame.image.load(i_name)
 				i.set_colorkey((255,0,255),pygame.RLEACCEL)
 				i = i.convert_alpha()
@@ -275,13 +347,18 @@ class g_screen():
 		global save_path
 		global playing
 		
+		if home_save == True:
+			path = os.path.expanduser('~') + os.sep + '.config' + os.sep + 'RogueBox-Adventures'
+		else:
+			path = basic_path
+		
 		run = True
 		while run:
 			
 			menu_items = []
 		
 			for c in range(0,5):
-				save_path = basic_path + os.sep + 'SAVE' + os.sep + 'World' + str(c)
+				save_path = path + os.sep + 'SAVE' + os.sep + 'World' + str(c)
 				p_attribute = attribute(2,2,2,2,2,10,10)
 				p_inventory = inventory()
 				player_help = player_class ('-EMPTY SLOT-', 'local_0_0', p_attribute,p_inventory, build= 'Auto')
@@ -299,7 +376,7 @@ class g_screen():
 			choice = screen.get_choice('Choose a saved game',menu_items,False)
 				
 			if choice < 5:
-				save_path = basic_path + os.sep + 'SAVE' + os.sep + 'World' + str(choice)
+				save_path = path + os.sep + 'SAVE' + os.sep + 'World' + str(choice)
 				playing = True
 				run = False
 				
@@ -315,7 +392,7 @@ class g_screen():
 				
 				if choice2 < 5:
 						
-					save_path = basic_path + os.sep + 'SAVE' + os.sep + 'World' + str(choice2)
+					save_path = path + os.sep + 'SAVE' + os.sep + 'World' + str(choice2)
 						
 					try:	
 						
@@ -368,7 +445,10 @@ class g_screen():
 					except:
 						None
 		
-		tmp_save_path = basic_path + os.sep + 'GRAPHIC' + os.sep + 'DISPLAY' + os.sep + 'tmp.png'
+		if home_save == False:
+			tmp_save_path = basic_path +os.sep + 'GRAPHIC' + os.sep + 'DISPLAY' + os.sep + 'tmp.png'
+		else:
+			tmp_save_path = os.path.expanduser('~') + os.sep + '.config' + os.sep + 'RogueBox-Adventures' + os.sep + 'tmp.png'
 					
 		pygame.image.save(s,tmp_save_path)
 							
@@ -735,6 +815,8 @@ class g_screen():
 			string = 'Generate elfish fortress...'
 		elif num == 17:
 			string = 'Generate orcish mines...'
+		elif num == 18:
+			string = 'Generate desert...'
 		
 		######add more here
 		
@@ -1513,7 +1595,7 @@ class g_screen():
 			text_image = screen.menu_font.render('~*~ Credits ~*~        [Press [x] to leave]',1,(255,255,255))
 			s.blit(text_image,(5,2))#menue title
 			
-			credit_items = ('Idea & Code: Marian Luck aka Nothing', 'BGM: Yubatake & Avgvsta [opengameart.org]' , 'SFX: Little Robot Sound Factory', 'Font: Cody Boisclair' )
+			credit_items = ('Code & Art: Marian Luck aka Nothing', 'BGM: Yubatake, Avgvsta & RevampedPRO [opengameart.org]' , 'SFX: Little Robot Sound Factory', 'Font: Cody Boisclair', 'GCW-Zero port: cxong', ' ', 'Special Thanks: taknamay & !freegaming@quitter.se')
 		
 			for i in range (0,len(credit_items)):
 			
@@ -1992,6 +2074,9 @@ class map():
 		self.visit = visit
 		self.last_visit = 0 #-------test only
 		self.map_type = map_type
+		self.build_type = 'Full' #Full: build everything you want, Part: no stairs, None: Buildmode is not callable
+		self.thirst_multi_day = 1
+		self.thirst_multi_night = 1
 		self.countdowns = []
 		self.npcs = []
 		
@@ -2681,7 +2766,7 @@ class map():
 				if ran <= self.npcs[y][x].corps_lvl: #the corps_lvl determinates the chance of getting a present
 					
 					replace = self.tilemap[y][x]
-					self.tilemap[y][x] = deepcopy(tl.tlist['misc'][12])#set a present
+					self.tilemap[y][x] = deepcopy(tl.tlist['misc'][13])#set a present
 					self.tilemap[y][x].replace = replace
 						
 					item_ran = random.randint(0,99)
@@ -2783,42 +2868,34 @@ class map():
 						#######Life of plants######
 						
 						#1. Scrub
-						if tile.techID == tl.tlist['local'][1].techID: #make a scrub to a scrub with buds(50%)
+						if tile.grow_group == 'scrub':
 							rand = random.randint(0,99)
 							if rand < 50:
 								replace = self.tilemap[y][x].replace
-								self.tilemap[y][x] = deepcopy(tl.tlist['local'][3])
+								self.tilemap[y][x] = deepcopy(tl.tlist[tile.conected_tiles[0]][tile.conected_tiles[1]])
 								self.tilemap[y][x].replace = replace
 							
-						if tile.techID == tl.tlist['local'][3].techID: #make a scrub with buds to a scrub with blossoms(90%)
+						if tile.grow_group == 'scrub_buds':
 							rand = random.randint(0,99)
 							if rand < 90:
 								replace = self.tilemap[y][x].replace
-								self.tilemap[y][x] = deepcopy(tl.tlist['local'][4])
+								self.tilemap[y][x] = deepcopy(tl.tlist[tile.conected_tiles[0]][tile.conected_tiles[1]])
 								self.tilemap[y][x].replace = replace
 						
-						if tile.techID == tl.tlist['local'][4].techID: #make a scrub with blossoms to a scrub with berrys(80%) or a scrub(10%)
+						if tile.grow_group == 'scrub_blossom':
 							rand = random.randint(0,99)
 							if rand < 80:
-								scrubs = (2,17,18)
-								berries = (0,27,28)
-								ran = random.randint(0,len(scrubs)-1)
+								scrubs = random.randint(0,2)
 								replace = self.tilemap[y][x].replace
-								self.tilemap[y][x] = deepcopy(tl.tlist['local'][scrubs[ran]])
-								self.tilemap[y][x].replace = replace
-								self.containers[y][x] = container([deepcopy(il.ilist['food'][berries[ran]])])#make a container with berries inside (1x)
-							else:
-								replace = self.tilemap[y][x].replace
-								self.tilemap[y][x] = deepcopy(tl.tlist['local'][1])
+								self.tilemap[y][x] = deepcopy(tl.tlist[tile.conected_tiles[scrubs][0]][tile.conected_tiles[scrubs][1]])
 								self.tilemap[y][x].replace = replace
 							
-						if tile.techID == tl.tlist['local'][2].techID or tile.techID == tl.tlist['local'][2].techID or tile.techID == tl.tlist['local'][2].techID: #make a scrub with berrys to a scrub with scruffy berrys(50%) or let grow new scrubs(25%) or do nothing
+						if tile.grow_group == 'scrub_berries':
 							rand = random.randint(0,99)
 							if rand < 50:
 								replace = self.tilemap[y][x].replace
-								self.tilemap[y][x] = deepcopy(tl.tlist['local'][5])
+								self.tilemap[y][x] = deepcopy(tl.tlist[tile.conected_tiles[0][0]][tile.conected_tiles[0][1]])
 								self.tilemap[y][x].replace = replace
-								self.containers[y][x] = 0 #del container
 							elif rand > 49 and rand < 75:
 								numbers =(-1,1)
 								
@@ -2826,160 +2903,83 @@ class map():
 									for xx in numbers:
 										try:
 											
-											if self.tilemap[y+yy][x+xx].techID == tl.tlist['local'][0]:#this is grass
+											if self.tilemap[y+yy][x+xx].can_grown == True:
 											
 												coin = random.randint(0,99)
 												
 												if coin < 25: #25%
 													replace = self.tilemap[y+yy][x+xx]
-													self.tilemap[y+yy][x+xx] = deepcopy(tl.tlist['local'][6])
+													self.tilemap[y+yy][x+xx] = deepcopy([tile.conected_tiles[1][0]][tile.conected_tiles[1][1]])
 													self.tilemap[y+yy][x+xx].replace = replace
 										except:
 											None
 											
-						if tile.techID == tl.tlist['local'][5].techID: #make a scrub with scruffy berrys to a scrub(90%) or a death scrub(10%)
+						if tile.grow_group == 'scrub_scruffy':
 							rand = random.randint(0,99)
 							if rand < 90:
 								replace = self.tilemap[y][x].replace
-								self.tilemap[y][x] = deepcopy(tl.tlist['local'][1])
+								self.tilemap[y][x] = deepcopy(tl.tlist[tile.conected_tiles[0][0]][tile.conected_tiles[0][1]])
 								self.tilemap[y][x].replace = replace
 							else:
 								replace = self.tilemap[y][x].replace
-								self.tilemap[y][x] = deepcopy(tl.tlist['local'][9])
+								self.tilemap[y][x] = deepcopy(tl.tlist[tile.conected_tiles[1][0]][tile.conected_tiles[1][1]])
 								self.tilemap[y][x].replace = replace
 								
-						if tile.techID == tl.tlist['local'][9].techID: #make a dead scrub to a scrub(10%) or let it disapear(10%) or do nothing(80%)
-							ran = random.randint(0,99)
-							if rand < 10:
-								replace = self.tilemap[y][x].replace
-								self.tilemap[y][x] = deepcopy(tl.tlist['local'][1])
-								self.tilemap[y][x].replace = replace
-							elif rand > 9 and rand < 20:
-								self.tilemap[y][x] = self.tilemap[y][x].replace
 						
-						if tile.techID == tl.tlist['local'][6].techID: #make a scrub seed to a scrub sepling(90%) or let it disapear(10%)
+						if tile.grow_group == 'scrub_grow':
 							rand = random.randint(0,99)
 							if rand < 90:
 								replace = self.tilemap[y][x].replace
-								self.tilemap[y][x] = deepcopy(tl.tlist['local'][7])
+								self.tilemap[y][x] = deepcopy(tl.tlist[tile.conected_tiles[0]][tile.conected_tiles[1]])
 								self.tilemap[y][x].replace = replace
-							else:
-								self.tilemap[y][x] = self.tilemap[y][x].replace
-								
-						if tile.techID == tl.tlist['local'][7].techID: #make a scrub sepling to a small scrub(90%) or let it disapear(10%)
-							rand = random.randint(0,99)
-							if rand < 90:
-								replace = self.tilemap[y][x].replace
-								self.tilemap[y][x] = deepcopy(tl.tlist['local'][8])
-								self.tilemap[y][x].replace = replace
-							else:
-								self.tilemap[y][x] = self.tilemap[y][x].replace		
-						
-						if tile.techID == tl.tlist['local'][8].techID: #make a small scrub to a scrub(90%) or let it disappear(10%)
-							rand = random.randint(0,99)
-							if rand < 90:
-								replace = self.tilemap[y][x].replace
-								self.tilemap[y][x] = deepcopy(tl.tlist['local'][1])
-								self.tilemap[y][x].replace = replace
-							else:
-								self.tilemap[y][x] = self.tilemap[y][x].replace
 								
 						#2.Tree
 						
-						if tile.techID == tl.tlist['local'][10].techID: #make a young tree out of a sepling(80%) or let it disappear(20%)
+						if tile.grow_group == 'tree_grow':
 							rand = random.randint(0,99)
 							if rand < 80:
 								replace = self.tilemap[y][x].replace
-								self.tilemap[y][x] = deepcopy(tl.tlist['local'][11])
+								self.tilemap[y][x] = deepcopy(tl.tlist[tile.conected_tiles[0]][tile.conected_tiles[1]])
 								self.tilemap[y][x].replace = replace
-							else:
-								self.tilemap[y][x] = self.tilemap[y][x].replace
 						
-						if tile.techID == tl.tlist['local'][11].techID: #make a tree out of a young tree(80%) or let it disappear(20%)
-							rand = random.randint(0,99)
-							if rand < 80:
-								replace = self.tilemap[y][x].replace
-								self.tilemap[y][x] = deepcopy(tl.tlist['local'][12])
-								self.tilemap[y][x].replace = replace
-							else:
-								self.tilemap[y][x] = self.tilemap[y][x].replace
-						
-						if tile.techID == tl.tlist['local'][12].techID: #let grow new trees(25%) or let the tree die(5%) or do nothing
+						if tile.grow_group == 'tree':
 							rand = random.randint(0,99)
 							if rand < 5:
 								replace = self.tilemap[y][x].replace
-								self.tilemap[y][x] = deepcopy(tl.tlist['local'][13])
+								self.tilemap[y][x] = deepcopy(tl.tlist[tile.conected_tiles[1][0]][tile.conected_tiles[1][1]])
 								self.tilemap[y][x].replace = replace
 
-							elif rand > 49 and rand < 75:
+							elif rand > 49:
 								numbers =(-2,2)
 								
 								for yy in numbers:
 									for xx in numbers:
 										try:
 											
-											if self.tilemap[y+yy][x+xx].techID == tl.tlist['local'][0].techID:#this is grass
+											if self.tilemap[y+yy][x+xx].can_grown == True:
 											
 												coin = random.randint(0,1)
 												
 												if coin == 1:
 													replace = self.tilemap[y+yy][x+xx]
-													self.tilemap[y+yy][x+xx] = deepcopy(tl.tlist['local'][10])
+													self.tilemap[y+yy][x+xx] = deepcopy(tl.tlist[tile.conected_tiles[0][0]][tile.conected_tiles[0][1]])
 													self.tilemap[y+yy][x+xx].replace = replace
 										except:
 											None
-						
-						if tile.techID == tl.tlist['local'][13].techID: #let a dead tree disappear(10%)
-							rand = random.randint(0,99)
-							if rand < 90:
-								None
-							else:
-								self.tilemap[y][x] = self.tilemap[y][x].replace
 						
 						#3.Herb
 						
-						if tile.techID == tl.tlist['local'][15].techID: #make a flowering herb out of a herb(10%) or let it disappear(20%)
+						if tile.grow_group == 'herblike':
 							rand = random.randint(0,99)
-							if rand < 10:
+							if rand < 20:
 								replace = self.tilemap[y][x].replace
-								self.tilemap[y][x] = deepcopy(tl.tlist['local'][16])
+								self.tilemap[y][x] = deepcopy(tl.tlist[tile.conected_tiles[0]][tile.conected_tiles[1]])
 								self.tilemap[y][x].replace = replace
-							else:
-								self.tilemap[y][x] = self.tilemap[y][x].replace
 								
-						if tile.techID == tl.tlist['local'][16].techID: #let grow new herbs(5%) or let the herb die(5%) or let it become a ordenary herb
-							rand = random.randint(0,99)
-							if rand < 5:
-								self.tilemap[y][x] = tl.tlist['local'][0]
-
-							elif rand > 4 and rand < 10:
-								
-								numbers =(-2,2)
-								
-								for yy in numbers:
-									for xx in numbers:
-										try:
-											
-											if self.tilemap[y+yy][x+xx].techID == tl.tlist['local'][0].techID:#this is grass
-											
-												coin = random.randint(0,1)
-												
-												if coin == 1:
-													replace = self.tilemap[y+yy][x+xx]
-													self.tilemap[y+yy][x+xx] = deepcopy(tl.tlist['local'][15])
-													self.tilemap[y+yy][x+xx].replace = replace
-										except:
-											None
-							
-							else:
-								
-								replace = self.tilemap[y][x].replace
-								self.tilemap[y][x] = deepcopy(tl.tlist['local'][15])#let flowering herb lose it flowers
-								self.tilemap[y][x].replace = replace
 						
 						#4. Blue Mushrooms
 						
-						if tile.techID == tl.tlist['misc'][6].techID: #let grow new mushrooms and let the old ones die(5%)
+						if tile.grow_group == 'mushroom_mud':
 							
 							rand = random.randint(0,99)
 							
@@ -2995,16 +2995,14 @@ class map():
 												
 												if cent < 25 :
 													replace = self.tilemap[y+yy][x+xx]
-													self.tilemap[y+yy][x+xx] = deepcopy(tl.tlist['misc'][6])
+													self.tilemap[y+yy][x+xx] = deepcopy(tl.tlist[tile.conected_tiles[0]][tile.conected_tiles[1]])
 													self.tilemap[y+yy][x+xx].replace = replace
-													
-													self.containers[y][x] = container([deepcopy(il.ilist['food'][1])])
 										except:
 											None
 						
 						#5. Brown Mushrooms
 						
-						if tile.techID == tl.tlist['misc'][7].techID: #let grow new mushrooms and let the old ones die(5%)
+						if tile.grow_group == 'mushroom_treelike':
 							rand = random.randint(0,99)
 							if rand < 5:
 								
@@ -3018,30 +3016,21 @@ class map():
 												
 												if cent < 25 :
 													replace = self.tilemap[y+yy][x+xx]
-													self.tilemap[y+yy][x+xx] = deepcopy(tl.tlist['misc'][7])
+													self.tilemap[y+yy][x+xx] = deepcopy(tl.tlist[tile.conected_tiles[0][0]][tile.conected_tiles[0][1]])
 													self.tilemap[y+yy][x+xx].replace = replace
-													
-													self.containers[y][x] = container([deepcopy(il.ilist['food'][1])])
 													
 										except:
 											None
 							
 							elif rand < 30:#make a giant mushroom
 								
-								self.containers[y][x] = 0 #del container
 								replace = self.tilemap[y][x].replace
-								self.tilemap[y][x] = deepcopy(tl.tlist['misc'][15])
+								self.tilemap[y][x] = deepcopy(tl.tlist[tile.conected_tiles[1][0]][tile.conected_tiles[1][1]])
 								self.tilemap[y][x].replace = replace
-							
-							if tile.techID == tl.tlist['misc'][15].techID:#let a giant mushroom die(5%)
-								
-								rand = random.randint(0,99)
-								if rand < 5:
-									self.tilemap[y][x] = self.tilemap[y][x].replace
 									
 						#6. Purple Mushrooms
 						
-						if tile.techID == tl.tlist['misc'][8].techID: #let grow new mushrooms and let the old ones die(5%)
+						if tile.grow_group == 'mushroom': #let grow new mushrooms and let the old ones die(5%)
 							rand = random.randint(0,99)
 							if rand < 5:
 								
@@ -3055,59 +3044,33 @@ class map():
 												
 												if cent < 25 :
 													replace = self.tilemap[y+yy][x+xx]
-													self.tilemap[y+yy][x+xx] = deepcopy(tl.tlist['misc'][8])
+													self.tilemap[y+yy][x+xx] = deepcopy(tl.tlist[tile.conected_tiles[0]][tile.conected_tiles[1]])
 													self.tilemap[y+yy][x+xx].replace = replace
-													
-													self.containers[y][x] = container([deepcopy(il.ilist['food'][1])])
 												
 										except:
 											None
 											
 						#7. Agriculture
 						
-						if tile.techID == tl.tlist['building'][4].techID: #let something grow on a acriculture (50%)
+						if tile.grow_group == 'agri0':
 							rand = random.randint(0,99)
 							if rand < 50:
 								if self.map_type == 'overworld': 
-									self.tilemap[y][x] = tl.tlist['building'][5]
+									self.tilemap[y][x] = tl.tlist[tile.conected_tiles[0][0]][tile.conected_tiles[0][1]]
 								elif self.map_type == 'cave':
-									self.tilemap[y][x] = tl.tlist['building'][6]
+									self.tilemap[y][x] = tl.tlist[tile.conected_tiles[1][0]][tile.conected_tiles[1][1]]
 									
-						if tile.techID == tl.tlist['building'][5].techID: #let something grow on a acriculture (final, at the overworld) (50%)
+						if tile.grow_group == 'agri1': #let something grow on a acriculture (final, at the overworld) (50%)
 							rand = random.randint(0,99)
 							if rand < 50:
-									self.tilemap[y][x] = tl.tlist['building'][7]
-									self.containers[y][x] = container([deepcopy(il.ilist['food'][6])])	
+									self.tilemap[y][x] = tl.tlist[tile.conected_tiles[0]][tile.conected_tiles[1]]
 						
-						if tile.techID == tl.tlist['building'][6].techID: #let something grow on a acriculture (final, at the caves) (50%)
+						#8. Vanish
+						if tile.grow_group == 'vanish':
 							rand = random.randint(0,99)
 							if rand < 50:
-									self.tilemap[y][x] = tl.tlist['building'][8]	
-									self.containers[y][x] = container([deepcopy(il.ilist['food'][11])])
-						
-						#8. Elfish Agriculture
-						
-						if tile.techID == tl.tlist['elfish'][6].techID: #let something grow on a elfish acriculture (25%)
-							rand = random.randint(0,99)
-							if rand < 25:
-								self.tilemap[y][x] = tl.tlist['elfish'][2]
-								
-						#9. Water Lily
-						
-						if tile.techID == tl.tlist['misc'][10].techID: #let a water lily get a blossom (20%)
-							rand = random.randint(0,99)
-							if rand < 20:
-								self.tilemap[y][x] = tl.tlist['misc'][14]
-								
-						if tile.techID == tl.tlist['misc'][14].techID: #let a water lily lose its blossom (20%)
-							rand = random.randint(0,99)
-							if rand < 20:
-								self.tilemap[y][x] = tl.tlist['misc'][10]
-						
-						#10. Misc
-						if tile.techID == tl.tlist['functional'][5].techID or tile.techID == tl.tlist['functional'][6].techID or tile.techID == tl.tlist['functional'][21].techID: #del remains and stacks
-							self.tilemap[y][x] = self.tilemap[y][x].replace
-							self.containers[y][x] = 0 
+								self.tilemap[y][x] = self.tilemap[y][x].replace
+								self.containers[y][x] = 0
 							
 						#########add other events for growing plants ect here########
 			
@@ -3137,7 +3100,7 @@ class map():
 			for x in range (0,max_map_size):
 				
 				if self.tilemap[y][x].techID == tile.techID:
-					return (x,y)
+					return [x,y]
 		
 		return False
 					
@@ -3176,7 +3139,7 @@ class map():
 				
 				if moveable == True and self.tilemap[y][x].damage == False and self.tilemap[y][x].techID != tl.tlist['misc'][0].techID:
 					cordinates_list.append((x,y))
-					
+						
 		if len(cordinates_list) > 0:
 			return cordinates_list
 				
@@ -3415,6 +3378,8 @@ class world_class():
 			
 			self.border_generator(15)
 			
+			screen.render_load(18)
+			self.desert_generator(20)
 			
 			screen.render_load(5)
 			
@@ -3849,6 +3814,8 @@ class world_class():
 				m.map_type = 'cave'
 			else:
 				m.map_type = 'lava_cave'
+				m.thirst_multi_day = 2
+				m.thirst_multi_night = 2
 			
 			if d > 9:
 				m.exchange(tl.tlist['global_caves'][4],tl.tlist['misc'][2])#exchange lava against hot cave ground
@@ -3895,8 +3862,6 @@ class world_class():
 							replace = m.tilemap[y][x]
 							m.tilemap[y][x] = tl.tlist['misc'][6]
 							m.tilemap[y][x].replace = replace
-							
-							m.containers[y][x] = container([deepcopy(il.ilist['food'][1])])
 					
 					if m.tilemap[y][x].techID == tl.tlist['global_caves'][0].techID:#this is cave ground
 						
@@ -3908,15 +3873,11 @@ class world_class():
 							m.tilemap[y][x] = tl.tlist['misc'][7]
 							m.tilemap[y][x].replace = replace
 							
-							m.containers[y][x] = container([deepcopy(il.ilist['food'][2])])
-							
 						elif cent < 15: #its a chance of 5% that a purple mushroom spawns here
 							
 							replace = m.tilemap[y][x]
 							m.tilemap[y][x] = tl.tlist['misc'][8]
 							m.tilemap[y][x].replace = replace
-							
-							m.containers[y][x] = container([deepcopy(il.ilist['food'][3])])
 			
 			m.set_frame(tl.tlist['functional'][0])
 			
@@ -4021,11 +3982,211 @@ class world_class():
 		
 		m.set_frame(tl.tlist['functional'][0])
 		
+		#set guidepost
+		y = max_map_size -2
+		x = random.randint(2,max_map_size-2)
+		m.tilemap[y][x] = tl.tlist['extra'][6]
+		m.tilemap[y][x].replace = tl.tlist['local'][0]#grass
+		m.tilemap[y-1][x] = tl.tlist['local'][0]#grass
+		
 		m.spawn_monsters(0)
 					
 		self.maplist[0][name] = m
 		
 		return pos
+		
+	def desert_generator(self,chance_object):
+		# chance_scrubs and chance_trees must be between 0 and 99
+		name = 'desert_0_0'
+		
+		tilemap = []
+		for a in range (0,max_map_size):
+			tilemap.append([])
+			for b in range (0,max_map_size):
+				tilemap[a].append(0)
+	
+		m = map(name,tilemap)
+		m.map_type = 'desert'
+		m.build_type = 'Part'
+		m.thirst_multi_day = 2
+		
+		m.fill(tl.tlist['extra'][0])
+		
+		y_river = random.randint((17),(max_map_size-17))
+		river_offset = random.randint(-3,3)
+		plus = 0
+		minus = 0
+		
+		for c in range (0,max_map_size):
+			
+			for g in range (-2,7):
+				m.tilemap[y_river+river_offset+g][c] = tl.tlist['local'][0]#set grass
+				
+			for w in range (0,5):
+				m.tilemap[y_river+river_offset+w][c] = tl.tlist['misc'][0]#set low water
+				
+			if river_offset < 4:
+				plus = 1
+			else:
+				plus = 0
+				
+			if river_offset > -4:
+				minus = -1
+			else:
+				minus = 0
+				
+			offset_change = random.randint(minus,plus)
+			river_offset += offset_change
+			
+		m.exchange_when_surrounded(tl.tlist['misc'][0],tl.tlist['misc'][3],7)
+		
+		for b in range(2,max_map_size-2,10):
+			
+			#north side of the river
+			building_offset =random.randint(0,4)
+			number_beds = 0
+			
+			for y in range(y_river-12,y_river-7):
+				for x in range(b+building_offset,b+building_offset+5):
+					
+					if x == b+building_offset or x == b+building_offset+4:
+						if y == y_river-10:
+							m.tilemap[y][x] = deepcopy(tl.tlist['extra'][9])
+						else:
+							m.tilemap[y][x] = deepcopy(tl.tlist['extra'][2])
+					elif y == y_river-12 or y == y_river-8:
+						if x == b+building_offset+2:
+							m.tilemap[y][x] = deepcopy(tl.tlist['extra'][9])
+						else:
+							m.tilemap[y][x] = deepcopy(tl.tlist['extra'][2])
+					else:
+						m.tilemap[y][x] = deepcopy(tl.tlist['extra'][1])
+						
+					if x == b+building_offset+1 or x == b+building_offset+3:
+						if y == y_river-11 or y == y_river-9:
+							
+							obj_here = random.randint(0,2) #0: nothing, 1:bed 2:workbench
+							
+							if number_beds == 0:
+								obj_here = 1
+								
+							if obj_here != 0:
+								if obj_here == 1:
+									obj = ('functional',8)
+									number_beds += 1
+								else:
+									ran = random.randint(9,15)
+									obj = ('functional',ran)
+								
+								m.tilemap[y][x] = deepcopy(tl.tlist[obj[0]][obj[1]])
+								m.tilemap[y][x].replace = deepcopy(tl.tlist['extra'][1])
+								m.tilemap[y][x].civilisation = False
+								m.tilemap[y][x].build_here = False
+								m.tilemap[y][x].move_group = 'house'
+							
+			#south side of the river			
+			building_offset =random.randint(0,4)
+			number_beds = 0
+			
+			for y in range(y_river+8,y_river+13):
+				for x in range(b+building_offset,b+building_offset+5):
+					
+					if x == b+building_offset or x == b+building_offset+4:
+						if y == y_river+10:
+							m.tilemap[y][x] = deepcopy(tl.tlist['extra'][9])
+						else:
+							m.tilemap[y][x] = deepcopy(tl.tlist['extra'][2])
+					elif y == y_river+12 or y == y_river+8:
+						if x == b+building_offset+2:
+							m.tilemap[y][x] = deepcopy(tl.tlist['extra'][9])
+						else:
+							m.tilemap[y][x] = deepcopy(tl.tlist['extra'][2])
+					else:
+						m.tilemap[y][x] = deepcopy(tl.tlist['extra'][1])
+		
+					if x == b+building_offset+1 or x == b+building_offset+3:
+						if y == y_river+9 or y == y_river+11:
+							
+							obj_here = random.randint(0,2) #0: nothing, 1:bed 2:workbench
+							
+							if number_beds == 0:
+								obj_here = 1
+								
+							if obj_here != 0:
+								if obj_here == 1:
+									obj = ('functional',8)
+									number_beds += 1
+								else:
+									ran = random.randint(9,15)
+									obj = ('functional',ran)
+								
+								m.tilemap[y][x] = deepcopy(tl.tlist[obj[0]][obj[1]])
+								m.tilemap[y][x].replace = deepcopy(tl.tlist['extra'][1])
+								m.tilemap[y][x].civilisation = False
+								m.tilemap[y][x].build_here = False
+								m.tilemap[y][x].move_group = 'house'
+		
+		make_bridges = True
+		num_bridges = 0
+		num_bridges_max = ((max_map_size/50)*3)+1
+		
+		while num_bridges < num_bridges_max:
+			x_pos = random.randint(5,max_map_size-5)
+				
+			num_wall = 0
+				
+			for test in range(0,max_map_size):
+				if m.tilemap[test][x_pos].techID == tl.tlist['extra'][2].techID:
+					num_wall += 1
+				
+			if num_wall == 0:
+				num_bridges += 1
+				for y in range(0,max_map_size):
+					if m.tilemap[y][x_pos].techID == tl.tlist['misc'][0].techID or m.tilemap[y][x_pos].techID == tl.tlist['misc'][3].techID: #this is low wather or deep water
+						replace = deepcopy(m.tilemap[y][x_pos])
+						m.tilemap[y][x_pos] = deepcopy(tl.tlist['extra'][8])
+						m.tilemap[y][x_pos].replace = replace
+				
+		for y in range (0,max_map_size):
+			for x in range (0,max_map_size): 
+				if m.tilemap[y][x].techID == tl.tlist['extra'][0].techID:
+					chance = random.randint(0,99)
+					if chance < chance_object:
+						obj_numbers = (3,4,5,14)
+						coin = random.randint(0,len(obj_numbers)-1)
+						m.tilemap[y][x] = tl.tlist['extra'][obj_numbers[coin]]
+						m.tilemap[y][x].replace = tl.tlist['extra'][0]#sand
+				elif m.tilemap[y][x].techID == tl.tlist['local'][0].techID:
+					chance = random.randint(0,99)
+					if chance < chance_object:
+						coin = random.randint(10,13)
+						m.tilemap[y][x] = tl.tlist['extra'][coin]
+						m.tilemap[y][x].replace = tl.tlist['local'][0]#grass
+				elif m.tilemap[y][x].techID == tl.tlist['extra'][9].techID:
+					for yy in range(y-1,y+2):
+						if m.tilemap[yy][x].replace != None:
+							m.tilemap[yy][x] = m.tilemap[yy][x].replace
+					for xx in range(x-1,x+2):
+						if m.tilemap[y][xx].replace != None:
+							m.tilemap[y][xx] = m.tilemap[y][xx].replace
+						
+				if m.tilemap[y][x].techID == tl.tlist['functional'][8].techID:#bed
+					ran = random.randint(5,6)
+					m.npcs[y][x] = deepcopy(ml.mlist['special'][ran])
+					
+		
+		m.set_frame(tl.tlist['functional'][0])
+		
+		#set guidepost
+		y = 2
+		x = random.randint(2,max_map_size-2)
+		m.tilemap[y][x] = tl.tlist['extra'][7]
+		m.tilemap[y][x].replace = tl.tlist['extra'][0]#sand
+		m.tilemap[y+1][x] = tl.tlist['extra'][0]#sand
+		
+		m.spawn_monsters(0)
+					
+		self.maplist[0][name] = m
 		
 	def choose_size(self):
 		#this is a all in one function with render, choose and set
@@ -4114,7 +4275,7 @@ class mob():
 		
 		mc = self.move_check(x,y)
 		tile_move_group = world.maplist[self.pos[2]][self.on_map].tilemap[self.pos[1]+y][self.pos[0]+x].move_group
-		player_move_groups = ['soil','low_liquid','holy','shop']
+		player_move_groups = ['soil','low_liquid','holy','shop','house']
 		
 		swim_check = True
 		
@@ -4330,13 +4491,19 @@ class mob():
 		elif world.maplist[self.pos[2]][self.on_map].tilemap[self.pos[1]][self.pos[0]].use_group == 'resource':
 			res = world.maplist[self.pos[2]][self.on_map].tilemap[self.pos[1]][self.pos[0]].conected_resources[0]
 			num = world.maplist[self.pos[2]][self.on_map].tilemap[self.pos[1]][self.pos[0]].conected_resources[1]
-			conected_tile = world.maplist[self.pos[2]][self.on_map].tilemap[self.pos[1]][self.pos[0]].conected_tiles[0]
+			try:
+				conected_tile = world.maplist[self.pos[2]][self.on_map].tilemap[self.pos[1]][self.pos[0]].conected_tiles[0]
+			except:
+				None
 			test = player.inventory.materials.add(res,num)
 			if test != 'Full!':
 				message.add(test)
 				replace = world.maplist[self.pos[2]][self.on_map].tilemap[self.pos[1]][self.pos[0]].replace
-				world.maplist[self.pos[2]][self.on_map].tilemap[self.pos[1]][self.pos[0]] = deepcopy(tl.tlist[conected_tile[0]][conected_tile[1]])
-				world.maplist[self.pos[2]][self.on_map].tilemap[self.pos[1]][self.pos[0]].replace = replace
+				try:
+					world.maplist[self.pos[2]][self.on_map].tilemap[self.pos[1]][self.pos[0]] = deepcopy(tl.tlist[conected_tile[0]][conected_tile[1]])
+					world.maplist[self.pos[2]][self.on_map].tilemap[self.pos[1]][self.pos[0]].replace = replace
+				except:
+					world.maplist[self.pos[2]][self.on_map].tilemap[self.pos[1]][self.pos[0]] = replace
 			else:
 				message.add(test)
 				
@@ -4348,6 +4515,10 @@ class mob():
 				screen.render_load(12)
 				time.tick()
 				player.attribute.tiredness += 5
+				if player.buffs.adrenalised_max > 0:
+					player.buffs.adrenalised_max -= 5
+				elif player.buffs.adrenalised_max < 0:
+					player.buffs.adrenalised_max = 0
 				
 				if player.attribute.tiredness >= player.attribute.tiredness_max:#wake up because you've slept enough
 					player.attribute.tiredness = player.attribute.tiredness_max +1 #the +1 is because the player will lose one point at the same round so you would get just 99%
@@ -4371,84 +4542,32 @@ class mob():
 				if monster_test == True:#wake up because a monster borders the players sleep
 					message.add('You wake up with a sense of danger.')
 					sleep = False
+		
+		elif world.maplist[self.pos[2]][self.on_map].tilemap[self.pos[1]][self.pos[0]].use_group == 'gather':
+			help_container = container([world.maplist[self.pos[2]][self.on_map].tilemap[self.pos[1]][self.pos[0]].conected_items])
+			item_name = help_container.items[0].name
+			test_loot = help_container.loot(0)
+			if test_loot == True:
+				string = '+[' + item_name + ']'
+				message.add(string)
+				world.maplist[self.pos[2]][self.on_map].tilemap[self.pos[1]][self.pos[0]] = world.maplist[self.pos[2]][self.on_map].tilemap[self.pos[1]][self.pos[0]].replace
+			else:
+				message.add('Your inventory is full!')
 				
-		elif world.maplist[self.pos[2]][self.on_map].tilemap[self.pos[1]][self.pos[0]].techID == tl.tlist['local'][2].techID: #this is a scrub whit red berrys 
-			test = world.maplist[self.pos[2]][self.on_map].containers[self.pos[1]][self.pos[0]].loot(0) #give player a berry
-			if test == True:
-				message.add('You gater some red berries.')
-				replace = world.maplist[self.pos[2]][self.on_map].tilemap[self.pos[1]][self.pos[0]].replace# set a scrub without berrys here
-				world.maplist[self.pos[2]][self.on_map].tilemap[self.pos[1]][self.pos[0]] = tl.tlist['local'][1]
+		elif world.maplist[self.pos[2]][self.on_map].tilemap[self.pos[1]][self.pos[0]].use_group == 'gather_scrub':
+			help_container = container([world.maplist[self.pos[2]][self.on_map].tilemap[self.pos[1]][self.pos[0]].conected_items])
+			item_name = help_container.items[0].name
+			test_loot = help_container.loot(0)
+			if test_loot == True:
+				string = 'You take ' + item_name + '.'
+				message.add(string)
+				cat = world.maplist[self.pos[2]][self.on_map].tilemap[self.pos[1]][self.pos[0]].conected_tiles[1][0]
+				num = world.maplist[self.pos[2]][self.on_map].tilemap[self.pos[1]][self.pos[0]].conected_tiles[1][1]
+				replace = world.maplist[self.pos[2]][self.on_map].tilemap[self.pos[1]][self.pos[0]].replace
+				world.maplist[self.pos[2]][self.on_map].tilemap[self.pos[1]][self.pos[0]] = tl.tlist[cat][num]
 				world.maplist[self.pos[2]][self.on_map].tilemap[self.pos[1]][self.pos[0]].replace = replace
-				world.maplist[self.pos[2]][self.on_map].containers[self.pos[1]][self.pos[0]] = 0 #del the container
 			else:
-				message.add('Your inventory is full.')
-		
-		elif world.maplist[self.pos[2]][self.on_map].tilemap[self.pos[1]][self.pos[0]].techID == tl.tlist['local'][17].techID: #this is a scrub whit blue berrys 
-			test = world.maplist[self.pos[2]][self.on_map].containers[self.pos[1]][self.pos[0]].loot(0) #give player a berry
-			if test == True:
-				message.add('You gater some blue berries.')
-				replace = world.maplist[self.pos[2]][self.on_map].tilemap[self.pos[1]][self.pos[0]].replace# set a scrub without berrys here
-				world.maplist[self.pos[2]][self.on_map].tilemap[self.pos[1]][self.pos[0]] = tl.tlist['local'][1]
-				world.maplist[self.pos[2]][self.on_map].tilemap[self.pos[1]][self.pos[0]].replace = replace
-				world.maplist[self.pos[2]][self.on_map].containers[self.pos[1]][self.pos[0]] = 0 #del the container
-			else:
-				message.add('Your inventory is full.')
-				
-		elif world.maplist[self.pos[2]][self.on_map].tilemap[self.pos[1]][self.pos[0]].techID == tl.tlist['local'][18].techID: #this is a scrub whit yellow berrys 
-			test = world.maplist[self.pos[2]][self.on_map].containers[self.pos[1]][self.pos[0]].loot(0) #give player a berry
-			if test == True:
-				message.add('You gater some yellow berries.')
-				replace = world.maplist[self.pos[2]][self.on_map].tilemap[self.pos[1]][self.pos[0]].replace# set a scrub without berrys here
-				world.maplist[self.pos[2]][self.on_map].tilemap[self.pos[1]][self.pos[0]] = tl.tlist['local'][1]
-				world.maplist[self.pos[2]][self.on_map].tilemap[self.pos[1]][self.pos[0]].replace = replace
-				world.maplist[self.pos[2]][self.on_map].containers[self.pos[1]][self.pos[0]] = 0 #del the container
-			else:
-				message.add('Your inventory is full.')
-			
-		elif world.maplist[self.pos[2]][self.on_map].tilemap[self.pos[1]][self.pos[0]].techID == tl.tlist['misc'][6].techID: #this is a blue mushroom
-			test = world.maplist[self.pos[2]][self.on_map].containers[self.pos[1]][self.pos[0]].loot(0) #give player a blue mushroom
-			if test == True:
-				message.add('You gater a blue mushroom.')
-				world.maplist[self.pos[2]][self.on_map].tilemap[self.pos[1]][self.pos[0]] = world.maplist[self.pos[2]][self.on_map].tilemap[self.pos[1]][self.pos[0]].replace#del the mushroom
-				world.maplist[self.pos[2]][self.on_map].containers[self.pos[1]][self.pos[0]] = 0 #del the container
-			else:
-				message.add('Your inventory is full.')
-		
-		elif world.maplist[self.pos[2]][self.on_map].tilemap[self.pos[1]][self.pos[0]].techID == tl.tlist['misc'][7].techID: #this is a brown mushroom
-			test = world.maplist[self.pos[2]][self.on_map].containers[self.pos[1]][self.pos[0]].loot(0) #give player a brown mushroom
-			if test == True:
-				message.add('You gater a brown mushroom.')
-				world.maplist[self.pos[2]][self.on_map].tilemap[self.pos[1]][self.pos[0]] = world.maplist[self.pos[2]][self.on_map].tilemap[self.pos[1]][self.pos[0]].replace#del the mushroom
-				world.maplist[self.pos[2]][self.on_map].containers[self.pos[1]][self.pos[0]] = 0 #del the container
-			else:
-				message.add('Your inventory is full.')
-		
-		elif world.maplist[self.pos[2]][self.on_map].tilemap[self.pos[1]][self.pos[0]].techID == tl.tlist['misc'][8].techID: #this is a purple mushroom
-			test = world.maplist[self.pos[2]][self.on_map].containers[self.pos[1]][self.pos[0]].loot(0) #give player a purple mushroom
-			if test == True:
-				message.add('You gater a purple mushroom.')
-				world.maplist[self.pos[2]][self.on_map].tilemap[self.pos[1]][self.pos[0]] = world.maplist[self.pos[2]][self.on_map].tilemap[self.pos[1]][self.pos[0]].replace#del the mushroom
-				world.maplist[self.pos[2]][self.on_map].containers[self.pos[1]][self.pos[0]] = 0 #del the container
-			else:
-				message.add('Your inventory is full.')
-		
-		elif world.maplist[self.pos[2]][self.on_map].tilemap[self.pos[1]][self.pos[0]].techID == tl.tlist['building'][7].techID: #this are some crops
-			test = world.maplist[self.pos[2]][self.on_map].containers[self.pos[1]][self.pos[0]].loot(0) #give player crops
-			if test == True:
-				message.add('You harvest some crops.')
-				world.maplist[self.pos[2]][self.on_map].tilemap[self.pos[1]][self.pos[0]] = tl.tlist['building'][4]#del the crops
-				world.maplist[self.pos[2]][self.on_map].containers[self.pos[1]][self.pos[0]] = 0 #del the container
-			else:
-				message.add('Your inventory is full.')
-		
-		elif world.maplist[self.pos[2]][self.on_map].tilemap[self.pos[1]][self.pos[0]].techID == tl.tlist['building'][8].techID: #this is a agriculture mushroom
-			test = world.maplist[self.pos[2]][self.on_map].containers[self.pos[1]][self.pos[0]].loot(0) #give player a cult. mushroom
-			if test == True:
-				message.add('You harvest a cultivated mushroom.')
-				world.maplist[self.pos[2]][self.on_map].tilemap[self.pos[1]][self.pos[0]] = tl.tlist['building'][4]#del the cult.mushroom
-				world.maplist[self.pos[2]][self.on_map].containers[self.pos[1]][self.pos[0]] = 0 #del the container
-			else:
-				message.add('Your inventory is full.')
+				message.add('Your inventory is full!')
 				
 		elif world.maplist[self.pos[2]][self.on_map].tilemap[self.pos[1]][self.pos[0]].use_group == 'carpenter': 
 			#this is a carpenter's workbench
@@ -4981,41 +5100,23 @@ class mob():
 					
 					run = False
 		
-		elif world.maplist[self.pos[2]][self.on_map].tilemap[self.pos[1]][self.pos[0]].techID == tl.tlist['misc'][9].techID: #this is a lost gem
-			
-			if player.inventory.materials.gem < player.inventory.materials.gem_max:
-				world.maplist[self.pos[2]][self.on_map].tilemap[self.pos[1]][self.pos[0]] = world.maplist[self.pos[2]][self.on_map].tilemap[self.pos[1]][self.pos[0]].replace
-				player.inventory.materials.gem += 1
-				message.add('You take the gem.')
-			else:
-				message.add('Your bags are already full of gems.')
+		elif world.maplist[self.pos[2]][self.on_map].tilemap[self.pos[1]][self.pos[0]].use_group == 'go_desert':
+			pos = world.maplist[self.pos[2]]['desert_0_0'].find_first(tl.tlist['extra'][7])
+			pos[1] += 1
+			player.pos[0] = pos[0]
+			player.pos[1] = pos[1]
+			player.pos[2] = 0#only to be sure
+			player.on_map = 'desert_0_0'
+			player.stand_check()
 		
-		elif world.maplist[self.pos[2]][self.on_map].tilemap[self.pos[1]][self.pos[0]].techID == tl.tlist['misc'][11].techID: #this is some lost ore
-			
-			if player.inventory.materials.ore < player.inventory.materials.ore_max:
-				world.maplist[self.pos[2]][self.on_map].tilemap[self.pos[1]][self.pos[0]] = world.maplist[self.pos[2]][self.on_map].tilemap[self.pos[1]][self.pos[0]].replace
-				player.inventory.materials.ore += 1
-				message.add('You take the ore.')
-			else:
-				message.add('Your bags are already full of ore.')
-		
-		elif world.maplist[self.pos[2]][self.on_map].tilemap[self.pos[1]][self.pos[0]].techID == tl.tlist['misc'][13].techID: #this is a water lily with blossom
-			
-			if player.inventory.materials.herb < player.inventory.materials.herb_max:
-				world.maplist[self.pos[2]][self.on_map].tilemap[self.pos[1]][self.pos[0]] = tl.tlist['misc'][10]
-				player.inventory.materials.herb += 1
-				message.add('You put the blossom in your herbs bag.')
-			else:
-				message.add('Your bags are already full of herbs.')
-		
-		elif world.maplist[self.pos[2]][self.on_map].tilemap[self.pos[1]][self.pos[0]].techID == tl.tlist['elfish'][2].techID: #this is a elfish agriculture
-			
-			if player.inventory.materials.seeds < player.inventory.materials.seeds_max:
-				world.maplist[self.pos[2]][self.on_map].tilemap[self.pos[1]][self.pos[0]] = tl.tlist['elfish'][6]
-				player.inventory.materials.seeds += 1
-				message.add('You gather some seeds.')
-			else:
-				message.add('Your bags are already full of seeds.')
+		elif world.maplist[self.pos[2]][self.on_map].tilemap[self.pos[1]][self.pos[0]].use_group == 'return_desert':
+			pos = world.maplist[self.pos[2]]['local_0_0'].find_first(tl.tlist['extra'][6])
+			pos[1] -= 1
+			player.pos[0] = pos[0]
+			player.pos[1] = pos[1]
+			player.pos[2] = 0#only to be sure
+			player.on_map = 'local_0_0'
+			player.stand_check()
 								
 		elif world.maplist[self.pos[2]][self.on_map].containers[self.pos[1]][self.pos[0]] != 0:#interaction with a container eg.: a chest
 			
@@ -5383,6 +5484,11 @@ class player_class(mob):
 							
 								if world.maplist[i]['local_0_0'].npcs[y][x] != 0:
 									world.maplist[i]['local_0_0'].npcs[y][x].AI_style = 'ignore'
+								try:	
+									if world.maplist[i]['desert_0_0'].npcs[y][x] != 0:
+										world.maplist[i]['desert_0_0'].npcs[y][x].AI_style = 'ignore'
+								except:
+									None
 					
 			###############
 			mob.__init__(self, name, on_map, attribute, pos)
@@ -5455,8 +5561,11 @@ class player_class(mob):
 			
 		if ui == 'b':
 			if screen.fire_mode == 0:
-				self.built()
-				time.tick()
+				if world.maplist[self.pos[2]][self.on_map].build_type != 'None':
+					self.built()
+					time.tick()
+				else:
+					message.add('You can\'t build here!')
 		
 		if ui == 'f':
 			if screen.fire_mode == 0:
@@ -5594,7 +5703,10 @@ class player_class(mob):
 					style = 'Door'
 					
 				elif style == 'Door':
-					style = 'Stair up'
+					if world.maplist[self.pos[2]][self.on_map].build_type != 'Part':
+						style = 'Stair up'
+					else:
+						style = 'Agriculture'
 					
 				elif style == 'Stair up':
 					style = 'Stair down'
@@ -5805,11 +5917,11 @@ class player_class(mob):
 			bodypart = world.maplist[self.pos[2]][self.on_map].npcs[y][x].attack_were[random.randint(0,len(world.maplist[self.pos[2]][self.on_map].npcs[y][x].attack_were))-1]
 			
 			monster_strange  = 0
-			for i in range(0,world.maplist[self.pos[2]][self.on_map].npcs[y][x].basic_attribute.p_strange + self.pos[2]):
+			for i in range(0,world.maplist[self.pos[2]][self.on_map].npcs[y][x].basic_attribute.p_strange):
 				 monster_strange += random.randint(1,6)
 				 
 			player_defense = 0
-			for j in range(0,self.attribute.p_defense + self.inventory.wearing[bodypart].attribute.p_defense + self.lvl):
+			for j in range(0,self.attribute.p_defense + self.inventory.wearing[bodypart].attribute.p_defense):
 				player_defense += random.randint(1,6)
 			
 			if monster_strange >= player_defense:
@@ -5861,11 +5973,11 @@ class player_class(mob):
 		elif world.maplist[self.pos[2]][self.on_map].npcs[y][x].behavior == 'attack_magic' or random_attack == 'magic':
 			
 			monster_strange = 0
-			for i in range(world.maplist[self.pos[2]][self.on_map].npcs[y][x].basic_attribute.m_strange + self.pos[2]):
+			for i in range(world.maplist[self.pos[2]][self.on_map].npcs[y][x].basic_attribute.m_strange):
 				monster_strange += random.randint(1,6)
 				
 			player_defense = 0
-			for j in range(0,player.attribute.p_defense + player.inventory.wearing['Neck'].attribute.m_defense + self.inventory.wearing['Hand'].attribute.m_defense + self.pos[2]):
+			for j in range(0,player.attribute.p_defense + player.inventory.wearing['Neck'].attribute.m_defense + self.inventory.wearing['Hand'].attribute.m_defense):
 				player_defense += random.randint(1,6)
 			
 			if monster_strange >= player_defense:
@@ -5936,17 +6048,12 @@ class player_class(mob):
 		
 		if style == 'magic':
 			
-			bonus = 0
-			
-			if world.maplist[self.pos[2]][self.on_map].npcs[y][x].basic_attribute.m_defense != 0:
-				bonus = self.pos[2] #the levelbonus for monsters == the deep of the level were they spawn
-			
 			player_strange = 0
 			for i in range(0,self.attribute.m_strange + self.inventory.wearing['Hold(L)'].attribute.m_strange + self.lvl):
 				player_strange += random.randint(1,6)
 				
 			monster_defense = 0
-			for j in range(0,world.maplist[self.pos[2]][self.on_map].npcs[y][x].basic_attribute.m_defense + bonus):
+			for j in range(0,world.maplist[self.pos[2]][self.on_map].npcs[y][x].basic_attribute.m_defense):
 				monster_defense += random.randint(1,6)
 			
 			player_luck = self.attribute.luck + self.inventory.wearing['Hand'].attribute.luck +self.inventory.wearing['Neck'].attribute.luck
@@ -6017,17 +6124,12 @@ class player_class(mob):
 				screen.write_hit_matrix(x,y,3)
 		else:
 			
-			bonus = 0
-			
-			if world.maplist[self.pos[2]][self.on_map].npcs[y][x].basic_attribute.p_defense != 0:
-				bonus = self.pos[2] #the levelbonus for monsters == the deep of the level were they spawn
-			
 			player_strange = 0
 			for i in range(0,player.attribute.p_strange + player.inventory.wearing['Hold(R)'].attribute.p_strange):
 				player_strange += random.randint(1,6)
 				
 			monster_defense = 0
-			for i in range(0,world.maplist[self.pos[2]][self.on_map].npcs[y][x].basic_attribute.p_defense + bonus):
+			for i in range(0,world.maplist[self.pos[2]][self.on_map].npcs[y][x].basic_attribute.p_defense):
 				monster_defense += random.randint(1,6)
 			
 			player_luck = self.attribute.luck + self.inventory.wearing['Hand'].attribute.luck +self.inventory.wearing['Neck'].attribute.luck
@@ -6129,6 +6231,7 @@ class player_class(mob):
 		self.pos[2] = 0
 		self.pos[0] = world.startx
 		self.pos[1] = world.starty
+		self.on_map = 'local_0_0'
 		
 		self.xp = 0 #the player always lose all xp on dead
 		self.lp = self.attribute.max_lp
@@ -6172,6 +6275,9 @@ class player_class(mob):
 				os.remove(time_path)
 			except:
 				None
+		
+		self.stand_check()
+		
 			
 class messager():
 	
@@ -6478,14 +6584,22 @@ class inventory():
 		
 		if self.misc[slot] != self.nothing:
 			
-			if self.misc[slot].use_name == 'place':
-			
-				if world.maplist[player.pos[2]][player.on_map].tilemap[player.pos[1]][player.pos[0]].replace == None and world.maplist[player.pos[2]][player.on_map].tilemap[player.pos[1]][player.pos[0]].damage == 0:
+			if self.misc[slot].use_name == 'place' or self.misc[slot].use_name == 'plant':
+				
+				if self.misc[slot].use_name == 'plant':
+					grown_check = world.maplist[player.pos[2]][player.on_map].tilemap[player.pos[1]][player.pos[0]].can_grown
+				else:
+					grown_check = True
+				
+				if world.maplist[player.pos[2]][player.on_map].tilemap[player.pos[1]][player.pos[0]].replace == None and world.maplist[player.pos[2]][player.on_map].tilemap[player.pos[1]][player.pos[0]].damage == 0 and grown_check == True:
 				
 					replace = deepcopy(world.maplist[player.pos[2]][player.on_map].tilemap[player.pos[1]][player.pos[0]])
 					world.maplist[player.pos[2]][player.on_map].tilemap[player.pos[1]][player.pos[0]] = deepcopy(tl.tlist[self.misc[slot].place_cat][self.misc[slot].place_num])
 					world.maplist[player.pos[2]][player.on_map].tilemap[player.pos[1]][player.pos[0]].replace = replace
-					message.add('You placed a %s' %(self.misc[slot].name))
+					if self.misc[slot].use_name == 'plant':
+						message.add('You planted a %s' %(self.misc[slot].name))
+					else:
+						message.add('You placed a %s' %(self.misc[slot].name))
 					if self.misc[slot].name == 'Bomb':
 						world.maplist[player.pos[2]][player.on_map].countdowns.append(countdown('bomb3',player.pos[0],player.pos[1],1))
 					self.misc[slot] = self.nothing
@@ -6795,9 +6909,7 @@ class inventory():
 				player.attribute.thirst = player.attribute.thirst_max+1 #the +1 is because the attribute will fall one point at the same turn
 			
 			
-			player.attribute.tiredness += self.food[slot].satisfy_tiredness
-			if player.attribute.tiredness > player.attribute.tiredness_max:
-				player.attribute.tiredness = player.attribute.tiredness_max+1 #the +1 is because the attribute will fall one point at the same turn
+			player.buffs.set_buff('adrenalised',self.food[slot].satisfy_tiredness)
 			
 			player.lp += self.food[slot].heal
 			if player.lp > player.attribute.max_lp:
@@ -7338,6 +7450,11 @@ class time_class():
 		
 		self.minute += 1
 		
+		if self.hour > 6 and self.hour < 20:
+			thirst_multi = world.maplist[player.pos[2]][player.on_map].thirst_multi_day
+		else:
+			thirst_multi = world.maplist[player.pos[2]][player.on_map].thirst_multi_night
+		
 		if player.buffs.hexed <= 0:
 			change = 1
 		else:
@@ -7349,8 +7466,8 @@ class time_class():
 		if player.attribute.hunger > 0:
 			player.attribute.hunger -= change
 		if player.attribute.thirst > 0:	
-			player.attribute.thirst -= change
-		if player.attribute.tiredness > 0:
+			player.attribute.thirst -= change * thirst_multi
+		if player.attribute.tiredness > 0 and player.buffs.adrenalised <= 0:
 			player.attribute.tiredness -= change
 		
 		if player.attribute.hunger <= 0 or player.attribute.thirst <= 0 or player.attribute.tiredness <= 0:
@@ -7386,7 +7503,7 @@ class time_class():
 				self.day_total +=1
 				self.hour = 0
 				screen.render_load(5)
-				save(world,player,time,gods,basic_path,os.sep)#save the game
+				save(world,player,time,gods,save_path,os.sep)#save the game
 				
 				if self.day > 28:
 						
@@ -7520,10 +7637,10 @@ def main():
 	tl = tilelist()
 	il = itemlist()
 	ml = monsterlist()
-	bgm = bgM()
-	bgm.check_for_song(True)
 	master_loop = True
 	while master_loop:
+		bgm = bgM()
+		bgm.check_for_song(True)
 		screen.render_main_menu()
 		if playing == True:
 			exitgame = False
