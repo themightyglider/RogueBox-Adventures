@@ -155,13 +155,13 @@ class itemlist():
 		t=item_misc(techID, 'Scrub seed', 'plant', 'local', 6)
 		self.ilist['misc'].append(t)
 		techID += 1
-		t=item_misc(techID, 'Sepling', 'plant', 'local', 10)
+		t=item_misc(techID, 'Sapling', 'plant', 'local', 10)
 		self.ilist['misc'].append(t)
 		techID += 1
 		t=item_misc(techID, 'Small cactus', 'plant', 'extra', 3)
 		self.ilist['misc'].append(t)
 		techID += 1
-		t=item_misc(techID, 'Palm sepling', 'plant', 'extra', 10)#50
+		t=item_misc(techID, 'Palm sapling', 'plant', 'extra', 10)#50
 		self.ilist['misc'].append(t)
 		techID += 1
 
