@@ -2498,35 +2498,83 @@ class map():
 						
 						distances.append(c)
 						
-						#III. Choose the right move
+						#III. Choose the right move (or special action)
 					
 					do_move = 'foo'
 					
 					if self.npcs[y][x].AI_style == 'hostile':
 						
-						if distances[0] > 1: #moves[0] is always the position of the monster right now, so distances 0 is always it's distance towards the player
+						if self.npcs[y][x].lp <= 3 and player.lp > 2 and self.npcs[y][x].num_special > 0 :#this is a defensive situation for the monster
 							
-							if len(moves) > 0:#if no move is possible at least the 'move' of stay still must remain
-								good_moves = []
-								for k in range (0, len(moves)):
-									if distances[k] < distances[0]:#if the possible move makes the distance between player and monster smaller
-										good_moves.append(moves[k])
-							else:
-								good_moves = moves
-								
-							if len(good_moves) == 0:
-								good_moves = moves
-								
-							if len(good_moves) > 1:
-								ran = random.randint(0,len(good_moves)-1)
-							else:
-								ran = 0
-								
-							do_move = good_moves[ran]
+							ran = random.randint(0,99)
+							
+							if ran < self.npcs[y][x].def_teleport and self.npcs[y][x].move_done != 1:
+								moves = self.find_all_moveable(ignore_player_pos = False)
+								if moves != False:
+									if len(moves) == 1:
+										pos_num = 0
+									else:
+										pos_num = random.randint(0,len(moves)-1)
+										
+									self.npcs[y][x].move_done = 1
+									self.npcs[y][x].num_special -= 1
+									tp_string = 'A ' + self.npcs[y][x].name + ' teleports.'
+									message.add(tp_string)
+									self.npcs[moves[pos_num][1]][moves[pos_num][0]] = self.npcs[y][x]
+									self.npcs[y][x] = 0
+							
+							ran = random.randint(0,99)
+							if self.npcs[y][x] != 0:		
+								if ran < self.npcs[y][x].def_flee and self.npcs[y][x].move_done != 1:
+									flee_string = 'A ' + self.npcs[y][x].name + ' turns to flee.'
+									message.add(flee_string)
+									self.npcs[y][x].AI_style = 'flee'
+									self.npcs[y][x].move_done = 1
+									self.npcs[y][x].num_special -= 1
+							
+								ran = random.randint(0,99)
 						
-						else:
-							player.monster_attacks(x,y)
-							self.npcs[y][x].move_done = 1#set the move_done switch on
+								if ran < self.npcs[y][x].def_potion and self.npcs[y][x].move_done != 1:
+									if self.npcs[y][x].lp < self.npcs[y][x].basic_attribute.max_lp:
+										potion_string = 'A ' + self.npcs[y][x].name + ' quaffes a potion of healing.'
+										message.add(potion_string)
+										lp = min(self.npcs[y][x].basic_attribute.max_lp, self.npcs[y][x].lp+7)
+										self.npcs[y][x].lp = lp
+										self.npcs[y][x].move_done = 1
+										self.npcs[y][x].num_special -= 1
+									
+						if self.npcs[y][x] != 0:
+							if distances[0] > 1 and self.npcs[y][x].move_done != 1: #moves[0] is always the position of the monster right now, so distances 0 is always it's distance towards the player
+							
+								if x == player.pos[0] or y == player.pos[1]:
+									straight_line = True
+								else:
+									straight_line = False
+							
+								#add ranged combat here
+							
+								if len(moves) > 0:#if no move is possible at least the 'move' of stay still must remain
+									good_moves = []
+									for k in range (0, len(moves)):
+										if distances[k] < distances[0]:#if the possible move makes the distance between player and monster smaller
+											good_moves.append(moves[k])
+								else:
+									good_moves = moves
+								
+								if len(good_moves) == 0:
+									good_moves = moves
+								
+								if len(good_moves) > 1:
+									ran = random.randint(0,len(good_moves)-1)
+								else:
+									ran = 0
+								
+								do_move = good_moves[ran]
+						
+							else:
+								if self.npcs[y][x].move_done != 1:
+									player.monster_attacks(x,y)
+									self.npcs[y][x].move_done = 1#set the move_done switch on
 					
 					elif self.npcs[y][x].AI_style == 'flee':
 						
@@ -2649,7 +2697,7 @@ class map():
 						
 						elif coin < 80: #there is a	chance of 12% to drop a torch:
 							
-							item = deepcoppy(il.ilist['misc'][44])
+							item = deepcopy(il.ilist['misc'][44])
 							
 						else:
 							
@@ -3122,7 +3170,7 @@ class map():
 			ran = random.randint(0,len(found)-1)
 			return found[ran]
 	
-	def find_all_moveable(self,ignore_water = True):
+	def find_all_moveable(self,ignore_water = True,ignore_player_pos = True):
 
 		cordinates_list = []
 		for y in range (0, max_map_size):
@@ -3137,7 +3185,15 @@ class map():
 					if self.tilemap[y][x].move_group == 'soil' or self.tilemap[y][x].move_group == 'low_liquid':
 						moveable = True
 				
-				if moveable == True and self.tilemap[y][x].damage == False and self.tilemap[y][x].techID != tl.tlist['misc'][0].techID:
+				if ignore_player_pos == True:
+					player_pos_check = False
+				else:
+					if x != player.pos[0] and y != player.pos[1]:
+						player_pos_check = False
+					else:
+						player_pos_check = True
+				
+				if moveable == True and self.tilemap[y][x].damage == False and player_pos_check == False:
 					cordinates_list.append((x,y))
 						
 		if len(cordinates_list) > 0:

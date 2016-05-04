@@ -6,24 +6,24 @@ def save_everything(world,player,time,gods,path,sep):
 	
 	name1 = path + sep + 'world.data'
 	
-	f = file(name1, 'w')
+	f = file(name1, 'w+')
 	p.dump(world,f)
 	f.close()
 	
 	name2 = path + sep + 'player.data'
 	
-	f = file(name2, 'w')
+	f = file(name2, 'w+')
 	p.dump(player,f)
 	f.close()
 	
 	name3 = path + sep + 'time.data'
 	
-	f = file(name3, 'w')
+	f = file(name3, 'w+')
 	p.dump(time,f)
 	f.close()
 	
 	name4 = path + sep + 'gods.data'
 	
-	f = file(name4, 'w')
+	f = file(name4, 'w+')
 	p.dump(gods,f)
 	f.close()
