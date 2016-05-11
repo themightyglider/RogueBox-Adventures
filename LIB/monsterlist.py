@@ -49,7 +49,8 @@ class monsterlist():
 				possible_effect = 'poisoned', 
 				effect_duration = 20, 
 				effect_probability = 20, 
-				message = 'Poison runs trough your veins!')
+				message = 'Poison runs trough your veins!',
+				def_flee = 0)
 		techID+=1
 		self.mlist['overworld'].append(m)
 
@@ -109,7 +110,8 @@ class monsterlist():
 				possible_effect = None, 
 				effect_duration = 0, 
 				effect_probability = 0, 
-				message = 'None')
+				message = 'None',
+				def_potion = 0)#set to 20
 		techID+=1
 		self.mlist['overworld'].append(m)
 
@@ -492,7 +494,8 @@ class monsterlist():
 				possible_effect = None, 
 				effect_duration = 0, 
 				effect_probability = 0, 
-				message = 'None')
+				message = 'None',
+				def_teleport = 0)#set to 10
 		techID+=1
 		self.mlist['angry_monster'].append(m)
 		#3
