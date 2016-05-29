@@ -1,6 +1,8 @@
 import pygame
 import time
 import os
+
+key_name = {'e':'e','b':'b','x':'x','f':'f','i':'i','wasd':'w,s,a,d','ws':'w,s'}
 	
 basic_path = os.path.dirname(os.path.realpath('getch.py')) #just get the execution path for resources
 basic_path = basic_path.replace('/LIB','')

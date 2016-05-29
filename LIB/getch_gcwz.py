@@ -9,6 +9,7 @@ pygame.init()
 clock = pygame.time.Clock()
 sfxlist = {'wasd': pygame.mixer.Sound(sfx_path + 'wasd.ogg'), 'e' : pygame.mixer.Sound(sfx_path + 'e.ogg'), 'b' : pygame.mixer.Sound(sfx_path + 'b.ogg'), 'i' : pygame.mixer.Sound(sfx_path + 'i.ogg'), 'x' : pygame.mixer.Sound(sfx_path + 'x.ogg'), 'f' : pygame.mixer.Sound(sfx_path + 'f.ogg')}
 
+key_name = {'e':'A','b':'B','x':'ST','f':'Y','i':'X','wasd':'D-PAD','ws':'D-PAD'}
 
 def getch(x=640,y=360,sfx=0,mode=0,mouse=1):#x,y,mouse > /dev/null
 	
@@ -34,13 +35,13 @@ def getch(x=640,y=360,sfx=0,mode=0,mouse=1):#x,y,mouse > /dev/null
 				if event.key == pygame.K_RIGHT:
 					g='d'
 					
-				if event.key == pygame.K_LALT: #e=b
+				if event.key == pygame.K_LCTRL: #e=a
 					g='e'
 					
 				if event.key == pygame.K_LSHIFT: #x=i
 					g='i'
 				
-				if event.key == pygame.K_LCTRL:  #a=b
+				if event.key == pygame.K_LALT:  #b=b
 					g='b'
 				
 				if event.key == pygame.K_RETURN: #start=x

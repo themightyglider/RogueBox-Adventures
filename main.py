@@ -8,6 +8,7 @@ import os
 low_res = False
 gcwz_input = False
 home_save = False
+force_small_worlds = False
 
 basic_path = os.path.dirname(os.path.realpath('main.py')) #just get the execution path for resources
 
@@ -42,6 +43,9 @@ for t in sys.argv:
 	if t == '-g':
 		gcwz_input = True
 		
+	if t == '-s':
+		force_small_worlds = True
+		
 	if t == '-h':
 		home_save = True
 		
@@ -63,7 +67,7 @@ else:
 	save_path = os.path.expanduser(basic_path) + os.sep + 'SAVE' + os.sep + 'World0'
 playing = False
 sys.path.append(lib_path)
-max_map_size = 202
+max_map_size = 52
 monitor = [0,0]
 
 try:
@@ -175,6 +179,7 @@ class g_screen():
 		
 		if low_res == True:
 			self.screen = pygame.display.set_mode((320,240))
+			pygame.mouse.set_visible(False)
 			self.displayx = 320
 			self.displayy = 240
 		
@@ -182,16 +187,16 @@ class g_screen():
 		
 		font_path = basic_path + os.sep + 'FONT' + os.sep + 'PressStart2P.ttf'
 		self.font = pygame.font.Font(font_path,8)
-		if low_res == False:
-			self.menu_font = self.font
+		
+		if low_res == True:
+			str_ext = '_low_res'
 		else:
-			menu_font_path = basic_path + os.sep + 'FONT' + os.sep + 'DejaVuSansMono-Bold.ttf'
-			self.menu_font = pygame.font.Font(menu_font_path,16)
+			str_ext = ''
 		
 		if show_logo == True:
 			display_path = basic_path +os.sep + 'GRAPHIC' + os.sep + 'DISPLAY' + os.sep
 			ran = random.randint(0,4)
-			i_name = display_path + 'logo' + str(ran) + '.png'
+			i_name = display_path + 'logo' + str(ran) + str_ext + '.png'
 			i = pygame.image.load(i_name)
 			i = pygame.transform.scale(i,(self.displayx,self.displayy))
 			self.screen.blit(i,(0,0))
@@ -199,7 +204,7 @@ class g_screen():
 			getch(640,360,mode=1)
 			
 			display_path = basic_path +os.sep + 'GRAPHIC' + os.sep + 'DISPLAY' + os.sep
-			i_name = display_path + 'lrsf' + '.png'
+			i_name = display_path + 'lrsf' + str_ext + '.png'
 			i = pygame.image.load(i_name)
 			i = pygame.transform.scale(i,(self.displayx,self.displayy))
 			self.screen.blit(i,(0,0))
@@ -239,24 +244,27 @@ class g_screen():
 		s.fill((255,0,255))
 		if low_res == False:
 			start = 0
-			plus = 20
+			plusx = 16
+			plusy = -12
 		else:
 			start = 2
-			plus = -6
+			plusx = -8
+			plusy = -6
+			
 		
 		for y in range(start,len(self.hit_matrix)):
 			for x in range(start,len(self.hit_matrix[0])):
 					
 				if self.hit_matrix[y][x] == 1:
-					s.blit(gra_files.gdic['display'][11],(((x-start)*32)+plus,(y-start)*32))
+					s.blit(gra_files.gdic['display'][11],(((x-start)*32)+plusx,(y-start)*32+plusy))
 				elif self.hit_matrix[y][x] == 2:
-					s.blit(gra_files.gdic['display'][12],(((x-start)*32)+plus,(y-start)*32))
+					s.blit(gra_files.gdic['display'][12],(((x-start)*32)+plusx,(y-start)*32+plusy))
 				elif self.hit_matrix[y][x] == 3:
-					s.blit(gra_files.gdic['display'][13],(((x-start)*32)+plus,(y-start)*32))
+					s.blit(gra_files.gdic['display'][13],(((x-start)*32)+plusx,(y-start)*32+plusy))
 				elif self.hit_matrix[y][x] == 4:
-					s.blit(gra_files.gdic['display'][14],(((x-start)*32)+plus,(y-start)*32))
+					s.blit(gra_files.gdic['display'][14],(((x-start)*32)+plusx,(y-start)*32+plusy))
 				elif self.hit_matrix[y][x] == 5:
-					s.blit(gra_files.gdic['display'][15],(((x-start)*32)+plus,(y-start)*32))
+					s.blit(gra_files.gdic['display'][15],(((x-start)*32)+plusx,(y-start)*32+plusy))
 
 		s.set_colorkey((255,0,255),pygame.RLEACCEL)	
 		s = s.convert_alpha()
@@ -277,7 +285,12 @@ class g_screen():
 		run = True
 		
 		while run:
-			s = pygame.Surface((640,360))
+		
+			if low_res == False: 
+				s = pygame.Surface((640,360))
+			else:
+				s = pygame.Surface((320,240))
+		
 			s.fill((48,48,48))
 			try:
 				i_name = display_path + 'tmp.png'
@@ -291,18 +304,26 @@ class g_screen():
 				i.set_colorkey((255,0,255),pygame.RLEACCEL)
 				i = i.convert_alpha()
 				s.blit(i,(0,0))
-				
-			s.blit(gra_files.gdic['display'][16],(0,0))
+			
+			if low_res == False:	
+				s.blit(gra_files.gdic['display'][16],(0,0))
+			else:	
+				s.blit(gra_files.gdic['display'][22],(0,0))
 			
 			menu_list = ('PLAY','OPTIONS','CREDITS','QUIT')
 			
 			for c in range(0,len(menu_list)):
-				name_image = self.menu_font.render(menu_list[c],1,(0,0,0))
-				s.blit(name_image,(210,145+(c*45)))
-				
-			s.blit(gra_files.gdic['display'][4],(185,138+(num*45)))
+				name_image = self.font.render(menu_list[c],1,(0,0,0))
+				if low_res ==False:
+					s.blit(name_image,(210,145+(c*45)))
+				else:
+					s.blit(name_image,(125,50+(c*45)))
+			if low_res == False:	
+				s.blit(gra_files.gdic['display'][4],(185,138+(num*45)))
+			else:
+				s.blit(gra_files.gdic['display'][4],(100,43+(num*45)))
 			
-			if game_options.mousepad == 0:
+			if game_options.mousepad == 0 and low_res == False:
 				s_h = pygame.Surface((160,360))
 				s_h.fill((48,48,48))
 				s.blit(s_h,(480,0))
@@ -313,7 +334,8 @@ class g_screen():
 			else:
 				s.blit(gra_files.gdic['display'][8],(480,0)) #render mouse pad
 			
-			s = pygame.transform.scale(s,(self.displayx,self.displayy))
+			if low_res == False:
+				s = pygame.transform.scale(s,(self.displayx,self.displayy))
 			
 			self.screen.blit(s,(0,0))
 			
@@ -402,8 +424,8 @@ class g_screen():
 							h = ('world.data','time.data','player.data','gods.data')
 							
 							for i in h:	
-								path = save_path + os.sep + i
-								os.remove(path)
+								p = save_path + os.sep + i
+								os.remove(p)
 					except:
 						None
 						
@@ -511,6 +533,7 @@ class g_screen():
 				distance = ((rx)**2+(ry)**2)**0.5
 				
 				try:
+								
 					t_pos = world.maplist[player.pos[2]][player.on_map].tilemap[y][x].tile_pos
 					t_known = world.maplist[player.pos[2]][player.on_map].known[y][x]
 					t_replace = world.maplist[player.pos[2]][player.on_map].tilemap[y][x].replace
@@ -530,86 +553,135 @@ class g_screen():
 							ran = random.randint(0,1)
 							if world.maplist[player.pos[2]][player.on_map].npcs[y][x].techID == ml.mlist['special'][0].techID or world.maplist[player.pos[2]][player.on_map].npcs[y][x].techID == ml.mlist['special'][1].techID or world.maplist[player.pos[2]][player.on_map].npcs[y][x].techID == ml.mlist['special'][3].techID:
 								#if this is a vase, a monster vase or a sleepng mimic show them like they would be tile ojects
-								s.blit(gra_files.gdic['monster'][pos[1]][pos[0]],(start_pos_x+((x-player.pos[0])*32),start_pos_y+((y-player.pos[1])*32)))
+								sprite_pos = world.maplist[player.pos[2]][player.on_map].npcs[y][x].sprite_pos
+								s.blit(gra_files.gdic['monster'][sprite_pos[1]][sprite_pos[0]],(start_pos_x+((x-player.pos[0])*32),start_pos_y+((y-player.pos[1])*32)))
 								ran = 0
 						
 							if ran == 1:
 								s.blit(gra_files.gdic['display'][7],(start_pos_x+((x-player.pos[0])*32),start_pos_y+((y-player.pos[1])*32)))
 							else:
 								s.blit(gra_files.gdic['display'][6],(start_pos_x+((x-player.pos[0])*32),start_pos_y+((y-player.pos[1])*32)))
-						
-						if round(distance) <= radius+1 or round(distance) >= radius-1:
+						if low_res == False:
+							if round(distance) <= radius+1 or round(distance) >= radius-1:
 							
-							run = True
-							c = 0
+								run = True
+								c = 0
 							
-							while run:
+								while run:
 								
-								try:
-									yy = ((ry*c)/distance)
-								except:
-									yy = 1
+									try:
+										yy = ((ry*c)/distance)
+									except:
+										yy = 1
 						
-								try:
-									xx = ((rx*c)/distance)
-								except:
-									xx = 1
+									try:
+										xx = ((rx*c)/distance)
+									except:
+										xx = 1
 								
-								view_x = int(xx) + player.pos[0]
-								view_y = int(yy) + player.pos[1]
+									view_x = int(xx) + player.pos[0]
+									view_y = int(yy) + player.pos[1]
 								
-								t_pos = world.maplist[player.pos[2]][player.on_map].tilemap[view_y][view_x].tile_pos
-								t_known = world.maplist[player.pos[2]][player.on_map].known[view_y][view_x]
-								t_replace = world.maplist[player.pos[2]][player.on_map].tilemap[view_y][view_x].replace	
+									t_pos = world.maplist[player.pos[2]][player.on_map].tilemap[view_y][view_x].tile_pos
+									t_known = world.maplist[player.pos[2]][player.on_map].known[view_y][view_x]
+									t_replace = world.maplist[player.pos[2]][player.on_map].tilemap[view_y][view_x].replace	
 								
-								if t_known == 1:
-									if t_replace == None:
-										s.blit(gra_files.gdic['tile32'][t_pos[1]][t_pos[0]],(start_pos_x+((view_x-player.pos[0])*32),start_pos_y+((view_y-player.pos[1])*32)))
-									else:
-										#render the replaced tile under the replacing one. eg.: for stacks
-										s.blit(gra_files.gdic['tile32'][t_replace.tile_pos[1]][t_replace.tile_pos[0]],(start_pos_x+((view_x-player.pos[0])*32),start_pos_y+((view_y-player.pos[1])*32)))
-										s.blit(gra_files.gdic['tile32'][t_pos[1]][t_pos[0]],(start_pos_x+((view_x-player.pos[0])*32),start_pos_y+((view_y-player.pos[1])*32)))
-							
-									if world.maplist[player.pos[2]][player.on_map].npcs[view_y][view_x] != 0:#render monsters
-										pos = world.maplist[player.pos[2]][player.on_map].npcs[view_y][view_x].sprite_pos
-										s.blit(gra_files.gdic['monster'][pos[1]][pos[0]],(start_pos_x+((view_x-player.pos[0])*32),start_pos_y+((view_y-player.pos[1])*32)))
-								
-									if view_x == player.pos[0] and view_y == player.pos[1]:
-						
-										skinstring = 'SKIN_' + player.gender + '_' + str(player.style +1)
-										s.blit(gra_files.gdic['char'][skinstring],(start_pos_x+((view_x-player.pos[0])*32),start_pos_y+((view_y-player.pos[1])*32)))
-						
-										if player.inventory.wearing['Head'] == player.inventory.nothing:
-											hairstring = 'HAIR_' + player.gender + '_' + str(player.style +1)
-											s.blit(gra_files.gdic['char'][hairstring],(start_pos_x+((view_x-player.pos[0])*32),start_pos_y+((view_y-player.pos[1])*32)))
+									if t_known == 1:
+										if t_replace == None:
+											s.blit(gra_files.gdic['tile32'][t_pos[1]][t_pos[0]],(start_pos_x+((view_x-player.pos[0])*32),start_pos_y+((view_y-player.pos[1])*32)))
 										else:
-											helmetstring = player.gender + '_' + player.inventory.wearing['Head'].material + '_' + player.inventory.wearing['Head'].classe
-											s.blit(gra_files.gdic['char'][helmetstring],(start_pos_x+((view_x-player.pos[0])*32),start_pos_y+((view_y-player.pos[1])*32)))
+											#render the replaced tile under the replacing one. eg.: for stacks
+											s.blit(gra_files.gdic['tile32'][t_replace.tile_pos[1]][t_replace.tile_pos[0]],(start_pos_x+((view_x-player.pos[0])*32),start_pos_y+((view_y-player.pos[1])*32)))
+											s.blit(gra_files.gdic['tile32'][t_pos[1]][t_pos[0]],(start_pos_x+((view_x-player.pos[0])*32),start_pos_y+((view_y-player.pos[1])*32)))
 							
-										if player.inventory.wearing['Body'] != player.inventory.nothing:
-											armorstring = player.gender + '_' + player.inventory.wearing['Body'].material + '_' + player.inventory.wearing['Body'].classe
-											s.blit(gra_files.gdic['char'][armorstring],(start_pos_x+((view_x-player.pos[0])*32),start_pos_y+((view_y-player.pos[1])*32)))
-									
-										if player.inventory.wearing['Legs'] != player.inventory.nothing:
-											cuissestring = player.gender + '_' + player.inventory.wearing['Legs'].material + '_' + player.inventory.wearing['Legs'].classe
-											s.blit(gra_files.gdic['char'][cuissestring],(start_pos_x+((view_x-player.pos[0])*32),start_pos_y+((view_y-player.pos[1])*32)))
+										if world.maplist[player.pos[2]][player.on_map].npcs[view_y][view_x] != 0:#render monsters
+											pos = world.maplist[player.pos[2]][player.on_map].npcs[view_y][view_x].sprite_pos
+											s.blit(gra_files.gdic['monster'][pos[1]][pos[0]],(start_pos_x+((view_x-player.pos[0])*32),start_pos_y+((view_y-player.pos[1])*32)))
 								
-										if player.inventory.wearing['Feet'] != player.inventory.nothing:
-											shoestring = player.gender + '_' + player.inventory.wearing['Feet'].material + '_' + player.inventory.wearing['Feet'].classe
-											s.blit(gra_files.gdic['char'][shoestring],(start_pos_x+((view_x-player.pos[0])*32),start_pos_y+((view_y-player.pos[1])*32)))
+										if view_x == player.pos[0] and view_y == player.pos[1]:
 						
-										if player.inventory.wearing['Hold(R)'] != player.inventory.nothing:
-											weaponstring = 'WEAPONS_' + player.inventory.wearing['Hold(R)'].material + '_' + player.inventory.wearing['Hold(R)'].classe
-											s.blit(gra_files.gdic['char'][weaponstring],(start_pos_x+((view_x-player.pos[0])*32),start_pos_y+((view_y-player.pos[1])*32)))
+											skinstring = 'SKIN_' + player.gender + '_' + str(player.style +1)
+											s.blit(gra_files.gdic['char'][skinstring],(start_pos_x+((view_x-player.pos[0])*32),start_pos_y+((view_y-player.pos[1])*32)))
+						
+											if player.inventory.wearing['Head'] == player.inventory.nothing:
+												hairstring = 'HAIR_' + player.gender + '_' + str(player.style +1)
+												s.blit(gra_files.gdic['char'][hairstring],(start_pos_x+((view_x-player.pos[0])*32),start_pos_y+((view_y-player.pos[1])*32)))
+											else:
+												helmetstring = player.gender + '_' + player.inventory.wearing['Head'].material + '_' + player.inventory.wearing['Head'].classe
+												s.blit(gra_files.gdic['char'][helmetstring],(start_pos_x+((view_x-player.pos[0])*32),start_pos_y+((view_y-player.pos[1])*32)))
+							
+											if player.inventory.wearing['Body'] != player.inventory.nothing:
+												armorstring = player.gender + '_' + player.inventory.wearing['Body'].material + '_' + player.inventory.wearing['Body'].classe
+												s.blit(gra_files.gdic['char'][armorstring],(start_pos_x+((view_x-player.pos[0])*32),start_pos_y+((view_y-player.pos[1])*32)))
+									
+											if player.inventory.wearing['Legs'] != player.inventory.nothing:
+												cuissestring = player.gender + '_' + player.inventory.wearing['Legs'].material + '_' + player.inventory.wearing['Legs'].classe
+												s.blit(gra_files.gdic['char'][cuissestring],(start_pos_x+((view_x-player.pos[0])*32),start_pos_y+((view_y-player.pos[1])*32)))
+								
+											if player.inventory.wearing['Feet'] != player.inventory.nothing:
+												shoestring = player.gender + '_' + player.inventory.wearing['Feet'].material + '_' + player.inventory.wearing['Feet'].classe
+												s.blit(gra_files.gdic['char'][shoestring],(start_pos_x+((view_x-player.pos[0])*32),start_pos_y+((view_y-player.pos[1])*32)))
+						
+											if player.inventory.wearing['Hold(R)'] != player.inventory.nothing:
+												weaponstring = 'WEAPONS_' + player.inventory.wearing['Hold(R)'].material + '_' + player.inventory.wearing['Hold(R)'].classe
+												s.blit(gra_files.gdic['char'][weaponstring],(start_pos_x+((view_x-player.pos[0])*32),start_pos_y+((view_y-player.pos[1])*32)))
 										
-										if player.inventory.wearing['Hold(L)'] != player.inventory.nothing:
-											weaponstring = 'WEAPONS_' + player.inventory.wearing['Hold(L)'].material + '_' + player.inventory.wearing['Hold(L)'].classe
-											s.blit(gra_files.gdic['char'][weaponstring],(start_pos_x+((view_x-player.pos[0])*32),start_pos_y+((view_y-player.pos[1])*32)))					
+											if player.inventory.wearing['Hold(L)'] != player.inventory.nothing:
+												weaponstring = 'WEAPONS_' + player.inventory.wearing['Hold(L)'].material + '_' + player.inventory.wearing['Hold(L)'].classe
+												s.blit(gra_files.gdic['char'][weaponstring],(start_pos_x+((view_x-player.pos[0])*32),start_pos_y+((view_y-player.pos[1])*32)))					
 										
-								if c >= radius or world.maplist[player.pos[2]][player.on_map].tilemap[view_y][view_x].transparency == False:
-									run = False
+									if c >= radius or world.maplist[player.pos[2]][player.on_map].tilemap[view_y][view_x].transparency == False:
+										run = False
+									else:
+										c+=1
+						
+						elif low_res == True:
+							
+							if round(distance) <= radius:
+								if t_replace == None:
+									s.blit(gra_files.gdic['tile32'][t_pos[1]][t_pos[0]],(start_pos_x+((x-player.pos[0])*32),start_pos_y+((y-player.pos[1])*32)))
 								else:
-									c+=1
+									#render the replaced tile under the replacing one. eg.: for stacks
+									s.blit(gra_files.gdic['tile32'][t_replace.tile_pos[1]][t_replace.tile_pos[0]],(start_pos_x+((x-player.pos[0])*32),start_pos_y+((y-player.pos[1])*32)))
+									s.blit(gra_files.gdic['tile32'][t_pos[1]][t_pos[0]],(start_pos_x+((x-player.pos[0])*32),start_pos_y+((y-player.pos[1])*32)))
+								
+								if world.maplist[player.pos[2]][player.on_map].npcs[y][x] != 0:#render monsters
+											pos = world.maplist[player.pos[2]][player.on_map].npcs[y][x].sprite_pos
+											s.blit(gra_files.gdic['monster'][pos[1]][pos[0]],(start_pos_x+((x-player.pos[0])*32),start_pos_y+((y-player.pos[1])*32)))
+								
+								if x == player.pos[0] and y == player.pos[1]:#problems here
+									skinstring = 'SKIN_' + player.gender + '_' + str(player.style +1)
+									s.blit(gra_files.gdic['char'][skinstring],(start_pos_x+((x-player.pos[0])*32),start_pos_y+((y-player.pos[1])*32)))
+						
+									if player.inventory.wearing['Head'] == player.inventory.nothing:
+										hairstring = 'HAIR_' + player.gender + '_' + str(player.style +1)
+										s.blit(gra_files.gdic['char'][hairstring],(start_pos_x+((x-player.pos[0])*32),start_pos_y+((y-player.pos[1])*32)))
+									else:
+										helmetstring = player.gender + '_' + player.inventory.wearing['Head'].material + '_' + player.inventory.wearing['Head'].classe
+										s.blit(gra_files.gdic['char'][helmetstring],(start_pos_x+((x-player.pos[0])*32),start_pos_y+((y-player.pos[1])*32)))
+							
+									if player.inventory.wearing['Body'] != player.inventory.nothing:
+										armorstring = player.gender + '_' + player.inventory.wearing['Body'].material + '_' + player.inventory.wearing['Body'].classe
+										s.blit(gra_files.gdic['char'][armorstring],(start_pos_x+((x-player.pos[0])*32),start_pos_y+((y-player.pos[1])*32)))
+									
+									if player.inventory.wearing['Legs'] != player.inventory.nothing:
+										cuissestring = player.gender + '_' + player.inventory.wearing['Legs'].material + '_' + player.inventory.wearing['Legs'].classe
+										s.blit(gra_files.gdic['char'][cuissestring],(start_pos_x+((x-player.pos[0])*32),start_pos_y+((y-player.pos[1])*32)))
+								
+									if player.inventory.wearing['Feet'] != player.inventory.nothing:
+										shoestring = player.gender + '_' + player.inventory.wearing['Feet'].material + '_' + player.inventory.wearing['Feet'].classe
+										s.blit(gra_files.gdic['char'][shoestring],(start_pos_x+((x-player.pos[0])*32),start_pos_y+((y-player.pos[1])*32)))
+						
+									if player.inventory.wearing['Hold(R)'] != player.inventory.nothing:
+										weaponstring = 'WEAPONS_' + player.inventory.wearing['Hold(R)'].material + '_' + player.inventory.wearing['Hold(R)'].classe
+										s.blit(gra_files.gdic['char'][weaponstring],(start_pos_x+((x-player.pos[0])*32),start_pos_y+((y-player.pos[1])*32)))
+										
+									if player.inventory.wearing['Hold(L)'] != player.inventory.nothing:
+										weaponstring = 'WEAPONS_' + player.inventory.wearing['Hold(L)'].material + '_' + player.inventory.wearing['Hold(L)'].classe
+										s.blit(gra_files.gdic['char'][weaponstring],(start_pos_x+((x-player.pos[0])*32),start_pos_y+((y-player.pos[1])*32)))					
+										
+							
+							#----------------->go on here
 						
 					elif t_known == 0:
 						s.blit(gra_files.gdic['tile32'][0][3],(start_pos_x+((x-player.pos[0])*32),start_pos_y+((y-player.pos[1])*32)))
@@ -617,7 +689,7 @@ class g_screen():
 						s.blit(gra_files.gdic['tile32'][0][3],(start_pos_x+((x-player.pos[0])*32),start_pos_y+((y-player.pos[1])*32)))
 					
 				except:
-					None	
+					None
 		
 		s.blit(self.render_hits(),(0,0))
 		
@@ -773,7 +845,7 @@ class g_screen():
 		else:
 			return False
 	
-	def render_load(self,num):
+	def render_load(self,num,progress=None):
 		
 		s = pygame.Surface((640,360))
 		
@@ -820,13 +892,29 @@ class g_screen():
 		
 		######add more here
 		
-		posx = 150
-		posy = 200
+		if low_res == False:
+			posx = 150
+			posy = 200
+		else:
+			posx=50
+			posy= 100
 		
-		image = self.menu_font.render(string,1,(255,255,255))
+		image = self.font.render(string,1,(255,255,255))
 		s.blit(image,(posx,posy))
 		
-		s = pygame.transform.scale(s,(self.displayx,self.displayy))
+		if progress != None:
+			s.blit(gra_files.gdic['display'][20],(posx-50,posy+20))
+		
+			help_sur = pygame.Surface((((progress*320)/100),12))
+			help_sur.fill((255,0,255))
+			help_sur.blit(gra_files.gdic['display'][21],(0,0))
+			help_sur.set_colorkey((255,0,255),pygame.RLEACCEL)	
+			help_sur = help_sur.convert_alpha()
+		
+			s.blit(help_sur,(posx-50,posy+20))
+		
+		if low_res == False:
+			s = pygame.transform.scale(s,(self.displayx,self.displayy))
 		
 		self.screen.blit(s,(0,0))
 			
@@ -945,8 +1033,8 @@ class g_screen():
 			
 			# render info line
 			
-			info_string_0 = '[w,a,s,d]ch. Size [b]ch. Mode' 
-			info_string_1 = '[x]Leave [e]BUILT!' 
+			info_string_0 = '['+key_name['wasd']+']ch. Size ['+key_name['b']+']ch. Mode' 
+			info_string_1 = '['+key_name['x']+']Leave ['+key_name['e']+']BUILT!' 
 		
 			posx = 0
 			posy = 30
@@ -1040,8 +1128,8 @@ class g_screen():
 			
 			# render info line
 			
-			info_string_0 = '[w,a,s,d]ch. Size [b]ch. Mode'
-			info_string_1 = '[x]Leave [e]BUILT!' 
+			info_string_0 = '['+key_name['wasd']+']ch. Size ['+key_name['b']+']ch. Mode' 
+			info_string_1 = '['+key_name['x']+']Leave ['+key_name['e']+']BUILT!'
 		
 			posx = 0
 			posy = 30
@@ -1128,8 +1216,8 @@ class g_screen():
 			
 			# render info line
 			
-			info_string_0 = '[w,a,s,d]ch. Pos. [b]ch. Mode'
-			info_string_1 = '[x]Leave [e]BUILT!' 
+			info_string_0 = '['+key_name['wasd']+']ch. Pos. ['+key_name['b']+']ch. Mode' 
+			info_string_1 = '['+key_name['x']+']Leave ['+key_name['e']+']BUILT!'
 		
 			posx = 0
 			posy = 30
@@ -1207,8 +1295,8 @@ class g_screen():
 			
 			# render info line
 			
-			info_string_0 = '[w,a,s,d]ch. Pos. [b]ch. Mode'
-			info_string_1 = '[x]Leave [e]BUILT!' 
+			info_string_0 = '['+key_name['wasd']+']ch. Pos. ['+key_name['b']+']ch. Mode' 
+			info_string_1 = '['+key_name['x']+']Leave ['+key_name['e']+']BUILT!'
 		
 			posx = 0
 			posy = 30
@@ -1288,8 +1376,8 @@ class g_screen():
 			
 			# render info line
 			
-			info_string_0 = '[w,a,s,d]ch. Pos. [b]ch. Mode'
-			info_string_1 = '[x]Leave [e]BUILT!' 
+			info_string_0 = '['+key_name['wasd']+']ch. Pos. ['+key_name['b']+']ch. Mode' 
+			info_string_1 = '['+key_name['x']+']Leave ['+key_name['e']+']BUILT!'
 		
 			posx = 0
 			posy = 30
@@ -1371,8 +1459,8 @@ class g_screen():
 			
 			# render info line
 			
-			info_string_0 = '[w,a,s,d]ch. Size [b]ch. Mode'
-			info_string_1 = '[x]Leave [e]BUILT!' 
+			info_string_0 = '['+key_name['wasd']+']ch. Size ['+key_name['b']+']ch. Mode' 
+			info_string_1 = '['+key_name['x']+']Leave ['+key_name['e']+']BUILT!'
 		
 			posx = 0
 			posy = 30
@@ -1426,8 +1514,8 @@ class g_screen():
 			
 			# render info line
 			
-			info_string_0 = '[w,a,s,d]ch. Size [b]ch. Mode'
-			info_string_1 = '[x]Leave [e]BUILT!' 
+			info_string_0 = '['+key_name['wasd']+']ch. Size ['+key_name['b']+']ch. Mode' 
+			info_string_1 = '['+key_name['x']+']Leave ['+key_name['e']+']REMOVE!'
 		
 			posx = 0
 			posy = 30
@@ -1531,37 +1619,64 @@ class g_screen():
 							m.blit(gra_files.gdic['tile1']['black'],(x,y))
 						else:
 							m.blit(gra_files.gdic['tile1']['black'],(x,y))
-						
-			m = pygame.transform.scale(m,(270,270))
+			if low_res == False:			
+				m = pygame.transform.scale(m,(270,270))
+			else:
+				m = pygame.transform.scale(m,(150,150))
 			
-			s = pygame.Surface((640,360))
-			s.blit(gra_files.gdic['display'][1],(0,0)) #render background
-			if game_options.mousepad == 1:
+			if low_res == False:
+				s = pygame.Surface((640,360))
+			else:
+				s = pygame.Surface((320,240))
+				
+			bg = pygame.Surface((480,360))
+			bg.blit(gra_files.gdic['display'][1],(0,0)) #render background
+			
+			if low_res == True:
+				bg = pygame.transform.scale(bg,(320,240))
+
+			s.blit(bg,(0,0))
+			
+			if game_options.mousepad == 1 and low_res == False:
 				s.blit(gra_files.gdic['display'][8],(480,0)) #render mouse pad
 			else:
 				s_help = pygame.Surface((160,360))
 				s_help.fill((48,48,48))
 				s.blit(s_help,(480,0))
 			
-			text_image = screen.menu_font.render('~*~ Map ~*~        [Press [x] to leave]',1,(255,255,255))
+			text = '~Map~ [Press['+key_name['x']+'] to leave'
+			text_image = screen.font.render(text,1,(255,255,255))
 			s.blit(text_image,(5,2))#menue title
 			
 			lvl_string = 'Level ' + str(level)
-			text_image = screen.menu_font.render(lvl_string,1,(0,0,0))
-			s.blit(text_image,(300,70))
+			text_image = screen.font.render(lvl_string,1,(0,0,0))
 			
-			text_image = screen.menu_font.render('[w] - lvl. up [s] - lvl. down',1,(255,255,255))
-			s.blit(text_image,(5,335))
+			if low_res == False:
+				s.blit(text_image,(300,70))
+			else:
+				s.blit(text_image,(190,50))
 			
-			s.blit(m,(25,55))
+			text = '['+key_name['ws']+'] - lvl up/down'
+			text_image = screen.font.render(text,1,(255,255,255))
+			if low_res == True:
+				s.blit(text_image,(2,225))
+			else:
+				s.blit(text_image,(5,335))
 			
-			if game_options.mousepad == 0:
+			if low_res == False:
+				s.blit(m,(25,55))
+			else:
+				s.blit(m,(10,45))
+			
+			if game_options.mousepad == 0 and low_res == False:
 				s_help = pygame.Surface((640,360))
 				s_help.fill((48,48,48))
 				s_help.blit(s,(80,0))
 				s = s_help
 			
-			s = pygame.transform.scale(s,(self.displayx,self.displayy))
+			if low_res == False:
+				s = pygame.transform.scale(s,(self.displayx,self.displayy))
+			
 			self.screen.blit(s,(0,0))
 			
 			pygame.display.flip()
@@ -1583,32 +1698,52 @@ class g_screen():
 		
 		while run:
 			
-			s = pygame.Surface((640,360))
-			s.blit(gra_files.gdic['display'][1],(0,0)) #render background
-			if game_options.mousepad == 1:
+			if low_res == False:
+				s = pygame.Surface((640,360))
+			else:
+				s = pygame.Surface((320,240))
+				
+			bg = pygame.Surface((480,360))
+			bg.blit(gra_files.gdic['display'][1],(0,0)) #render background
+			
+			if low_res == True:
+				bg = pygame.transform.scale(bg,(320,240))
+
+			s.blit(bg,(0,0))
+			
+			if game_options.mousepad == 1 and low_res == False:
 				s.blit(gra_files.gdic['display'][8],(480,0)) #render mouse pad
 			else:
 				s_help = pygame.Surface((160,360))
 				s_help.fill((48,48,48))
 				s.blit(s_help,(480,0))
 			
-			text_image = screen.menu_font.render('~*~ Credits ~*~        [Press [x] to leave]',1,(255,255,255))
+			text = '~Credits~ [Press ['+key_name['x']+'] to leave]'
+			text_image = screen.font.render(text,1,(255,255,255))
 			s.blit(text_image,(5,2))#menue title
 			
-			credit_items = ('Code & Art: Marian Luck aka Nothing', 'BGM: Yubatake, Avgvsta & RevampedPRO [opengameart.org]' , 'SFX: Little Robot Sound Factory', 'Font: Cody Boisclair', 'GCW-Zero port: cxong', ' ', 'Special Thanks: taknamay & !freegaming@quitter.se')
-		
+			if low_res == False:
+				credit_items = ('Code & Art: Marian Luck aka Nothing', 'BGM: Yubatake, Avgvsta & RevampedPRO [opengameart.org]' , 'SFX: Little Robot Sound Factory', 'Font: Cody Boisclair', 'GCW-Zero port: cxong', ' ', 'Special Thanks: taknamay & !freegaming@quitter.se')
+			else:
+				credit_items = ('Code & Art: Marian Luck aka Nothing', 'BGM: Yubatake, Avgvsta & RevampedPRO' , 'SFX: Little Robot Sound Factory', 'Font: Cody Boisclair', 'GCW-Zero port: cxong', 'Special Thanks: taknamay', '                freegaming@quitter.se')
+				
 			for i in range (0,len(credit_items)):
 			
-				text_image = screen.menu_font.render(credit_items[i],1,(0,0,0))
-				s.blit(text_image,(21,120+i*25))#blit credit_items
+				text_image = screen.font.render(credit_items[i],1,(0,0,0))
+				if low_res == False:
+					s.blit(text_image,(21,120+i*25))#blit credit_items
+				else:
+					s.blit(text_image,(21,46+i*25))#blit credit_items
 			
-			if game_options.mousepad == 0:
+			if game_options.mousepad == 0 and low_res == False:
 				s_help = pygame.Surface((640,360))
 				s_help.fill((48,48,48))
 				s_help.blit(s,(80,0))
 				s = s_help
-				
-			s = pygame.transform.scale(s,(self.displayx,self.displayy))
+			
+			if low_res == False:
+				s = pygame.transform.scale(s,(self.displayx,self.displayy))
+			
 			self.screen.blit(s,(0,0))
 			
 			pygame.display.flip()
@@ -1626,7 +1761,6 @@ class g_screen():
 		
 		while run:
 			
-			s = pygame.Surface((640,360))
 			if low_res == False:
 				if game_options.screenmode == 1:
 					winm = 'Screenmode: Fullscreen'
@@ -1659,34 +1793,54 @@ class g_screen():
 			else:
 				mousem = '----------'
 			
-			s.blit(gra_files.gdic['display'][1],(0,0)) #render background
-		
-			text_image = screen.font.render('~*~ Options ~*~        [Press [e] to choose]',1,(255,255,255))
+			if low_res == False:
+				s = pygame.Surface((640,360))
+			else:
+				s = pygame.Surface((320,240))
+				
+			bg = pygame.Surface((480,360))
+			bg.blit(gra_files.gdic['display'][1],(0,0)) #render background
+			
+			if low_res == True:
+				bg = pygame.transform.scale(bg,(320,240))
+
+			s.blit(bg,(0,0))
+			
+			text = '~Options~ [Press ['+key_name['e']+'] to choose]'
+			text_image = screen.font.render(text,1,(255,255,255))
 			s.blit(text_image,(5,2))#menue title
 		
 			menu_items = (winm,audiom,sfxm,turnm,mousem,'Done')
 		
 			for i in range (0,len(menu_items)):
 			
-				text_image = screen.menu_font.render(menu_items[i],1,(0,0,0))
-				s.blit(text_image,(21,120+i*25))#blit menu_items
+				text_image = screen.font.render(menu_items[i],1,(0,0,0))
+				if low_res == False:
+					s.blit(text_image,(21,120+i*25))#blit menu_items
+				else:
+					s.blit(text_image,(21,46+i*25))#blit menu_items
 			
-			s.blit(gra_files.gdic['display'][4],(0,112+num*25))#blit marker
+			if low_res == False:
+				s.blit(gra_files.gdic['display'][4],(0,112+num*25))#blit marker
+			else:
+				s.blit(gra_files.gdic['display'][4],(0,38+num*25))#blit marker
 		
-			if game_options.mousepad == 1:
+			if game_options.mousepad == 1 and low_res == True:
 				s.blit(gra_files.gdic['display'][8],(480,0)) #render mouse pad
 			else:
 				s_help = pygame.Surface((160,360))
 				s_help.fill((48,48,48))
 				s.blit(s_help,(480,0))
 			
-			if game_options.mousepad == 0:
+			if game_options.mousepad == 0 and low_res == False:
 				s_help = pygame.Surface((640,360))
 				s_help.fill((48,48,48))
 				s_help.blit(s,(80,0))
 				s = s_help
 			
-			s = pygame.transform.scale(s,(self.displayx,self.displayy))
+			if low_res == False:
+				s = pygame.transform.scale(s,(self.displayx,self.displayy))
+			
 			self.screen.blit(s,(0,0))
 			
 			pygame.display.flip()
@@ -1761,36 +1915,53 @@ class g_screen():
 		
 		while run:
 			
-			s = pygame.Surface((640,360))
+			if low_res == False:
+				s = pygame.Surface((640,360))
+			else:
+				s = pygame.Surface((320,240))
+				
+			bg = pygame.Surface((480,360))
+			bg.blit(gra_files.gdic['display'][1],(0,0)) #render background
 			
-			s.blit(gra_files.gdic['display'][1],(0,0)) #render background
-		
-			text_image = screen.menu_font.render('~*~ Game Paused ~*~        [Press [e] to choose]',1,(255,255,255))
+			if low_res == True:
+				bg = pygame.transform.scale(bg,(320,240))
+
+			s.blit(bg,(0,0))
+
+			text = '~Game Paused~ [Press ['+key_name['e']+'] to choose]'
+			text_image = screen.font.render(text,1,(255,255,255))
 			s.blit(text_image,(5,2))#menue title
 		
 			menu_items = ('Resume','Map','Message History','Save and Exit', 'Options',)
 		
 			for i in range (0,len(menu_items)):
 			
-				text_image = screen.menu_font.render(menu_items[i],1,(0,0,0))
-				s.blit(text_image,(21,120+i*25))#blit menu_items
+				text_image = screen.font.render(menu_items[i],1,(0,0,0))
+				if low_res == False:
+					s.blit(text_image,(21,120+i*25))#blit menu_items
+				else:
+					s.blit(text_image,(21,46+i*25))#blit menu_items
 			
-			s.blit(gra_files.gdic['display'][4],(0,112+num*25))#blit marker
+			if low_res == False:
+				s.blit(gra_files.gdic['display'][4],(0,112+num*25))#blit marker
+			else:
+				s.blit(gra_files.gdic['display'][4],(0,38+num*25))#blit marker
 			
-			if game_options.mousepad == 1:
+			if game_options.mousepad == 1 and low_res == True:
 				s.blit(gra_files.gdic['display'][8],(480,0)) #render mouse pad
 			else:
 				s_help = pygame.Surface((160,360))
 				s_help.fill((48,48,48))
 				s.blit(s_help,(480,0))
 				
-			if game_options.mousepad == 0:
+			if game_options.mousepad == 0 and low_res == False:
 				s_help = pygame.Surface((640,360))
 				s_help.fill((48,48,48))
 				s_help.blit(s,(80,0))
 				s = s_help
+			if low_res == False:
+				s = pygame.transform.scale(s,(self.displayx,self.displayy))
 			
-			s = pygame.transform.scale(s,(self.displayx,self.displayy))
 			self.screen.blit(s,(0,0))
 			
 			pygame.display.flip()
@@ -1843,49 +2014,81 @@ class g_screen():
 		
 		while run:
 			
-			s = pygame.Surface((640,360))
+			if low_res == False:
+				s = pygame.Surface((640,360))
+			else:
+				s = pygame.Surface((320,240))
+				
+			bg = pygame.Surface((480,360))
 			
 			if style == 'Default':
-				s.blit(gra_files.gdic['display'][1],(0,0)) #render background
+				bg.blit(gra_files.gdic['display'][1],(0,0)) #render background
 			elif style == 'Warning':
-				s.blit(gra_files.gdic['display'][17],(0,0))
+				bg.blit(gra_files.gdic['display'][17],(0,0))
+				
+			if low_res == True:
+				bg = pygame.transform.scale(bg,(320,240))
+			
+			s.blit(bg,(0,0))
 		
-			text_image = screen.menu_font.render(headline,1,(255,255,255))
-			s.blit(text_image,(5,2))#menue title
+			text_image = screen.font.render(headline,1,(255,255,255))
+			if low_res == False:
+				s.blit(text_image,(5,2))#menue title
+			else:
+				s.blit(text_image,(0,2))#menue title
 		
 			menu_items = choices
 		
 			for i in range (0,len(menu_items)):
 			
-				text_image = screen.menu_font.render(menu_items[i],1,(0,0,0))
-				s.blit(text_image,(21,120+i*25))#blit menu_items
+				text_image = screen.font.render(menu_items[i],1,(0,0,0))
+				if low_res == False:
+					s.blit(text_image,(21,120+i*25))#blit menu_items
+				else:
+					s.blit(text_image,(21,46+i*25))#blit menu_items
 			
 			if allow_chancel == True:
-				text_image = screen.menu_font.render('[e] - choose [x] - leave',1,(255,255,255))
-				s.blit(text_image,(5,335))
+				string = '['+key_name['e']+'] - choose ['+key_name['x']+'] - leave'
+				text_image = screen.font.render(string,1,(255,255,255))
+				if low_res == True:
+					s.blit(text_image,(0,225))
+				else:
+					s.blit(text_image,(5,335))
+				
 			else:
-				text_image = screen.menu_font.render('[e] - choose',1,(255,255,255))
-				s.blit(text_image,(5,335))
+				string = '['+key_name['e']+'] - choose'
+				text_image = screen.font.render(string,1,(255,255,255))
+				if low_res == True:
+					s.blit(text_image,(0,225))
+				else:
+					s.blit(text_image,(5,335))
 			
 			if style == 'Default':
-				s.blit(gra_files.gdic['display'][4],(0,112+num*25))#blit marker
+				if low_res == False:
+					s.blit(gra_files.gdic['display'][4],(0,112+num*25))#blit marker
+				else:
+					s.blit(gra_files.gdic['display'][4],(0,38+num*25))#blit marker
+					
 			elif style == 'Warning':
-				s.blit(gra_files.gdic['display'][18],(0,112+num*25))#blit marker
+				if low_res == False:
+					s.blit(gra_files.gdic['display'][18],(0,112+num*25))#blit marker
+				else:
+					s.blit(gra_files.gdic['display'][18],(0,38+num*25))#blit marker
 			
-			if game_options.mousepad == 1:
+			if game_options.mousepad == 1 and low_res == True:
 				s.blit(gra_files.gdic['display'][8],(480,0)) #render mouse pad
 			else:
 				s_help = pygame.Surface((160,360))
 				s_help.fill((48,48,48))
 				s.blit(s_help,(480,0))
 			
-			if game_options.mousepad == 0:
+			if game_options.mousepad == 0 and low_res == False:
 				s_help = pygame.Surface((640,360))
 				s_help.fill((48,48,48))
 				s_help.blit(s,(80,0))
 				s = s_help
-			
-			s = pygame.transform.scale(s,(screen.displayx,screen.displayy))
+			if low_res == False:
+				s = pygame.transform.scale(s,(screen.displayx,screen.displayy))
 			screen.screen.blit(s,(0,0))
 			
 			pygame.display.flip()
@@ -1917,9 +2120,9 @@ class g_screen():
 		pos = 0
 		x = 0
 		y = 0
-			
+		
 		char_field = (('A','B','C','D','E','F','G','H','a','b','c','d','e','f','g','h'),('I','J','K','L','M','N','O','P','i','j','k','l','m','n','o','p'),('Q','R','S','T','U','V','W','X','q','r','s','t','u','v','w','x'),('Y','Z','y','z','0','1','2','3','4','5','6','7','8','9', '.',','),('(','[','<','{',')',']','>','}','#','+','-','_','*','/','&','%'))
-			
+		
 		while run:
 			
 			s = pygame.Surface((640,360))
@@ -1944,32 +2147,45 @@ class g_screen():
 			s.blit(string_image,(5,35))#string so far
 				
 			for i in range (0,5):#blit chars
-				for j in range (0,16):
+				for j in range (0,len(char_field[1])):
 						
 					if i == y and j == x: 
 						char_image = screen.font.render(char_field[i][j],1,(255,255,255))
 					else:
 						char_image = screen.font.render(char_field[i][j],1,(0,0,0))
-							
-					s.blit(char_image,(55+(j*20),150+(i*20)))
+						
+					if low_res == False:		
+						s.blit(char_image,(55+(j*20),150+(i*20)))
+					else:
+						s.blit(char_image,(5+(j*20),90+(i*20)))
 			
-			if game_options.mousepad == 1:			
+			if game_options.mousepad == 1 and low_res == False:
 				s.blit(gra_files.gdic['display'][8],(480,0)) #render mouse pad
 			else:
 				s_help = pygame.Surface((160,360))
 				s_help.fill((48,48,48))
 				s.blit(s_help,(480,0))
 			
-			text_image = screen.font.render('[e] - Add Char [b] - Done [x] - Reset',1,(255,255,255))
-			s.blit(text_image,(5,335))
+			text = '['+key_name['e']+'] - Add Char ['+key_name['b']+'] - Done ['+key_name['x']+'] - Reset'
+			text_image = screen.font.render(text,1,(255,255,255))
 			
-			if game_options.mousepad == 0:
+			if low_res == False:
+				s.blit(text_image,(5,335))
+			else:
+				help_sur = pygame.Surface((320,16))
+				help_sur.fill((48,48,48))
+				help_sur.blit(text_image,(5,5))
+				s.blit(help_sur,(0,224))
+			
+			if game_options.mousepad == 0 and low_res == False:
 				s_help = pygame.Surface((640,360))
 				s_help.fill((48,48,48))
 				s_help.blit(s,(80,0))
 				s = s_help
 			
-			s = pygame.transform.scale(s,(screen.displayx,screen.displayy))
+			if low_res == False:
+				s = pygame.transform.scale(s,(screen.displayx,screen.displayy))
+			
 			screen.screen.blit(s,(0,0))
 				
 			pygame.display.flip()
@@ -1989,11 +2205,11 @@ class g_screen():
 			if ui == 'a':
 				x -= 1
 				if x < 0:
-					x = 15
+					x = len(char_field[1])-1
 				
 			if ui == 'd':
 				x += 1
-				if x > 15:
+				if x > len(char_field[1])-1:
 					x = 0
 				
 			if ui == 'e':
@@ -2017,35 +2233,49 @@ class g_screen():
 		run = True
 		
 		while run:
-			s = pygame.Surface((640,360))
+			
+			if low_res == False:
+				s = pygame.Surface((640,360))
+			else:
+				s = pygame.Surface((320,240))
 			
 			s.fill((48,48,48)) #paint it grey(to clear the screen)
 		
-			text_image = screen.menu_font.render('YOU ARE DEAD!',1,(255,255,255))
-			s.blit(text_image,(175,60))
+			text_image = screen.font.render('YOU ARE DEAD!',1,(255,255,255))
+			
+			if low_res == False:
+				s.blit(text_image,(175,60))
+			else:
+				s.blit(text_image,(75,60))
 		
 			if player.difficulty == 3: #you play on roguelike mode
-				choose_string = '------------- [x] - END GAME'
+				choose_string = '------------- ['+key_name['x']+'] - END GAME'
 			else:#you play on a other mode
-				choose_string = '[e] - RESPAWN [x] - END GAME'  
+				choose_string = '['+key_name['e']+'] - RESPAWN ['+key_name['x']+'] - END GAME'  
 		
-			choose_image = screen.menu_font.render(choose_string,1,(255,255,255))
-			s.blit(choose_image,(125,200))
+			choose_image = screen.font.render(choose_string,1,(255,255,255))
 			
-			if game_options.mousepad == 1:
+			if low_res == False:
+				s.blit(choose_image,(125,200))
+			else:
+				s.blit(choose_image,(25,200))
+			
+			if game_options.mousepad == 1 and low_res == False:
 				s.blit(gra_files.gdic['display'][8],(480,0)) #render mouse pad
 			else:
 				s_help = pygame.Surface((160,360))
 				s_help.fill((48,48,48))
 				s.blit(s_help,(480,0))
 			
-			if game_options.mousepad == 0:
+			if game_options.mousepad == 0 and low_res == False:
 				s_help = pygame.Surface((640,360))
 				s_help.fill((48,48,48))
 				s_help.blit(s,(80,0))
 				s = s_help
 			
-			s = pygame.transform.scale(s,(screen.displayx,screen.displayy))
+			if low_res == False:
+				s = pygame.transform.scale(s,(screen.displayx,screen.displayy))
+			
 			screen.screen.blit(s,(0,0))
 			
 			pygame.display.flip()
@@ -3405,10 +3635,11 @@ class world_class():
 			
 		except:
 			screen.render_load(2)
-			self.choose_size()
+			if force_small_worlds == False:
+				self.choose_size()
 			self.maplist = []
 		
-			for x in range (0,16):
+			for x in range (0,7):
 				self.maplist.append({})
 				
 			screen.render_load(3)
@@ -3418,23 +3649,23 @@ class world_class():
 			self.startx = pos[0]
 			self.starty = pos[1]
 			
-			screen.render_load(4)
-			self.cave_generator(13)
+			#screen.render_load(4)
+			self.cave_generator(4)
 			
-			screen.render_load(15)
-			self.grot_generator(3)
+			#screen.render_load(15)
+			#self.grot_generator(3)
 			
-			screen.render_load(16)
+			#screen.render_load(16)
 			test = False
 			while test==False:
-				test = self.elfish_generator(6)
+				test = self.elfish_generator(3)
 			
-			screen.render_load(17)
-			self.mine_generator(9)
+			#screen.render_load(17)
+			#self.mine_generator(9)
 			
-			self.border_generator(15)
+			self.border_generator(6)
 			
-			screen.render_load(18)
+			#screen.render_load(18)
 			self.desert_generator(20)
 			
 			screen.render_load(5)
@@ -3555,6 +3786,8 @@ class world_class():
 		
 	def elfish_generator(self,layer):
 		
+		screen.render_load(16,40)
+		
 		map_name = 'local_0_0'
 		m = self.default_map_generator(map_name,'global_caves', tilelist)
 		m.map_type = 'elfish_fortress'
@@ -3571,6 +3804,8 @@ class world_class():
 			if ran < 3:
 				m.imp_connect((0,max_map_size-1),(y-2,y-2),tl.tlist['elfish'][3],tl.tlist['elfish'][1],tl.tlist['elfish'][1])
 				m.imp_connect((0,max_map_size-1),(y+2,y+2),tl.tlist['elfish'][3],tl.tlist['elfish'][1],tl.tlist['elfish'][1])
+		
+		screen.render_load(16,45)
 				
 		for x in range (10, max_map_size-10,10):
 			
@@ -3588,6 +3823,8 @@ class world_class():
 		building_count = 0
 		run = True
 		
+		screen.render_load(16,50)
+		
 		while run:
 			
 			pos=m.find_first(tl.tlist['elfish'][0])
@@ -3599,6 +3836,8 @@ class world_class():
 				run = False
 				
 		m.exchange(tl.tlist['elfish'][5],tl.tlist['elfish'][0])
+		
+		screen.render_load(16,55)
 				
 		if building_count < 6:
 			return False #return false to make a loop if there are to less buildings inside the map
@@ -3629,6 +3868,8 @@ class world_class():
 			num_libaries = 1
 			
 		num_dwellings = building_count-num_temples-num_agriculture-num_meetingarea-num_marketplace-num_libaries
+		
+		screen.render_load(16,60)
 			
 		m.cut(5,max_map_size-6,5,max_map_size-6,tl.tlist['elfish'][1])
 		
@@ -3641,6 +3882,8 @@ class world_class():
 				
 				if m.tilemap[y][x].techID == tl.tlist['elfish'][2].techID:#this is elfish agriculture
 					m.tilemap[y][x] = tl.tlist['misc'][0]#set low water
+		
+		screen.render_load(16,61)
 		
 		m.cut(5,max_map_size-6,5,max_map_size-6,tl.tlist['elfish'][3])	
 		
@@ -3655,7 +3898,9 @@ class world_class():
 					m.npcs[y][x] = ml.mlist['shop'][0]
 			
 			m.exchange(tl.tlist['elfish'][4],tl.tlist['shop'][0])
-			
+		
+		screen.render_load(16,62)
+		
 		for i in range(0,num_temples):
 			
 			pos = m.find_any(tl.tlist['elfish'][0])#find any elfish_floor_indoor
@@ -3674,6 +3919,8 @@ class world_class():
 			m.tilemap[pos[1]+(size[1]/2)][pos[0]+(size[0]/2)].civilisation = False
 			
 			m.exchange(tl.tlist['elfish'][4],tl.tlist['elfish'][5])
+		
+		screen.render_load(16,63)
 		
 		for i in range(0,num_meetingarea):
 			
@@ -3701,6 +3948,8 @@ class world_class():
 							m.tilemap[yy][x].civilisation = False
 			
 			m.exchange(tl.tlist['elfish'][4],tl.tlist['elfish'][5])
+		
+		screen.render_load(16,64)
 			
 		for i in range(0,num_libaries):
 			
@@ -3716,7 +3965,9 @@ class world_class():
 					m.tilemap[y][x].civilisation = False
 			
 			m.exchange(tl.tlist['elfish'][4],tl.tlist['elfish'][5])
-					
+		
+		screen.render_load(16,65)
+		
 		for i in range(0,num_dwellings):
 			
 			pos = m.find_any(tl.tlist['elfish'][0])
@@ -3763,6 +4014,8 @@ class world_class():
 					if m.tilemap[y][x].techID == tl.tlist['elfish'][4].techID:
 						 m.tilemap[y][x] = deepcopy(tl.tlist['building'][9])
 						 m.tilemap[y][x].civilisation = False
+		
+		screen.render_load(16,66)
 						
 		for yy in range(0,max_map_size,5):
 			for xx in range(0,max_map_size):
@@ -3776,7 +4029,9 @@ class world_class():
 								if m.tilemap[yyy][xxx].techID != tl.tlist['elfish'][0].techID and m.tilemap[yyy][xxx].techID != tl.tlist['elfish'][1].techID and m.tilemap[yyy][xxx].techID != tl.tlist['shop'][0].techID and m.tilemap[yyy][xxx].techID != tl.tlist['building'][2].techID and m.tilemap[yyy][xxx].techID != tl.tlist['elfish'][3].techID and m.tilemap[yyy][xxx].techID != tl.tlist['elfish'][2].techID and m.tilemap[yyy][xxx].techID != tl.tlist['misc'][0].techID:
 									#if a field next to a door isn't elfish_indoor, elfish_wall or shop_floor set it to elfish_indoor
 									m.tilemap[yyy][xxx] = tl.tlist['elfish'][0]
-					
+		
+		screen.render_load(16,67)
+		
 		for yy in range(0,max_map_size):
 			for xx in range(0,max_map_size,5):
 				if m.tilemap[yy][xx].techID == tl.tlist['elfish'][3].techID:#this is elfish wall
@@ -3789,7 +4044,9 @@ class world_class():
 								if m.tilemap[yyy][xxx].techID != tl.tlist['elfish'][0].techID and m.tilemap[yyy][xxx].techID != tl.tlist['elfish'][1].techID and m.tilemap[yyy][xxx].techID != tl.tlist['shop'][0].techID and m.tilemap[yyy][xxx].techID != tl.tlist['building'][2].techID and m.tilemap[yyy][xxx].techID != tl.tlist['elfish'][3].techID and m.tilemap[yyy][xxx].techID != tl.tlist['elfish'][2].techID and m.tilemap[yyy][xxx].techID != tl.tlist['misc'][0].techID:
 									#if a field next to a door isn't elfish_indoor, elfish_wall or shop_floor set it to elfish_indoor
 									m.tilemap[yyy][xxx] = tl.tlist['elfish'][0]
-					
+		
+		screen.render_load(16,68)
+		
 		m.cut(5,max_map_size-6,5,max_map_size-6,tl.tlist['elfish'][3])
 		m.set_frame(tl.tlist['functional'][0])
 		
@@ -3811,6 +4068,8 @@ class world_class():
 		m.spawn_monsters(6)
 		
 		self.maplist[layer][map_name] = m
+		
+		screen.render_load(16,69)
 		
 	def mine_generator(self,layer):
 		
@@ -3862,20 +4121,24 @@ class world_class():
 	def cave_generator(self, deep):
 			
 		cave_name = 'local_0_0'
-					
+		
+		p = 9
+				
 		for d in range(1,deep+2):
 			
+			screen.render_load(4,p+(d*5))
+			
 			m = self.default_map_generator(cave_name,'global_caves', tilelist)
-			if d < 10:
+			if d < 4:
 				m.map_type = 'cave'
 			else:
 				m.map_type = 'lava_cave'
 				m.thirst_multi_day = 2
 				m.thirst_multi_night = 2
 			
-			if d > 9:
+			if d > 3:
 				m.exchange(tl.tlist['global_caves'][4],tl.tlist['misc'][2])#exchange lava against hot cave ground
-				if d > 10:
+				if d > 4:
 					m.exchange_when_surrounded(tl.tlist['misc'][2],tl.tlist['global_caves'][4],8)#make lava spots between hot cave ground
 					num = (max_map_size*max_map_size)/(50*50)
 					for i in range(0,num):
@@ -3964,6 +4227,8 @@ class world_class():
 							
 	def grassland_generator(self,x,y,chance_scrubs, chance_trees, chance_herbs, number_rocks):
 		# chance_scrubs and chance_trees must be between 0 and 99
+		
+		screen.render_load(3,1)
 		name = 'local_0_0'
 		
 		helpmap = self.default_map_generator('1','help',tilelist)
@@ -3977,6 +4242,7 @@ class world_class():
 		m = map(name,tilemap)
 		m.map_type = 'overworld'
 		
+		screen.render_load(3,2)
 		
 		m.fill(tl.tlist['local'][0])#fill the map with grass
 				
@@ -3992,6 +4258,7 @@ class world_class():
 						m.tilemap[y][x] = deepcopy(tl.tlist['local'][scrubs[coin]])
 						m.tilemap[y][x].replace = tl.tlist['local'][0]
 						
+		screen.render_load(3,3)
 							
 		#set trees
 		
@@ -4004,6 +4271,8 @@ class world_class():
 						m.tilemap[y][x] = tl.tlist['local'][coin]
 						m.tilemap[y][x].replace = tl.tlist['local'][0]#grass
 		
+		screen.render_load(3,4)
+		
 		#set herbs
 		
 		for y in range (0,max_map_size):
@@ -4014,6 +4283,8 @@ class world_class():
 						coin = random.randint(15,16)
 						m.tilemap[y][x] = tl.tlist['local'][coin]
 						m.tilemap[y][x].replace = tl.tlist['local'][0]#grass
+		
+		screen.render_load(3,5)
 			
 		# set rocks
 		
@@ -4023,12 +4294,16 @@ class world_class():
 			m.tilemap[y][x] = tl.tlist['local'][14]
 			m.tilemap[y][x].replace = tl.tlist['local'][0]#grass
 		
+		screen.render_load(3,6)
+		
 		#set water
 			
 		for y in range (0,max_map_size):
 			for x in range (0,max_map_size):
 				if helpmap.tilemap[y][x].techID == tl.tlist['help'][2].techID: #<---water here
 					m.tilemap[y][x] = tl.tlist['misc'][0] # set low water here
+		
+		screen.render_load(3,7)
 					
 		m.exchange_when_surrounded(tl.tlist['misc'][0],tl.tlist['misc'][3],8) # exchange low wather against deep water
 		
@@ -4037,6 +4312,8 @@ class world_class():
 		m.set_sanctuary(pos[0],pos[1])
 		
 		m.set_frame(tl.tlist['functional'][0])
+		
+		screen.render_load(3,8)
 		
 		#set guidepost
 		y = max_map_size -2
@@ -4049,10 +4326,15 @@ class world_class():
 					
 		self.maplist[0][name] = m
 		
+		screen.render_load(3,9)
+		
 		return pos
 		
 	def desert_generator(self,chance_object):
 		# chance_scrubs and chance_trees must be between 0 and 99
+		
+		screen.render_load(18,70)
+		
 		name = 'desert_0_0'
 		
 		tilemap = []
@@ -4072,6 +4354,8 @@ class world_class():
 		river_offset = random.randint(-3,3)
 		plus = 0
 		minus = 0
+		
+		screen.render_load(18,71)
 		
 		for c in range (0,max_map_size):
 			
@@ -4095,6 +4379,8 @@ class world_class():
 			river_offset += offset_change
 			
 		m.exchange_when_surrounded(tl.tlist['misc'][0],tl.tlist['misc'][3],7)
+		
+		screen.render_load(18,72)
 		
 		for b in range(2,max_map_size-2,10):
 			
@@ -4144,6 +4430,8 @@ class world_class():
 			building_offset =random.randint(0,4)
 			number_beds = 0
 			
+			screen.render_load(18,73)
+			
 			for y in range(y_river+8,y_river+13):
 				for x in range(b+building_offset,b+building_offset+5):
 					
@@ -4185,6 +4473,8 @@ class world_class():
 		make_bridges = True
 		num_bridges = 0
 		num_bridges_max = ((max_map_size/50)*3)+1
+		
+		screen.render_load(18,74)
 		
 		while num_bridges < num_bridges_max:
 			x_pos = random.randint(5,max_map_size-5)
@@ -4233,6 +4523,8 @@ class world_class():
 		
 		m.set_frame(tl.tlist['functional'][0])
 		
+		screen.render_load(18,75)
+		
 		#set guidepost
 		y = 2
 		x = random.randint(2,max_map_size-2)
@@ -4253,11 +4545,21 @@ class world_class():
 		
 		while run:
 		#Part 1: Render
-			s = pygame.Surface((640,360))
-			s.blit(gra_files.gdic['display'][1],(0,0)) #render background
+			if low_res == False:
+				s = pygame.Surface((640,360))
+			else:
+				s = pygame.Surface((320,240))
+				
+			bg = pygame.Surface((480,360))
+			bg.blit(gra_files.gdic['display'][1],(0,0)) #render background
+			
+			if low_res == True:
+				bg = pygame.transform.scale(bg,(320,240))
 
+			s.blit(bg,(0,0))
 
-			text_image = screen.menu_font.render('~*~ Choose Map-Size ~*~            [e]',1,(255,255,255))
+			text = '~Choose Map-Size~ [Press ['+key_name['e']+'] to choose]'
+			text_image = screen.font.render(text,1,(255,255,255))
 			s.blit(text_image,(5,2))#menue title
 			
 			entries = ('Small (50x50)', 'Medium (100x100)', 'Big (150x150)')
@@ -4266,27 +4568,39 @@ class world_class():
 			
 			for i in range (0,3):
 				
-				entry_image = screen.menu_font.render(entries[i],1,(0,0,0))
-				s.blit(entry_image,(150,120+i*30))#render entries
+				entry_image = screen.font.render(entries[i],1,(0,0,0))
+				if low_res == False:
+					s.blit(entry_image,(21,150+i*30))#blit menu_items
+				else:
+					s.blit(entry_image,(21,66+i*25))#blit menu_items
 				
-			s.blit(gra_files.gdic['display'][4],(120,115+num*30))#blit marker
+			if low_res == False:
+				s.blit(gra_files.gdic['display'][4],(0,125+num*30))#blit marker
+			else:
+				s.blit(gra_files.gdic['display'][4],(0,58+num*25))#blit marker
 				
-			entry_image = screen.menu_font.render(messages[num],1,(255,255,255))
-			s.blit(entry_image,(5,335))#render message
-			if game_options.mousepad == 1:
+			entry_image = screen.font.render(messages[num],1,(255,255,255))
+			if low_res == True:
+				s.blit(entry_image,(2,225))
+			else:
+				s.blit(ebtry_image,(5,335))
+			
+			if game_options.mousepad == 1 and low_res == False:
 				s.blit(gra_files.gdic['display'][8],(480,0)) #render mouse pad
 			else:
 				s_help = pygame.Surface((160,360))
 				s_help.fill((48,48,48))
 				s.blit(s_help,(480,0))
 			
-			if game_options.mousepad == 0:
+			if game_options.mousepad == 0 and low_res == False:
 				s_help = pygame.Surface((640,360))
 				s_help.fill((48,48,48))
 				s_help.blit(s,(80,0))
 				s = s_help
 			
-			s = pygame.transform.scale(s,(screen.displayx,screen.displayy))
+			if low_res == False:
+				s = pygame.transform.scale(s,(screen.displayx,screen.displayy))
+			
 			screen.screen.blit(s,(0,0))
 			
 			pygame.display.flip()
@@ -4548,7 +4862,7 @@ class mob():
 			res = world.maplist[self.pos[2]][self.on_map].tilemap[self.pos[1]][self.pos[0]].conected_resources[0]
 			num = world.maplist[self.pos[2]][self.on_map].tilemap[self.pos[1]][self.pos[0]].conected_resources[1]
 			try:
-				conected_tile = world.maplist[self.pos[2]][self.on_map].tilemap[self.pos[1]][self.pos[0]].conected_tiles[0]
+				conected_tile = (world.maplist[self.pos[2]][self.on_map].tilemap[self.pos[1]][self.pos[0]].conected_tiles[0],world.maplist[self.pos[2]][self.on_map].tilemap[self.pos[1]][self.pos[0]].conected_tiles[1])
 			except:
 				None
 			test = player.inventory.materials.add(res,num)
@@ -4634,11 +4948,11 @@ class mob():
 				
 				if world.maplist[self.pos[2]][self.on_map].containers[self.pos[1]][self.pos[0]] != 0:
 					if len(world.maplist[self.pos[2]][self.on_map].containers[self.pos[1]][self.pos[0]].items) < 7:
-						screen.render_request('[e] - produce something (-10 Wood)', '[b] - take a produced item', '[x] - leave')
+						screen.render_request('['+key_name['e']+'] - produce something (-10 Wood)', '['+key_name['b']+'] - take a produced item', '['+key_name['x']+'] - leave')
 					else:
-						screen.render_request('[e] -     XXXXXXXXXXXX            ', '[b] - take a produced item', '[x] - leave')
+						screen.render_request('['+key_name['e']+'] -     XXXXXXXXXXXX            ', '['+key_name['b']+'] - take a produced item', '['+key_name['x']+'] - leave')
 				else:
-					screen.render_request('[e] - produce something (-10 Wood)', '[b] -      XXXXXXXXXXXX   ', '[x] - leave')
+					screen.render_request('['+key_name['e']+'] - produce something (-10 Wood)', '['+key_name['b']+'] -      XXXXXXXXXXXX   ', '['+key_name['x']+'] - leave')
 					
 				ui = getch(screen.displayx,screen.displayy,game_options.sfxmode,game_options.turnmode,mouse=game_options.mousepad)
 				
@@ -4700,11 +5014,11 @@ class mob():
 				
 				if world.maplist[self.pos[2]][self.on_map].containers[self.pos[1]][self.pos[0]] != 0:
 					if len(world.maplist[self.pos[2]][self.on_map].containers[self.pos[1]][self.pos[0]].items) < 7:
-						screen.render_request('[e] - produce something (-5 Wood)', '[b] - take a produced item', '[x] - leave')
+						screen.render_request('['+key_name['e']+'] - produce something (-5 Wood)', '['+key_name['b']+'] - take a produced item', '['+key_name['x']+'] - leave')
 					else:
-						screen.render_request('[e] -     XXXXXXXXXXXX            ', '[b] - take a produced item', '[x] - leave')
+						screen.render_request('['+key_name['e']+'] -     XXXXXXXXXXXX            ', '['+key_name['b']+'] - take a produced item', '['+key_name['x']+'] - leave')
 				else:
-					screen.render_request('[e] - produce something (-5 Wood)', '[b] -      XXXXXXXXXXXX   ', '[x] - leave')
+					screen.render_request('['+key_name['e']+'] - produce something (-5 Wood)', '['+key_name['b']+'] -      XXXXXXXXXXXX   ', '['+key_name['x']+'] - leave')
 					
 				ui = getch(screen.displayx,screen.displayy,game_options.sfxmode,game_options.turnmode,mouse=game_options.mousepad)
 				
@@ -4776,11 +5090,11 @@ class mob():
 				
 				if world.maplist[self.pos[2]][self.on_map].containers[self.pos[1]][self.pos[0]] != 0:
 					if len(world.maplist[self.pos[2]][self.on_map].containers[self.pos[1]][self.pos[0]].items) < 7:
-						screen.render_request('[e] - produce something (-10 Stone)', '[b] - take a produced item', '[x] - leave')
+						screen.render_request('['+key_name['e']+'] - produce something (-10 Stone)', '['+key_name['b']+'] - take a produced item', '['+key_name['x']+'] - leave')
 					else:
-						screen.render_request('[e] -     XXXXXXXXXXXX            ', '[b] - take a produced item', '[x] - leave')
+						screen.render_request('['+key_name['e']+'] -     XXXXXXXXXXXX            ', '['+key_name['b']+'] - take a produced item', '['+key_name['x']+'] - leave')
 				else:
-					screen.render_request('[e] - produce something (-10 Stone)', '[b] -      XXXXXXXXXXXX   ', '[x] - leave')
+					screen.render_request('['+key_name['e']+'] - produce something (-10 Stone)', '['+key_name['b']+'] -      XXXXXXXXXXXX   ', '['+key_name['x']+'] - leave')
 					
 				ui = getch(screen.displayx,screen.displayy,game_options.sfxmode,game_options.turnmode,mouse=game_options.mousepad)
 				
@@ -4847,12 +5161,12 @@ class mob():
 				
 				if world.maplist[self.pos[2]][self.on_map].containers[self.pos[1]][self.pos[0]] != 0:
 					if len(world.maplist[self.pos[2]][self.on_map].containers[self.pos[1]][self.pos[0]].items) < 7:
-						string = '[e] - produce something (-' + str(price) + ' Ore)', '[b] - take a produced item', '[x] - leave'
+						string = '['+key_name['e']+'] - produce something (-' + str(price) + ' Ore)', '['+key_name['b']+'] - take a produced item', '['+key_name['x']+'] - leave'
 						screen.render_request(string)
 					else:
-						screen.render_request('[e] -     XXXXXXXXXXXX            ', '[b] - take a produced item', '[x] - leave')
+						screen.render_request('['+key_name['e']+'] -     XXXXXXXXXXXX            ', '['+key_name['b']+'] - take a produced item', '['+key_name['x']+'] - leave')
 				else:
-					string = '[e] - produce something (-' + str(price) + ' Ore)', '[b] -      XXXXXXXXXXXX   ', '[x] - leave'
+					string = '['+key_name['e']+'] - produce something (-' + str(price) + ' Ore)', '['+key_name['b']+'] -      XXXXXXXXXXXX   ', '['+key_name['x']+'] - leave'
 					screen.render_request(string[0],string[1],string[2])
 					
 				ui = getch(screen.displayx,screen.displayy,game_options.sfxmode,game_options.turnmode,mouse=game_options.mousepad)
@@ -4928,11 +5242,11 @@ class mob():
 				
 				if world.maplist[self.pos[2]][self.on_map].containers[self.pos[1]][self.pos[0]] != 0:
 					if len(world.maplist[self.pos[2]][self.on_map].containers[self.pos[1]][self.pos[0]].items) < 7:
-						screen.render_request('[e] - brew a potion (-5 Herbs)', '[b] - take a potion', '[x] - leave')
+						screen.render_request('['+key_name['e']+'] - brew a potion (-5 Herbs)', '['+key_name['b']+'] - take a potion', '['+key_name['x']+'] - leave')
 					else:
-						screen.render_request('[e] -     XXXXXXXXXXXX            ', '[b] - take a potion', '[x] - leave')
+						screen.render_request('['+key_name['e']+'] -     XXXXXXXXXXXX            ', '['+key_name['b']+'] - take a potion', '['+key_name['x']+'] - leave')
 				else:
-					screen.render_request('[e] - brew a potion (-5 Herbs)', '[b] -      XXXXXXXXXXXX   ', '[x] - leave')
+					screen.render_request('['+key_name['e']+'] - brew a potion (-5 Herbs)', '['+key_name['b']+'] -      XXXXXXXXXXXX   ', '['+key_name['x']+'] - leave')
 					
 				ui = getch(screen.displayx,screen.displayy,game_options.sfxmode,game_options.turnmode,mouse=game_options.mousepad)
 				
@@ -4997,7 +5311,7 @@ class mob():
 			
 			while run:
 				
-				screen.render_request('[e] - fire up the furnace (-10 wood)', ' ', '[x] - leave')
+				screen.render_request('['+key_name['e']+'] - fire up the furnace (-10 wood)', ' ', '['+key_name['x']+'] - leave')
 					
 				ui = getch(screen.displayx,screen.displayy,game_options.sfxmode,game_options.turnmode,mouse=game_options.mousepad)
 				
@@ -5057,7 +5371,7 @@ class mob():
 			
 			while run:
 				
-				screen.render_request('[e] - pray', '[b] - identify ', '[x] - leave')
+				screen.render_request('['+key_name['e']+'] - pray', '['+key_name['b']+'] - identify ', '['+key_name['x']+'] - leave')
 					
 				ui = getch(screen.displayx,screen.displayy,game_options.sfxmode,game_options.turnmode,mouse=game_options.mousepad)
 				
@@ -5278,40 +5592,60 @@ class player_class(mob):
 					num = 0
 					gender_list = ('FEMALE','MALE') 
 					run = True
-			
+					
+					if low_res == False:
+						marker_y = 115
+					else:
+						marker_y = 46
+					
 					while run:
 					
-						s = pygame.Surface((640,360))
-					
-						s.blit(gra_files.gdic['display'][1],(0,0)) #render background
+						if low_res == False:
+							s = pygame.Surface((640,360))
+						else:
+							s = pygame.Surface((320,240))
 				
-						text_image = screen.menu_font.render('Choose gender:',1,(255,255,255))
+						bg = pygame.Surface((480,360))
+						bg.blit(gra_files.gdic['display'][1],(0,0)) #render background
+			
+						if low_res == True:
+							bg = pygame.transform.scale(bg,(320,240))
+
+						s.blit(bg,(0,0))
+				
+						text_image = screen.font.render('Choose gender:',1,(255,255,255))
 						s.blit(text_image,(5,2))#menue title
 				
-						s.blit(gra_files.gdic['display'][4],(0,115+num*25))#blit marker
+						s.blit(gra_files.gdic['display'][4],(0,marker_y+num*25))#blit marker
 				
 						for i in range (0,2): 
 							string = gender_list[i]
-							text_image = screen.menu_font.render(string,1,(0,0,0))
-							s.blit(text_image,(21,120+i*25))#blit item names
+							text_image = screen.font.render(string,1,(0,0,0))
+							s.blit(text_image,(21,(marker_y+5)+i*25))#blit item names
+						
+						text = '['+key_name['e']+'] - Choose'
+						text_image = screen.font.render(text,1,(255,255,255))
+						if low_res == False:
+							s.blit(text_image,(5,335))
+						else:
+							s.blit(text_image,(2,225))
 					
-						text_image = screen.menu_font.render('[e] Choose',1,(255,255,255))
-						s.blit(text_image,(5,335))
-					
-						if game_options.mousepad == 1:
+						if game_options.mousepad == 1 and low_res == False:
 							s.blit(gra_files.gdic['display'][8],(480,0)) #render mouse pad
 						else:
 							s_help = pygame.Surface((160,360))
 							s_help.fill((48,48,48))
 							s.blit(s_help,(480,0))
 					
-						if game_options.mousepad == 0:
+						if game_options.mousepad == 0 and low_res == False:
 							s_help = pygame.Surface((640,360))
 							s_help.fill((48,48,48))
 							s_help.blit(s,(80,0))
 							s = s_help
-					
-						s = pygame.transform.scale(s,(screen.displayx,screen.displayy))
+						
+						if low_res == False:
+							s = pygame.transform.scale(s,(screen.displayx,screen.displayy))
+						
 						screen.screen.blit(s,(0,0))
 					
 						pygame.display.flip()
@@ -5336,38 +5670,54 @@ class player_class(mob):
 					num2 = 0
 				
 					while run2:
-						s = pygame.Surface((640,360))
-					
-						s.blit(gra_files.gdic['display'][1],(0,0)) #render background
+						
+						if low_res == False:
+							s = pygame.Surface((640,360))
+						else:
+							s = pygame.Surface((320,240))
 				
-						text_image = screen.menu_font.render('Choose style:',1,(255,255,255))
+						bg = pygame.Surface((480,360))
+						bg.blit(gra_files.gdic['display'][1],(0,0)) #render background
+			
+						if low_res == True:
+							bg = pygame.transform.scale(bg,(320,240))
+
+						s.blit(bg,(0,0))
+						
+						text_image = screen.font.render('Choose style:',1,(255,255,255))
 						s.blit(text_image,(5,2))#menue title
 				
-						s.blit(gra_files.gdic['display'][4],(0,115+num2*32))#blit marker
+						s.blit(gra_files.gdic['display'][4],(0,marker_y+num2*32))#blit marker
 				
 						for i in range (1,5): 
 							skinstring = 'SKIN_' + self.gender + '_' + str(i)
 							hairstring = 'HAIR_' + self.gender + '_' +  str(i)
-							s.blit(gra_files.gdic['char'][skinstring],(26,115+(i-1)*32))
-							s.blit(gra_files.gdic['char'][hairstring],(26,115+(i-1)*32))
+							s.blit(gra_files.gdic['char'][skinstring],(26,marker_y+(i-1)*32))
+							s.blit(gra_files.gdic['char'][hairstring],(26,marker_y+(i-1)*32))
+						
+						text = '['+key_name['e']+'] Choose'
+						text_image = screen.font.render(text,1,(255,255,255))
+						if low_res == False:
+							s.blit(text_image,(5,335))
+						else:
+							s.blit(text_image,(2,225))
 					
-						text_image = screen.menu_font.render('[e] Choose',1,(255,255,255))
-						s.blit(text_image,(5,335))
-					
-						if game_options.mousepad == 1:
+						if game_options.mousepad == 1 and low_res == False:
 							s.blit(gra_files.gdic['display'][8],(480,0)) #render mouse pad
 						else:
 							s_help = pygame.Surface((160,360))
 							s_help.fill((48,48,48))
 							s.blit(s_help,(480,0))
 					
-						if game_options.mousepad == 0:
+						if game_options.mousepad == 0 and low_res == False:
 							s_help = pygame.Surface((640,360))
 							s_help.fill((48,48,48))
 							s_help.blit(s,(80,0))
 							s = s_help
-					
-						s = pygame.transform.scale(s,(screen.displayx,screen.displayy))
+						
+						if low_res == False:
+							s = pygame.transform.scale(s,(screen.displayx,screen.displayy))
+						
 						screen.screen.blit(s,(0,0))
 					
 						pygame.display.flip()
@@ -5396,37 +5746,51 @@ class player_class(mob):
 			
 					while run3:
 					
-						s = pygame.Surface((640,360))
-					
-						s.blit(gra_files.gdic['display'][1],(0,0)) #render background
+						if low_res == False:
+							s = pygame.Surface((640,360))
+						else:
+							s = pygame.Surface((320,240))
 				
-						text_image = screen.menu_font.render('Choose Game Mode:',1,(255,255,255))
+						bg = pygame.Surface((480,360))
+						bg.blit(gra_files.gdic['display'][1],(0,0)) #render background
+			
+						if low_res == True:
+							bg = pygame.transform.scale(bg,(320,240))
+
+						s.blit(bg,(0,0))
+						
+						text_image = screen.font.render('Choose Game Mode:',1,(255,255,255))
 						s.blit(text_image,(5,2))#menue title
 				
-						s.blit(gra_files.gdic['display'][4],(0,115+num3*25))#blit marker
+						s.blit(gra_files.gdic['display'][4],(0,marker_y+num3*25))#blit marker
 				
 						for i in range (0,5): 
 							string = dificulty_list[i]
-							text_image = screen.menu_font.render(string,1,(0,0,0))
-							s.blit(text_image,(21,120+i*25))#blit item names
+							text_image = screen.font.render(string,1,(0,0,0))
+							s.blit(text_image,(21,(marker_y+5)+i*25))#blit item names
 					
-							text_image = screen.menu_font.render(description_list[num3],1,(255,255,255))
-							s.blit(text_image,(5,335))
+							text_image = screen.font.render(description_list[num3],1,(255,255,255))
+							if low_res == False:
+								s.blit(text_image,(5,335))
+							else:
+								s.blit(text_image,(2,225))
 						
-						if game_options.mousepad == 1:
+						if game_options.mousepad == 1 and low_res == False:
 							s.blit(gra_files.gdic['display'][8],(480,0)) #render mouse pad
 						else:
 							s_help = pygame.Surface((160,360))
 							s_help.fill((48,48,48))
 							s.blit(s_help,(480,0))
 					
-						if game_options.mousepad == 0:
+						if game_options.mousepad == 0 and low_res == False:
 							s_help = pygame.Surface((640,360))
 							s_help.fill((48,48,48))
 							s_help.blit(s,(80,0))
 							s = s_help
-					
-						s = pygame.transform.scale(s,(screen.displayx,screen.displayy))
+						
+						if low_res == False:
+							s = pygame.transform.scale(s,(screen.displayx,screen.displayy))
+						
 						screen.screen.blit(s,(0,0))
 					
 						pygame.display.flip()
@@ -5447,10 +5811,7 @@ class player_class(mob):
 							self.difficulty = num3
 							run3 = False
 					
-					if low_res == False:
-						name = screen.string_input('Whats your name?', 15)
-					else:
-						name = 'PLAYER'
+					name = screen.string_input('Whats your name?', 15)
 					
 					if name == '':
 						name = 'Nameless' 
@@ -5458,56 +5819,76 @@ class player_class(mob):
 					num4 = 0
 					choose_list = ('Yes','No') 
 					run4 = True
-			
+					
+					if low_res == False:
+						char_x = 160
+					else:
+						char_x = 60
+											
 					while run4:
 					
-						s = pygame.Surface((640,360))
+						if low_res == False:
+							s = pygame.Surface((640,360))
+						else:
+							s = pygame.Surface((320,240))
 				
-						s.blit(gra_files.gdic['display'][1],(0,0)) #render background
-				
-						text_image = screen.menu_font.render('Is everything alright?',1,(255,255,255))
+						bg = pygame.Surface((480,360))
+						bg.blit(gra_files.gdic['display'][1],(0,0)) #render background
+			
+						if low_res == True:
+							bg = pygame.transform.scale(bg,(320,240))
+
+						s.blit(bg,(0,0))
+						
+						text_image = screen.font.render('Is everything alright?',1,(255,255,255))
 						s.blit(text_image,(5,2))#menue title
 					
 						skinstring = 'SKIN_' + self.gender + '_' + str(self.style +1)
-						s.blit(gra_files.gdic['char'][skinstring],(160,80))
+						s.blit(gra_files.gdic['char'][skinstring],(char_x,80))
 						
 						hairstring = 'HAIR_' + self.gender + '_' + str(self.style +1)
-						s.blit(gra_files.gdic['char'][hairstring],(160,80))
+						s.blit(gra_files.gdic['char'][hairstring],(char_x,80))
 					
 						n_string = 'NAME: ' + name
-						name_image = screen.menu_font.render(n_string,1,(0,0,0))
-						s.blit(name_image,(160,120))
+						name_image = screen.font.render(n_string,1,(0,0,0))
+						s.blit(name_image,(char_x,120))
 					
 						d_list = ('Easy', 'Normal', 'Hard', 'Rougelike', 'Sandbox')
 					
 						d_string = 'Difficulty: ' + d_list[self.difficulty]
-						name_image = screen.menu_font.render(d_string,1,(0,0,0))
-						s.blit(name_image,(160,140))
+						name_image = screen.font.render(d_string,1,(0,0,0))
+						s.blit(name_image,(char_x,140))
 					
-						s.blit(gra_files.gdic['display'][4],(155,160+num4*25))#blit marker
+						s.blit(gra_files.gdic['display'][4],(char_x-5,160+num4*25))#blit marker
 				
 						for i in range (0,2): 
 							string = choose_list[i]
-							text_image = screen.menu_font.render(string,1,(0,0,0))
-							s.blit(text_image,(176,165+i*25))#blit item names
+							text_image = screen.font.render(string,1,(0,0,0))
+							s.blit(text_image,(char_x+16,165+i*25))#blit item names
+						
+						text = '['+key_name['e']+'] Choose'
+						text_image = screen.font.render(text,1,(255,255,255))
+						if low_res == False:
+							s.blit(text_image,(5,335))
+						else:
+							s.blit(text_image,(2,225))
 					
-						text_image = screen.menu_font.render('[e] Choose',1,(255,255,255))
-						s.blit(text_image,(5,335))
-					
-						if game_options.mousepad == 1:
+						if game_options.mousepad == 1 and low_res ==  False:
 							s.blit(gra_files.gdic['display'][8],(480,0)) #render mouse pad
 						else:
 							s_help = pygame.Surface((160,360))
 							s_help.fill((48,48,48))
 							s.blit(s_help,(480,0))
 					
-						if game_options.mousepad == 0:
+						if game_options.mousepad == 0 and low_res == False:
 							s_help = pygame.Surface((640,360))
 							s_help.fill((48,48,48))
 							s_help.blit(s,(80,0))
 							s = s_help
-					
-						s = pygame.transform.scale(s,(screen.displayx,screen.displayy))
+						
+						if low_res == False:
+							s = pygame.transform.scale(s,(screen.displayx,screen.displayy))
+						
 						screen.screen.blit(s,(0,0))
 					
 						pygame.display.flip()
@@ -6382,35 +6763,51 @@ class messager():
 		
 		while run:
 			
-			s = pygame.Surface((640,360))
+			if low_res == False:
+				s = pygame.Surface((640,360))
+			else:
+				s = pygame.Surface((320,240))
+				
+			bg = pygame.Surface((480,360))
+			bg.blit(gra_files.gdic['display'][1],(0,0)) #render background
 			
-			s.blit(gra_files.gdic['display'][1],(0,0)) #render background
-			
-			text_string = '~*~ Message History ~*~            Page(' + str(page+1) + ' of ' + str(len(self.mes_history)) +')'
-			text_image = screen.menu_font.render(text_string,1,(255,255,255))
+			if low_res == True:
+				bg = pygame.transform.scale(bg,(320,240))
+
+			s.blit(bg,(0,0))
+
+			text_string = '~Message History~ [Page(' + str(page+1) + ' of ' + str(len(self.mes_history)) +')]'
+			text_image = screen.font.render(text_string,1,(255,255,255))
 			s.blit(text_image,(5,2))#menue title
 			
 			for i in range (0, len(self.mes_history[page])):
-				mes_image = screen.menu_font.render(self.mes_history[page][i],1,(0,0,0))
-				s.blit(mes_image,(5,100+25*i))#messages
-				
-			text_image = screen.menu_font.render('[w,a] - Page up [s,d] - Page down [x] - leave',1,(255,255,255))
-			s.blit(text_image,(5,335))
+				mes_image = screen.font.render(self.mes_history[page][i],1,(0,0,0))
+				if low_res == False:
+					s.blit(mes_image,(5,100+i*25))#blit menu_items
+				else:
+					s.blit(mes_image,(5,46+i*25))#blit menu_items
+			text = '['+key_name['ws']+'] - Turn page ['+key_name['x']+'] - leave'	
+			text_image = screen.font.render(text,1,(255,255,255))
+			if low_res == True:
+				s.blit(text_image,(2,225))
+			else:
+				s.blit(text_image,(5,335))
 			
-			if game_options.mousepad == 1:	
+			if game_options.mousepad == 1 and low_res == False:	
 				s.blit(gra_files.gdic['display'][8],(480,0)) #render mouse pad
 			else:
 				s_help = pygame.Surface((160,360))
 				s_help.fill((48,48,48))
 				s.blit(s_help,(480,0))
 			
-			if game_options.mousepad == 0:
+			if game_options.mousepad == 0 and low_res == False:
 				s_help = pygame.Surface((640,360))
 				s_help.fill((48,48,48))
 				s_help.blit(s,(80,0))
 				s = s_help
 			
-			s = pygame.transform.scale(s,(screen.displayx,screen.displayy))
+			if low_res == False:
+				s = pygame.transform.scale(s,(screen.displayx,screen.displayy))
 			screen.screen.blit(s,(0,0))
 			
 			pygame.display.flip()
@@ -7000,10 +7397,24 @@ class inventory():
 		s = pygame.Surface((640,360))
 		
 		s.blit(gra_files.gdic['display'][1],(0,0)) #render background
-
-		num = 0
 		
-		text_image = screen.menu_font.render('~*~ Inventory ~*~        [Press [x] to leave]',1,(255,255,255))
+		if low_res == False:
+			text_y = 120
+			marker_y = 115
+		else:
+			text_y = 60
+			marker_y = 52
+		
+		num = 0
+		if low_res == False:
+			text = '~Inventory~ [Press ['+key_name['x']+'] to leave]'
+		else:
+			if self.inv_mes == '~*~':
+				text = '~Inventory~ [Press ['+key_name['x']+'] to leave]'
+			else:
+				text =self.inv_mes
+				
+		text_image = screen.font.render(text,1,(255,255,255))
 		s.blit(text_image,(5,2))#menue title
 		
 		for c in range(0,6):
@@ -7021,20 +7432,20 @@ class inventory():
 		if category == 0:
 			h = list(self.wearing.keys())
 			
-			s.blit(gra_files.gdic['display'][4],(0,115+slot*25))#blit marker
+			s.blit(gra_files.gdic['display'][4],(0,marker_y+slot*23))#blit marker
 			 
 			for i in h:
 				
 				if slot == num and self.wearing[h[slot]] != self.nothing:
-					string = i + ' : ' + self.wearing[i].name + '>([e]unwear, [b]drop)'
-					text_image = screen.menu_font.render(string,1,(0,0,0))
-					s.blit(text_image,(21,120+num*25))#blit item names
+					string = i + ' : ' + self.wearing[i].name + '>(['+key_name['e']+']unwear, ['+key_name['b']+']drop)'
+					text_image = screen.font.render(string,1,(0,0,0))
+					s.blit(text_image,(21,text_y+num*23))#blit item names
 				
 				else:
 					
 					string = i + ' : ' + self.wearing[i].name
-					text_image = screen.menu_font.render(string,1,(0,0,0))
-					s.blit(text_image,(21,120+num*25))#blit item names
+					text_image = screen.font.render(string,1,(0,0,0))
+					s.blit(text_image,(21,text_y+num*23))#blit item names
 				
 				num += 1
 			
@@ -7044,19 +7455,19 @@ class inventory():
 			
 				if slot == num:
 					
-					s.blit(gra_files.gdic['display'][4],(0,115+num*25))#blit marker
+					s.blit(gra_files.gdic['display'][4],(0,marker_y+num*25))#blit marker
 					if i != self.nothing:
-						string = i.name + '>([e]wear, [b]drop)'
+						string = i.name + '>(['+key_name['e']+']wear, ['+key_name['b']+']drop)'
 					else:
 						string = i.name
-					text_image = screen.menu_font.render(string,1,(0,0,0))
-					s.blit(text_image,(21,120+num*25))#blit item names
+					text_image = screen.font.render(string,1,(0,0,0))
+					s.blit(text_image,(21,text_y+num*25))#blit item names
 				
 				else:
 					
 					string = i.name
-					text_image = screen.menu_font.render(string,1,(0,0,0))
-					s.blit(text_image,(21,120+num*25))#blit item names
+					text_image = screen.font.render(string,1,(0,0,0))
+					s.blit(text_image,(21,text_y+num*25))#blit item names
 			
 				num += 1
 		
@@ -7066,19 +7477,19 @@ class inventory():
 			
 				if slot == num:
 					
-					s.blit(gra_files.gdic['display'][4],(0,115+num*25))#blit marker
+					s.blit(gra_files.gdic['display'][4],(0,marker_y+num*25))#blit marker
 					if i != self.nothing:
-						string = i.name + '>([e]%s, [b]drop)' %(i.eat_name)
+						string = i.name + '>(['+key_name['e']+']'+i.eat_name+', ['+key_name['b']+']drop)'
 					else:
 						string = i.name
-					text_image = screen.menu_font.render(string,1,(0,0,0))
-					s.blit(text_image,(21,120+num*25))#blit item names
+					text_image = screen.font.render(string,1,(0,0,0))
+					s.blit(text_image,(21,text_y+num*25))#blit item names
 				
 				else:
 					
 					string = i.name
-					text_image = screen.menu_font.render(string,1,(0,0,0))
-					s.blit(text_image,(21,120+num*25))#blit item names
+					text_image = screen.font.render(string,1,(0,0,0))
+					s.blit(text_image,(21,text_y+num*25))#blit item names
 			
 				num += 1
 				
@@ -7088,71 +7499,72 @@ class inventory():
 			
 				if slot == num:
 					
-					s.blit(gra_files.gdic['display'][4],(0,115+num*25))#blit marker
+					s.blit(gra_files.gdic['display'][4],(0,marker_y+num*25))#blit marker
 					if i != self.nothing:
-						string = i.name + '>([e]%s, [b]drop)' %(i.use_name)
+						string = i.name + '>(['+key_name['e']+']'+i.use_name+', ['+key_name['b']+']drop)'
 					else:
 						string = i.name
 						
-					text_image = screen.menu_font.render(string,1,(0,0,0))
-					s.blit(text_image,(21,120+num*25))#blit item names
+					text_image = screen.font.render(string,1,(0,0,0))
+					s.blit(text_image,(21,text_y+num*25))#blit item names
 				
 				else:
 					
 					string = i.name
-					text_image = screen.menu_font.render(string,1,(0,0,0))
-					s.blit(text_image,(21,120+num*25))#blit item names
+					text_image = screen.font.render(string,1,(0,0,0))
+					s.blit(text_image,(21,text_y+num*25))#blit item names
 			
 				num += 1
 		
 		elif category == 4:
 			
 			string = 'Wood: ' + str(self.materials.wood) + '/' + str(self.materials.wood_max)
-			text_image = screen.menu_font.render(string,1,(0,0,0))
-			s.blit(text_image,(21,100))#blit wood line
+			text_image = screen.font.render(string,1,(0,0,0))
+			s.blit(text_image,(21,text_y))#blit wood line
 			
 			string = 'Stone: ' + str(self.materials.stone) + '/' + str(self.materials.stone_max)
-			text_image = screen.menu_font.render(string,1,(0,0,0))
-			s.blit(text_image,(21,125))#blit stone line
+			text_image = screen.font.render(string,1,(0,0,0))
+			s.blit(text_image,(21,text_y+25))#blit stone line
 			
 			string = 'Ore: ' + str(self.materials.ore) + '/' + str(self.materials.ore_max)
-			text_image = screen.menu_font.render(string,1,(0,0,0))
-			s.blit(text_image,(21,150))#blit ore line
+			text_image = screen.font.render(string,1,(0,0,0))
+			s.blit(text_image,(21,text_y+50))#blit ore line
 			
 			string = 'Herbs: ' + str(self.materials.herb) + '/' + str(self.materials.herb_max)
-			text_image = screen.menu_font.render(string,1,(0,0,0))
-			s.blit(text_image,(21,175))#blit herbs line
+			text_image = screen.font.render(string,1,(0,0,0))
+			s.blit(text_image,(21,text_y+75))#blit herbs line
 			
 			string = 'Gem: ' + str(self.materials.gem) + '/' + str(self.materials.gem_max)
-			text_image = screen.menu_font.render(string,1,(0,0,0))
-			s.blit(text_image,(21,200))#blit gem line
+			text_image = screen.font.render(string,1,(0,0,0))
+			s.blit(text_image,(21,text_y+100))#blit gem line
 		
 			string = 'Seeds: ' + str(self.materials.seeds) + '/' + str(self.materials.seeds_max)
-			text_image = screen.menu_font.render(string,1,(0,0,0))
-			s.blit(text_image,(21,225))#blit gem line
+			text_image = screen.font.render(string,1,(0,0,0))
+			s.blit(text_image,(21,text_y+125))#blit gem line
 			
 			string = 'Built with: ' + player.inventory.blueprint.name 
-			text_image = screen.menu_font.render(string,1,(0,0,0))
-			s.blit(text_image,(21,280))#blit blueprint line
+			text_image = screen.font.render(string,1,(0,0,0))
+			s.blit(text_image,(21,text_y+160))#blit blueprint line
 		
 		text_image = screen.font.render(self.inv_mes,1,(255,255,255))
 		s.blit(text_image,(5,335))
 		self.inv_mes = '~*~'
 		
-		if game_options.mousepad == 1:
+		if game_options.mousepad == 1 and low_res == False:
 			s.blit(gra_files.gdic['display'][8],(480,0)) #render mouse pad
 		else:
 			s_help = pygame.Surface((160,360))
 			s_help.fill((48,48,48))
 			s.blit(s_help,(480,0))
 		
-		if game_options.mousepad == 0:
+		if game_options.mousepad == 0 and low_res == False:
 			s_help = pygame.Surface((640,360))
 			s_help.fill((48,48,48))
 			s_help.blit(s,(80,0))
 			s = s_help
+		if low_res == False:
+			s = pygame.transform.scale(s,(screen.displayx,screen.displayy))
 		
-		s = pygame.transform.scale(s,(screen.displayx,screen.displayy))
 		screen.screen.blit(s,(0,0))
 		
 		pygame.display.flip()
@@ -7309,7 +7721,10 @@ class container():
 		
 		while run:
 			
-			s = pygame.Surface((640,360))
+			if low_res == False:
+				s = pygame.Surface((640,360))
+			else:
+				s = pygame.Surface((320,240))
 			
 			running = True
 			
@@ -7319,40 +7734,68 @@ class container():
 			
 			while running:
 				
-				s = pygame.Surface((640,360))
+				if low_res == False:
+					s = pygame.Surface((640,360))
+				else:
+					s = pygame.Surface((320,240))
 				
-				s.blit(gra_files.gdic['display'][1],(0,0)) #render background
-		
-				text_image = screen.menu_font.render('~*~ Loot ~*~        [Press [x] to leave]',1,(255,255,255))
+				bg = pygame.Surface((480,360))
+				bg.blit(gra_files.gdic['display'][1],(0,0)) #render background
+			
+				if low_res == True:
+					bg = pygame.transform.scale(bg,(320,240))
+
+				s.blit(bg,(0,0))
+			
+				text = '~Loot~ [Press ['+key_name['x']+'] to leave]'
+				text_image = screen.font.render(text,1,(255,255,255))
 				s.blit(text_image,(5,2))#menue title
 			
 				for i in range (0,len(self.items)):
 					
 					if i == num:
-						s.blit(gra_files.gdic['display'][4],(0,95+num*25))#blit marker
-						text_string = self.items[i].name + '>[e]loot'
-						text_image = screen.menu_font.render(text_string,1,(0,0,0))
-						s.blit(text_image,(21,100+i*25))#blit item name
+						
+						if low_res == False:
+							s.blit(gra_files.gdic['display'][4],(0,112+num*25))#blit marker
+						else:
+							s.blit(gra_files.gdic['display'][4],(0,38+num*25))#blit marker
+						
+						text_string = self.items[i].name + '>['+key_name['e']+']loot'
+						text_image = screen.font.render(text_string,1,(0,0,0))
+						if low_res == False:
+							s.blit(text_image,(21,120+i*25))#blit menu_items
+						else:
+							s.blit(text_image,(21,46+i*25))#blit menu_items
+							
 					else:
-						text_image = screen.menu_font.render(self.items[i].name,1,(0,0,0))
-						s.blit(text_image,(21,100+i*25))#blit item name
+						text_image = screen.font.render(self.items[i].name,1,(0,0,0))
+						if low_res == False:
+							s.blit(text_image,(21,120+i*25))#blit menu_items
+						else:
+							s.blit(text_image,(21,46+i*25))#blit menu_items
 				
-				text_image = screen.menu_font.render(self.con_mes,1,(255,255,255))
-				s.blit(text_image,(5,335))
-				if game_options.mousepad == 1:
+				text_image = screen.font.render(self.con_mes,1,(255,255,255))
+				if low_res == True:
+					s.blit(text_image,(2,225))
+				else:
+					s.blit(text_image,(5,335))
+				
+				if game_options.mousepad == 1 and low_res == False:
 					s.blit(gra_files.gdic['display'][8],(480,0)) #render mouse pad
 				else:
 					s_help = pygame.Surface((160,360))
 					s_help.fill((48,48,48))
 					s.blit(s_help,(480,0))
 				
-				if game_options.mousepad == 0:
+				if game_options.mousepad == 0 and low_res == False:
 					s_help = pygame.Surface((640,360))
 					s_help.fill((48,48,48))
 					s_help.blit(s,(80,0))
 					s = s_help
 				
-				s = pygame.transform.scale(s,(screen.displayx,screen.displayy))
+				if low_res == False:
+					s = pygame.transform.scale(s,(screen.displayx,screen.displayy))
+				
 				screen.screen.blit(s,(0,0))
 				
 				pygame.display.flip()

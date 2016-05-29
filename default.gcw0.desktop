@@ -1,7 +1,7 @@
 [Desktop Entry]
 Name=RogueBox Adventures
 Type=Application
-Exec=main.py
+Exec=sh ./LIB/run_gcw0.sh
 Icon=icon_small
 Terminal=false
 Categories=games;

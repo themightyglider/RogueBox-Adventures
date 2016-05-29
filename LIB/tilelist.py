@@ -66,7 +66,7 @@ class tilelist():
 		#4
 		t=tile(techID = techID,
 					name = 'Ore',
-					tile_color = 'ligh_red',
+					tile_color = 'light_red',
 					use_group = 'None',
 					move_group = 'solide',
 					grow_group = 'None',
@@ -82,7 +82,7 @@ class tilelist():
 		#5
 		t=tile(techID = techID,
 					name = 'Gem',
-					tile_color = 'ligh_blue',
+					tile_color = 'light_blue',
 					use_group = 'None',
 					move_group = 'solide',
 					grow_group = 'None',
