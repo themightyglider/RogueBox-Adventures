@@ -3687,7 +3687,7 @@ class map():
 		axe = item_wear('axe',material_axe,0)
 		amo = item_wear(amo_class,material_amo,0)
 		
-		self.add_container([pick,axe,amo,il.ilist['misc'][3],il.ilist['misc'][2],il.ilist['misc'][44],il.ilist['misc'][36],il.ilist['misc'][38],il.ilist['misc'][24]],startx,starty-1)
+		self.add_container([pick,axe,amo,il.ilist['misc'][3],il.ilist['misc'][2],il.ilist['misc'][44]],startx,starty-1)
 		
 		self.tilemap[starty+1][startx] = deepcopy(tl.tlist['functional'][1])#stair down
 		self.tilemap[starty+1][startx].damage = -1
