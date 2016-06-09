@@ -102,7 +102,7 @@ class monsterlist():
 				worn_equipment = (1,0,1,0,0),
 				AI_style = 'hostile',
 				corps_style = 'human',
-				corps_lvl = 2,
+				corps_lvl = 2, 
 				personal_id = 'None',
 				move_groups = ('soil','low_liquid'), 
 				behavior = 'attack_melee', 
@@ -111,7 +111,7 @@ class monsterlist():
 				effect_duration = 0, 
 				effect_probability = 0, 
 				message = 'None',
-				def_potion = 0)#set to 20
+				def_potion = 20)
 		techID+=1
 		self.mlist['overworld'].append(m)
 
@@ -828,7 +828,7 @@ class monsterlist():
 				effect_duration = 0,
 				effect_probability = 0,
 				message = 'The female neko blinks feiendly.',
-				anger = 'kill_neko',
+				anger = 'destroy',
 				anger_monster = 4)
 		techID+=1
 		self.mlist['special'].append(m)
@@ -850,7 +850,7 @@ class monsterlist():
 				effect_duration = 0,
 				effect_probability = 0,
 				message = 'The male neko blinks friendly.',
-				anger = 'kill_neko',
+				anger = 'destroy',
 				anger_monster = 3)
 		techID+=1
 		self.mlist['special'].append(m)

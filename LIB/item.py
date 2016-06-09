@@ -242,7 +242,7 @@ class materials():
 		self.ore_max = 15
 		self.herb = 0
 		self.herb_max = 15
-		self.gem = 0
+		self.gem = 10#set to 0
 		self.gem_max = 15
 		self.seeds = 0
 		self.seeds_max = 40

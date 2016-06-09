@@ -51,7 +51,6 @@ for t in sys.argv:
 		
 		p = os.path.expanduser('~')
 		path = p + os.sep + '.config' + os.sep + 'RogueBox-Adventures'
-		print(os.path.exists(path))
 		if os.path.exists(path) == False:
 			for c in range(0,5):
 				ph = path + os.sep + 'SAVE' + os.sep + 'World' + str(c)
@@ -2781,30 +2780,111 @@ class map():
 								else:
 									straight_line = False
 							
-								#add ranged combat here
-							
-								if len(moves) > 0:#if no move is possible at least the 'move' of stay still must remain
-									good_moves = []
-									for k in range (0, len(moves)):
-										if distances[k] < distances[0]:#if the possible move makes the distance between player and monster smaller
-											good_moves.append(moves[k])
-								else:
-									good_moves = moves
+								if straight_line == True and self.npcs[y][x].range_shoot != 0 and distances[0] < 5:
+									#Step 0: Random
+									ran = random.randint(0,99)
+									
+									if ran < self.npcs[y][x].range_shoot:
+										#Step 1: find the right direction
+										if y > player.pos[1]:
+											y_dir = -1
+										elif y < player.pos[1]:
+											y_dir = 1
+										else:
+											y_dir = 0
+											
+										if x > player.pos[0]:
+											x_dir = -1
+										elif x < player.pos[0]:
+											x_dir = 1
+										else:
+											x_dir = 0
+											
+										#Step 2: Fire!
+										run = True
+										count = 1
+										
+										while run:
+											xx = x + (count*x_dir)
+											yy = y + (count*y_dir)
+											
+											if xx != player.pos[0] or yy != player.pos[1]:
+												screen.write_hit_matrix(xx,yy,2)
+												if self.tilemap[yy][xx].transparency == False:
+													run = False
+											else:
+												player.monster_attacks(x,y)
+												run = False
+											
+											count += 1
+											self.npcs[y][x].move_done = 1
 								
-								if len(good_moves) == 0:
-									good_moves = moves
+								if self.npcs[y][x].move_done == 0:
 								
-								if len(good_moves) > 1:
-									ran = random.randint(0,len(good_moves)-1)
-								else:
-									ran = 0
+									if len(moves) > 0:#if no move is possible at least the 'move' of stay still must remain
+										good_moves = []
+										for k in range (0, len(moves)):
+											if distances[k] < distances[0]:#if the possible move makes the distance between player and monster smaller
+												good_moves.append(moves[k])
+									else:
+										good_moves = moves
 								
-								do_move = good_moves[ran]
+									if len(good_moves) == 0:
+										good_moves = moves
+								
+									if len(good_moves) > 1:
+										ran = random.randint(0,len(good_moves)-1)
+									else:
+										ran = 0
+								
+									do_move = good_moves[ran]
 						
 							else:
-								if self.npcs[y][x].move_done != 1:
-									player.monster_attacks(x,y)
-									self.npcs[y][x].move_done = 1#set the move_done switch on
+								if self.npcs[y][x].move_done == 0:
+									#the most important thing about stealing monsters is that their default corps_style has to be 'thief' and their corps_lvl has to be 0. Otherwise they would not work proper.
+									if player.inventory.materials.gem > 0:
+										ran = random.randint(0,99)
+										if ran < self.npcs[y][x].close_steal:
+											player.inventory.materials.gem -= 1
+											self.npcs[y][x].corps_lvl += 1
+											steal_string = 'A ' + self.npcs[y][x].name + ' steals a gem from you.'
+											message.add(steal_string)
+											self.npcs[y][x].move_done = 1#set the move_done switch on
+									
+									if self.npcs[y][x].move_done == 0:
+										#casting flames
+										ran = random.randint(0,99)
+										if ran < self.npcs[y][x].close_flame and self.npcs[y][x].num_special > 0:
+											#Step 0: Check if any (other) monsters are near by
+											monster_num = 0
+											for yy in range(y-1,y+2):
+												for xx in range(x-1,x+2):
+													if self.npcs[yy][xx] != 0:
+														monster_num += 1
+													
+											if monster_num == 1:#there is no other monster near by
+												
+												num_flames = 0
+												
+												for yyy in range(y-1,y+2):
+													for xxx in range(x-1,x+2):
+														if xxx != x or yyy != y:
+															if self.tilemap[yyy][xxx].replace == None and self.tilemap[yyy][xxx].move_group != 'solide' and self.tilemap[yyy][xxx].move_group != 'low_liquid' and self.tilemap[yyy][xxx].move_group != 'swim':
+																replace = self.tilemap[yyy][xxx]
+																self.tilemap[yyy][xxx] = deepcopy(tl.tlist['effect'][4])
+																self.tilemap[yyy][xxx].replace = replace
+																self.countdowns.append(countdown('flame',xxx,yyy,2))
+																num_flames+=1	
+																											
+												if num_flames > 0:
+													flame_string = 'A '+ self.npcs[y][x].name + ' casts a flame spell!'
+													message.add(flame_string)
+													self.npcs[y][x].num_special -= 1
+													self.npcs[y][x].move_done = 1
+											
+									if self.npcs[y][x].move_done == 0:		
+										player.monster_attacks(x,y)
+										self.npcs[y][x].move_done = 1#set the move_done switch on
 					
 					elif self.npcs[y][x].AI_style == 'flee':
 						
@@ -3018,7 +3098,16 @@ class map():
 						replace = self.tilemap[y][x]
 						self.tilemap[y][x] = deepcopy(tl.tlist['misc'][11])#set a lost ore
 						self.tilemap[y][x].replace = replace
-						
+			
+			elif self.npcs[y][x].corps_style == 'thief':
+				
+				if self.tilemap[y][x].replace == None and self.npcs[y][x].corps_lvl > 0:
+
+					replace = self.tilemap[y][x]
+					self.tilemap[y][x] = deepcopy(tl.tlist['misc'][9])#set a lost gem
+					self.tilemap[y][x].replace = replace
+					self.tilemap[y][x].conected_resources = ('gem',self.npcs[y][x].corps_lvl)#for thiefs the corps lvl determinates the number of gems they are dropping
+					
 			elif self.npcs[y][x].corps_style == 'vase':
 				
 				die_mess = 'The vase shatters and monsters jump out.'
@@ -3598,7 +3687,7 @@ class map():
 		axe = item_wear('axe',material_axe,0)
 		amo = item_wear(amo_class,material_amo,0)
 		
-		self.add_container([pick,axe,amo,il.ilist['misc'][3],il.ilist['misc'][2],il.ilist['misc'][44]],startx,starty-1)
+		self.add_container([pick,axe,amo,il.ilist['misc'][3],il.ilist['misc'][2],il.ilist['misc'][44],il.ilist['misc'][36],il.ilist['misc'][38],il.ilist['misc'][24]],startx,starty-1)
 		
 		self.tilemap[starty+1][startx] = deepcopy(tl.tlist['functional'][1])#stair down
 		self.tilemap[starty+1][startx].damage = -1
@@ -4575,7 +4664,7 @@ class world_class():
 					s.blit(entry_image,(21,66+i*25))#blit menu_items
 				
 			if low_res == False:
-				s.blit(gra_files.gdic['display'][4],(0,125+num*30))#blit marker
+				s.blit(gra_files.gdic['display'][4],(0,145+num*30))#blit marker
 			else:
 				s.blit(gra_files.gdic['display'][4],(0,58+num*25))#blit marker
 				
@@ -4583,7 +4672,7 @@ class world_class():
 			if low_res == True:
 				s.blit(entry_image,(2,225))
 			else:
-				s.blit(ebtry_image,(5,335))
+				s.blit(entry_image,(5,335))
 			
 			if game_options.mousepad == 1 and low_res == False:
 				s.blit(gra_files.gdic['display'][8],(480,0)) #render mouse pad
@@ -5992,7 +6081,9 @@ class player_class(mob):
 				time.tick()
 		
 		if ui == 'i':
-			if screen.fire_mode == 0:
+			if message.more_messages == True:
+				return 'next_mes'
+			elif screen.fire_mode == 0:
 				self.inventory.inv_user_interaction()
 				time.tick()
 			
@@ -6724,6 +6815,7 @@ class messager():
 		self.mes_history = [[]]
 		self.history_page = 0
 		self.last_output = ('...','~*~')
+		self.more_messages = False
 		
 	def add(self, new_message, check_if_new = False):
 		# check_if_new is only needed by the (mob)player.stand_check function to proove there is only shown a new message about the ground when the player enters a new kind of ground
@@ -6753,8 +6845,8 @@ class messager():
 			
 	def clear(self):
 		
-		del self.mes_list
-		self.mes_list = []
+		if self.more_messages == False:
+			self.mes_list = []
 		
 	def render_history(self):
 		
@@ -6830,12 +6922,20 @@ class messager():
 	def sget(self,num):
 		
 		if num < len((self.mes_list))-1:
-			s_list = (self.mes_list[num],self.mes_list[num+1])
+			s_list = (self.mes_list[num],'[More - Press ['+key_name['i']+']')
+			self.more_messages = True
+			self.last_output = s_list
 		elif num < len((self.mes_list)):
 			s_list = (self.mes_list[num],'~*~')
 			self.last_output = s_list
+			self.more_messages = False
+			self.last_output = s_list
 		else:
 			s_list = self.last_output
+			self.more_messages = False
+		
+		if len(self.mes_list) > 0:
+			del self.mes_list[0]
 		
 		return s_list
 		
@@ -7234,29 +7334,34 @@ class inventory():
 						for x in range(player.pos[0]-1,player.pos[0]+2):
 							
 							if x != player.pos[0] or y !=player.pos[1]:
-								if world.maplist[player.pos[2]][player.on_map].tilemap[y][x].replace == None and world.maplist[player.pos[2]][player.on_map].tilemap[y][x].move:
+								if world.maplist[player.pos[2]][player.on_map].tilemap[y][x].replace == None and world.maplist[player.pos[2]][player.on_map].tilemap[y][x].move_group != 'solide':
 									replace = world.maplist[player.pos[2]][player.on_map].tilemap[y][x]
 									world.maplist[player.pos[2]][player.on_map].tilemap[y][x] = deepcopy(tl.tlist['effect'][4])
 									world.maplist[player.pos[2]][player.on_map].tilemap[y][x].replace = replace
 									world.maplist[player.pos[2]][player.on_map].countdowns.append(countdown('flame',x,y,2))
 									num_flames+=1
-									if world.maplist[player.pos[2]][player.on_map].npcs[y][x] != 0 and world.maplist[player.pos[2]][player.on_map].npcs[y][x].ignore_damage == False:
-										world.maplist[player.pos[2]][player.on_map].npcs[y][x] = 0
-										world.maplist[player.pos[2]][player.on_map].make_monsters_angry(x,y)
+									if world.maplist[player.pos[2]][player.on_map].npcs[y][x] != 0:
+										try:
+											world.maplist[player.pos[2]][player.on_map].npcs[y][x].lp -=3
+											if world.maplist[player.pos[2]][player.on_map].npcs[y][x].lp < 1:
+												world.maplist[player.pos[2]][player.on_map].monster_die(x,y)
+												world.maplist[player.pos[2]][player.on_map].make_monsters_angry(x,y,'kill')
+										except:
+											None
 								
 					if num_flames != 0:
 						message.add('Magical flames start to burn close to you.')
 					else:
 						message.add('Nothing seems to happen.')
 				
-				elif self.misc[slot].effect == 6:
+				elif self.misc[slot].effect == 6:#healing aura
 					
 					num_aura = 0
 					
 					for y in range(player.pos[1]-1,player.pos[1]+2):
 						for x in range(player.pos[0]-1,player.pos[0]+2):
 							
-							if world.maplist[player.pos[2]][player.on_map].tilemap[y][x].replace == None and world.maplist[player.pos[2]][player.on_map].tilemap[y][x].move and world.maplist[player.pos[2]][player.on_map].tilemap[y][x].damage == False:
+							if world.maplist[player.pos[2]][player.on_map].tilemap[y][x].replace == None and world.maplist[player.pos[2]][player.on_map].tilemap[y][x].move_group != 'solide' and world.maplist[player.pos[2]][player.on_map].tilemap[y][x].damage == False:
 								replace = world.maplist[player.pos[2]][player.on_map].tilemap[y][x]
 								world.maplist[player.pos[2]][player.on_map].tilemap[y][x] = deepcopy(tl.tlist['effect'][5])
 								world.maplist[player.pos[2]][player.on_map].tilemap[y][x].replace = replace
@@ -7907,12 +8012,15 @@ class time_class():
 							for yy in range(world.maplist[player.pos[2]][player.on_map].countdowns[i].y-1,world.maplist[player.pos[2]][player.on_map].countdowns[i].y+2):
 								for xx in range(world.maplist[player.pos[2]][player.on_map].countdowns[i].x-1,world.maplist[player.pos[2]][player.on_map].countdowns[i].x+2):
 									
-									world.maplist[player.pos[2]][player.on_map].npcs[yy][xx] = 0
+									if world.maplist[player.pos[2]][player.on_map].npcs[yy][xx] != 0:
+										world.maplist[player.pos[2]][player.on_map].npcs[yy][xx].lp -= 5
+										if world.maplist[player.pos[2]][player.on_map].npcs[yy][xx].lp < 1:
+											world.maplist[player.pos[2]][player.on_map].monster_die(xx,yy)
 									world.maplist[player.pos[2]][player.on_map].containers[yy][xx] = 0
-									world.maplist[player.pos[2]][player.on_map].make_monsters_angry(xx,yy)
+									world.maplist[player.pos[2]][player.on_map].make_monsters_angry(xx,yy,'destroy')
 									
 									if player.pos[0] == xx and player.pos[1] == yy:
-										player.lp -= player.attribute.max_lp 
+										player.lp -= 5
 									
 									if world.maplist[player.pos[2]][player.on_map].tilemap[yy][xx].replace != None:
 										replace =  deepcopy(world.maplist[player.pos[2]][player.on_map].tilemap[yy][xx].replace)
@@ -8157,22 +8265,14 @@ def main():
 			running = True
 	
 			while running:
-		
-				world.maplist[player.pos[2]][player.on_map].time_pass() #make the changes of passing time every new day 
-		
-				if len(message.mes_list) > 1:
-		
-					for i in range (0,len(message.mes_list)):
-						a=screen.render(i)
 				
-						if a == False:
-							getch(screen.displayx,screen.displayy,game_options.sfxmode,game_options.turnmode,mouse=game_options.mousepad)
-			
-				else: 
-					screen.render(0) 
-		
-				message.clear()
-		
+				world.maplist[player.pos[2]][player.on_map].time_pass() #make the changes of passing time every new day 
+				
+				screen.render(0)
+				
+				if len(message.mes_list) > 3:
+					message.clear()
+				
 				move_border = 0
 		
 				bodyparts = ('Head', 'Body', 'Legs' , 'Feet')
@@ -8191,8 +8291,16 @@ def main():
 					move_chance = random.randint(1,9)
 					if move_border < move_chance:
 						screen.reset_hit_matrix()
-						player.user_input()
-		
+						plus = 1
+						r = True
+						while r:
+							test = player.user_input()
+							if test == 'next_mes':
+								screen.render(0)
+							else:
+								message.more_messages = False
+								r = False
+				
 				if exitgame == True:
 					running = False
 				
