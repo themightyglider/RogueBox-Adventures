@@ -85,7 +85,7 @@ from item import *
 from countdown import *
 import pygame
 from gra_files import *
-from save import save_everything as save
+from util import *
 from monster import monster
 from copy import deepcopy
 from buffs import buffs
@@ -111,6 +111,7 @@ class game_options():
 			self.sfxmode = temp.sfxmode
 			self.turnmode = temp.turnmode
 			self.mousepad = temp.mousepad
+			self.check_version = temp.check_version
 		
 		except:
 			self.screenmode = 1 #0:windowed,1:fullscreen
@@ -118,6 +119,7 @@ class game_options():
 			self.sfxmode = 1 #0:sfx off, 1:sfx on
 			self.turnmode = 1 #0:classic, 1:Semi-Real-Time
 			self.mousepad = 0 #0:mouse off, 1:mouse on
+			self.check_version = 0 #0:check off 1:check on
 			self.save()
 			
 	def save(self):
@@ -133,6 +135,11 @@ class game_options():
 		
 
 game_options = game_options()
+
+if game_options.check_version == 1:
+	ver_string = check_version()
+else:
+	ver_string = ' '
 		
 class g_screen():
 	
@@ -278,7 +285,6 @@ class g_screen():
 			display_path = os.path.expanduser('~') + os.sep + '.config' + os.sep + 'RogueBox-Adventures' + os.sep
 			alt_path = basic_path +os.sep + 'GRAPHIC' + os.sep + 'DISPLAY' + os.sep
 	
-		
 		num = 0
 		
 		run = True
@@ -321,6 +327,24 @@ class g_screen():
 				s.blit(gra_files.gdic['display'][4],(185,138+(num*45)))
 			else:
 				s.blit(gra_files.gdic['display'][4],(100,43+(num*45)))
+			
+			if game_options.check_version == 1:
+				
+				if ver_string == 'This version is up to date.':
+					ver_image = self.font.render(ver_string,1,(0,255,0))
+				elif ver_string == 'Old version!!! Please update.':
+					ver_image = self.font.render(ver_string,1,(255,0,0))
+				else:
+					ver_image = self.font.render(ver_string,1,(255,255,255))
+				
+				ver_image2 = self.font.render(ver_string,1,(0,0,0))
+				
+				if low_res == True:
+					s.blit(ver_image2,(12,230))
+					s.blit(ver_image,(10,230))
+				else:
+					s.blit(ver_image2,(12,340))
+					s.blit(ver_image,(10,340))
 			
 			if game_options.mousepad == 0 and low_res == False:
 				s_h = pygame.Surface((160,360))
@@ -503,7 +527,7 @@ class g_screen():
 		
 		s = pygame.Surface((640,360))
 		
-		test = message.sget(mes_num)
+		test = message.sget()
 		
 		s.fill((48,48,48)) #paint it grey(to clear the screen)
 		
@@ -697,6 +721,21 @@ class g_screen():
 		else:
 			s.blit(gra_files.gdic['display'][10],(0,0))
 		
+		# render messages
+		
+		if low_res == False:
+			mes_pos_y = 335
+		else:
+			mes_pos_y = 225
+		
+		mlist = test
+		
+		for c in range(0,5):
+			shadow_image = self.font.render(mlist[c],1,(0,0,0))
+			text_image = self.font.render(mlist[c],1,(255,255,255))
+			s.blit(shadow_image,(2,mes_pos_y-(c*10)))
+			s.blit(text_image,(0,mes_pos_y-(c*10)))
+		
 		#render lvl info
 		
 		lvl_string = str(player.lvl)
@@ -805,26 +844,6 @@ class g_screen():
 		
 		tiredness_image = self.font.render(tiredness_string,1,(0,0,0))
 		s.blit(tiredness_image,(posx,posy))
-		
-		# render messages
-		
-		if low_res == False:
-			mes_pos_y_0 = 305
-			mes_pos_y_1 = 335
-		else:
-			mes_pos_y_0 = 210
-			mes_pos_y_1 = 225
-		
-		text_string1 = test[0]
-		text_string2 = test[1]
-		shadow_image1 = self.font.render(text_string1,1,(0,0,0))
-		shadow_image2 = self.font.render(text_string2,1,(0,0,0))
-		s.blit(shadow_image1,(2,mes_pos_y_0))
-		s.blit(shadow_image2,(2,mes_pos_y_1))
-		text_image1 = self.font.render(text_string1,1,(255,255,255))
-		text_image2 = self.font.render(text_string2,1,(255,255,255))
-		s.blit(text_image1,(0,mes_pos_y_0))
-		s.blit(text_image2,(0,mes_pos_y_1))
 		
 		if game_options.mousepad == 0 and low_res == False:
 			s_help = pygame.Surface((640,360))
@@ -1791,6 +1810,11 @@ class g_screen():
 					mousem = 'Use Mouse: no'
 			else:
 				mousem = '----------'
+				
+			if game_options.check_version == 1:
+				versm = 'Check Version: yes'
+			else:
+				versm = 'Check Version: no'
 			
 			if low_res == False:
 				s = pygame.Surface((640,360))
@@ -1809,7 +1833,7 @@ class g_screen():
 			text_image = screen.font.render(text,1,(255,255,255))
 			s.blit(text_image,(5,2))#menue title
 		
-			menu_items = (winm,audiom,sfxm,turnm,mousem,'Done')
+			menu_items = (winm,audiom,sfxm,turnm,mousem,versm,'Done')
 		
 			for i in range (0,len(menu_items)):
 			
@@ -1900,8 +1924,14 @@ class g_screen():
 						game_options.mousepad = 1
 						
 					game_options.save()
-					
+				
 				if num == 5:
+					if game_options.check_version == 1:
+						game_options.check_version = 0
+					else:
+						game_options.check_version = 1
+				
+				if num == 6:
 					run = False
 					
 			
@@ -6814,7 +6844,7 @@ class messager():
 		self.last_mes = 'foo'
 		self.mes_history = [[]]
 		self.history_page = 0
-		self.last_output = ('...','~*~')
+		self.last_output = [' ',' ',' ',' ',' ']
 		self.more_messages = False
 		
 	def add(self, new_message, check_if_new = False):
@@ -6919,24 +6949,20 @@ class messager():
 			if ui == 'x':
 				run = False
 			
-	def sget(self,num):
+	def sget(self):
 		
-		if num < len((self.mes_list))-1:
-			s_list = (self.mes_list[num],'[More - Press ['+key_name['i']+']')
-			self.more_messages = True
-			self.last_output = s_list
-		elif num < len((self.mes_list)):
-			s_list = (self.mes_list[num],'~*~')
-			self.last_output = s_list
-			self.more_messages = False
-			self.last_output = s_list
-		else:
-			s_list = self.last_output
-			self.more_messages = False
+		s_list = self.mes_list
+		s_list.reverse()
 		
 		if len(self.mes_list) > 0:
-			del self.mes_list[0]
-		
+				
+			for c in range(0,5):
+				s_list.append(' ')
+			
+			self.last_output = s_list	
+		else:
+			return self.last_output
+				
 		return s_list
 		
 class inventory():
