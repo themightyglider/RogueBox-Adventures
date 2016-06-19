@@ -128,7 +128,9 @@ class game_options():
 			name = basic_path + os.sep + 'SAVE' + os.sep + 'options.data'
 		else:
 			name = os.path.expanduser('~') + os.sep + '.config' + os.sep + 'RogueBox-Adventures' + os.sep + 'SAVE' + os.sep + 'options.data'
-	
+		
+		print self.check_version
+			
 		f = file(name, 'w')
 		p.dump(self,f)
 		f.close()
@@ -1848,7 +1850,7 @@ class g_screen():
 			else:
 				s.blit(gra_files.gdic['display'][4],(0,38+num*25))#blit marker
 		
-			if game_options.mousepad == 1 and low_res == True:
+			if game_options.mousepad == 1 and low_res != True:
 				s.blit(gra_files.gdic['display'][8],(480,0)) #render mouse pad
 			else:
 				s_help = pygame.Surface((160,360))
@@ -1930,7 +1932,9 @@ class g_screen():
 						game_options.check_version = 0
 					else:
 						game_options.check_version = 1
-				
+					
+					game_options.save()
+					
 				if num == 6:
 					run = False
 					
@@ -1976,7 +1980,7 @@ class g_screen():
 			else:
 				s.blit(gra_files.gdic['display'][4],(0,38+num*25))#blit marker
 			
-			if game_options.mousepad == 1 and low_res == True:
+			if game_options.mousepad == 1 and low_res != True:
 				s.blit(gra_files.gdic['display'][8],(480,0)) #render mouse pad
 			else:
 				s_help = pygame.Surface((160,360))
