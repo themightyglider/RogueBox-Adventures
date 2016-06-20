@@ -1574,7 +1574,21 @@ class tilelist():
 					tile_pos = (1,10))
 		self.tlist['effect'].append(t)
 		techID+=1
-
+		#6
+		t=tile(techID = techID,
+					name = 'Elbereth',
+					tile_color = 'light_blue',
+					use_group = 'None',
+					move_group = 'holy',
+					grow_group = 'None',
+					damage = 0, 
+					move_message = 'The magic word protects this place.', 
+					damage_message = None,
+					build_here = False,
+					tile_pos = (10,7))
+		self.tlist['effect'].append(t)
+		techID+=1
+		
 		#elfish tiles
 	
 		self.tlist['elfish'] = []

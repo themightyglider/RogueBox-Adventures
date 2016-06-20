@@ -164,6 +164,9 @@ class itemlist():
 		t=item_misc(techID, 'Palm sapling', 'plant', 'extra', 10)#50
 		self.ilist['misc'].append(t)
 		techID += 1
+		t=item_misc(techID, 'Chalk', 'use', None, None, None)
+		self.ilist['misc'].append(t)
+		techID += 1
 
 		#food items
 

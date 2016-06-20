@@ -3721,7 +3721,7 @@ class map():
 		axe = item_wear('axe',material_axe,0)
 		amo = item_wear(amo_class,material_amo,0)
 		
-		self.add_container([pick,axe,amo,il.ilist['misc'][3],il.ilist['misc'][2],il.ilist['misc'][44]],startx,starty-1)
+		self.add_container([pick,axe,amo,il.ilist['misc'][3],il.ilist['misc'][2],il.ilist['misc'][44],il.ilist['misc'][51]],startx,starty-1)
 		
 		self.tilemap[starty+1][startx] = deepcopy(tl.tlist['functional'][1])#stair down
 		self.tilemap[starty+1][startx].damage = -1
@@ -7415,6 +7415,29 @@ class inventory():
 					message.add('You lose your focus.')
 				
 				return True
+			
+			elif self.misc[slot].name == 'Chalk':
+				
+				x = player.pos[0]
+				y = player.pos[1]
+				
+				if world.maplist[player.pos[2]][player.on_map].tilemap[y][x].move_group == 'soil' and world.maplist[player.pos[2]][player.on_map].tilemap[y][x].replace == None:
+					replace = world.maplist[player.pos[2]][player.on_map].tilemap[y][x]
+					world.maplist[player.pos[2]][player.on_map].tilemap[y][x] = deepcopy(tl.tlist['effect'][6])
+					world.maplist[player.pos[2]][player.on_map].tilemap[y][x].replace = replace
+					duration = random.randint(10,30)
+					world.maplist[player.pos[2]][player.on_map].countdowns.append(countdown('elbereth',x,y,duration))
+					message.add('You write the magic word on the ground.')
+					
+					breaking = random.randint(0,99)
+					if breaking < 11:
+						message.add('The chalk breaks.')
+						self.misc[slot] = self.nothing
+					
+					return True
+				else:
+					self.inv_mes = 'Not here!'
+					return False
 				
 			elif self.misc[slot].name == 'Fishing rod':
 				
@@ -8072,10 +8095,11 @@ class time_class():
 							world.maplist[player.pos[2]][player.on_map].tilemap[world.maplist[player.pos[2]][player.on_map].countdowns[i].y][world.maplist[player.pos[2]][player.on_map].countdowns[i].x] = world.maplist[player.pos[2]][player.on_map].tilemap[world.maplist[player.pos[2]][player.on_map].countdowns[i].y][world.maplist[player.pos[2]][player.on_map].countdowns[i].x].replace
 							world.maplist[player.pos[2]][player.on_map].countdowns[i] = 'del'
 							
-						elif world.maplist[player.pos[2]][player.on_map].countdowns[i].kind == 'healing_aura':
+						elif world.maplist[player.pos[2]][player.on_map].countdowns[i].kind == 'healing_aura' or world.maplist[player.pos[2]][player.on_map].countdowns[i].kind == 'elbereth':
+							if world.maplist[player.pos[2]][player.on_map].countdowns[i].kind == 'elbereth':
+								message.add('The magic word fades.')
 							world.maplist[player.pos[2]][player.on_map].tilemap[world.maplist[player.pos[2]][player.on_map].countdowns[i].y][world.maplist[player.pos[2]][player.on_map].countdowns[i].x] = world.maplist[player.pos[2]][player.on_map].tilemap[world.maplist[player.pos[2]][player.on_map].countdowns[i].y][world.maplist[player.pos[2]][player.on_map].countdowns[i].x].replace
-							world.maplist[player.pos[2]][player.on_map].countdowns[i] = 'del'
-								
+							world.maplist[player.pos[2]][player.on_map].countdowns[i] = 'del'		
 		
 		newcountdown = []
 		
