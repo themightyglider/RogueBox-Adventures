@@ -128,8 +128,6 @@ class game_options():
 			name = basic_path + os.sep + 'SAVE' + os.sep + 'options.data'
 		else:
 			name = os.path.expanduser('~') + os.sep + '.config' + os.sep + 'RogueBox-Adventures' + os.sep + 'SAVE' + os.sep + 'options.data'
-		
-		print self.check_version
 			
 		f = file(name, 'w')
 		p.dump(self,f)
@@ -212,7 +210,7 @@ class g_screen():
 			getch(640,360,mode=1)
 			
 			display_path = basic_path +os.sep + 'GRAPHIC' + os.sep + 'DISPLAY' + os.sep
-			i_name = display_path + 'lrsf' + str_ext + '.png'
+			i_name = display_path + 'oga' + str_ext + '.png'
 			i = pygame.image.load(i_name)
 			i = pygame.transform.scale(i,(self.displayx,self.displayy))
 			self.screen.blit(i,(0,0))
@@ -1743,9 +1741,9 @@ class g_screen():
 			s.blit(text_image,(5,2))#menue title
 			
 			if low_res == False:
-				credit_items = ('Code & Art: Marian Luck aka Nothing', 'BGM: Yubatake, Avgvsta & RevampedPRO [opengameart.org]' , 'SFX: Little Robot Sound Factory', 'Font: Cody Boisclair', 'GCW-Zero port: cxong', ' ', 'Special Thanks: taknamay & !freegaming@quitter.se')
+				credit_items = ('Code & Art: Marian Luck aka Nothing', 'BGM: Yubatake, Avgvsta & RevampedPRO [opengameart.org]' , 'SFX: Various Artists [CC0]', 'Font: Cody Boisclair', 'GCW-Zero port: cxong', ' ', 'Special Thanks: taknamay & !freegaming@quitter.se')
 			else:
-				credit_items = ('Code & Art: Marian Luck aka Nothing', 'BGM: Yubatake, Avgvsta & RevampedPRO' , 'SFX: Little Robot Sound Factory', 'Font: Cody Boisclair', 'GCW-Zero port: cxong', 'Special Thanks: taknamay', '                freegaming@quitter.se')
+				credit_items = ('Code & Art: Marian Luck aka Nothing', 'BGM: Yubatake, Avgvsta & RevampedPRO' , 'SFX: Various Artists [CC0]', 'Font: Cody Boisclair', 'GCW-Zero port: cxong', 'Special Thanks: taknamay', '                freegaming@quitter.se')
 				
 			for i in range (0,len(credit_items)):
 			
@@ -2120,6 +2118,9 @@ class g_screen():
 				s_help.fill((48,48,48))
 				s_help.blit(s,(80,0))
 				s = s_help
+			else:
+				s.blit(gra_files.gdic['display'][8],(480,0)) #render mouse pad
+			
 			if low_res == False:
 				s = pygame.transform.scale(s,(screen.displayx,screen.displayy))
 			screen.screen.blit(s,(0,0))
@@ -2305,6 +2306,8 @@ class g_screen():
 				s_help.fill((48,48,48))
 				s_help.blit(s,(80,0))
 				s = s_help
+			else:
+				s.blit(gra_files.gdic['display'][8],(480,0)) #render mouse pad
 			
 			if low_res == False:
 				s = pygame.transform.scale(s,(screen.displayx,screen.displayy))
@@ -2837,6 +2840,7 @@ class map():
 										#Step 2: Fire!
 										run = True
 										count = 1
+										sfx.play('fire')
 										
 										while run:
 											xx = x + (count*x_dir)
@@ -4804,7 +4808,7 @@ class mob():
 		
 		try:
 			
-			if world.maplist[self.pos[2]][self.on_map].npcs[self.pos[1]+y][self.pos[0]+x]:
+			if world.maplist[self.pos[2]][self.on_map].npcs[self.pos[1]+y][self.pos[0]+x] != 0:
 				player.attack_monster(self.pos[0]+x,self.pos[1]+y)
 				return False
 			
@@ -4813,6 +4817,7 @@ class mob():
 				if self.attribute.pickaxe_power + player.inventory.wearing['Hold(R)'].attribute.pickaxe_power >= world.maplist[self.pos[2]][self.on_map].tilemap[self.pos[1]+y][self.pos[0]+x].destroy:
 					if self == player:
 						message.add(world.maplist[self.pos[2]][self.on_map].tilemap[self.pos[1]+y][self.pos[0]+x].move_mes)
+						sfx.play('brake')
 						
 						try:
 							material = world.maplist[self.pos[2]][self.on_map].tilemap[self.pos[1]+y][self.pos[0]+x].conected_resources[0]
@@ -4850,13 +4855,14 @@ class mob():
 			if world.maplist[self.pos[2]][self.on_map].tilemap[self.pos[1]+y][self.pos[0]+x].move_group == 'tree':
 				
 				if player.inventory.wearing['Hold(R)'].classe == 'axe': #if player has a axe in his hand
-										
+							
 					try:
 						material = world.maplist[self.pos[2]][self.on_map].tilemap[self.pos[1]+y][self.pos[0]+x].conected_resources[0]
 						mat_num = world.maplist[self.pos[2]][self.on_map].tilemap[self.pos[1]+y][self.pos[0]+x].conected_resources[1]
 						mes = player.inventory.materials.add(material,mat_num)
 						message.add(mes)
 						world.maplist[self.pos[2]][self.on_map].make_monsters_angry(self.pos[0],self.pos[1],'tree')
+						sfx.play('chop')
 					except:
 						None
 					
@@ -4877,6 +4883,11 @@ class mob():
 						message.add('You need a axe.')
 					
 					return False
+			
+			if world.maplist[self.pos[2]][self.on_map].tilemap[self.pos[1]+y][self.pos[0]+x].move_group == 'low_liquid' or world.maplist[self.pos[2]][self.on_map].tilemap[self.pos[1]+y][self.pos[0]+x].move_group == 'swim':
+				sfx.play('walk_wet')
+			else:
+				sfx.play('walk_dry')
 			
 			return True
 			
@@ -6071,7 +6082,7 @@ class player_class(mob):
 		
 	def user_input(self):
 		
-		ui = getch(screen.displayx,screen.displayy,game_options.sfxmode,game_options.turnmode,mouse=game_options.mousepad)
+		ui = getch(screen.displayx,screen.displayy,0,game_options.turnmode,mouse=game_options.mousepad)
 		
 		if ui == 'w':
 			if screen.fire_mode == 0:
@@ -6115,11 +6126,8 @@ class player_class(mob):
 				time.tick()
 		
 		if ui == 'i':
-			if message.more_messages == True:
-				return 'next_mes'
-			elif screen.fire_mode == 0:
-				self.inventory.inv_user_interaction()
-				time.tick()
+			self.inventory.inv_user_interaction()
+			time.tick()
 			
 		if ui == 'b':
 			if screen.fire_mode == 0:
@@ -6501,6 +6509,7 @@ class player_class(mob):
 				chance = random.randint(0,25)
 				
 				if chance < world.maplist[self.pos[2]][self.on_map].npcs[y][x].basic_attribute.luck:#monster hits critical
+					sfx.play('hit')
 					message_string = 'A ' + world.maplist[self.pos[2]][self.on_map].npcs[y][x].name + ' hits your ' + bodypart.lower() + ' critical!'
 					screen.write_hit_matrix(player.pos[0],player.pos[1],5)
 					message.add(message_string)
@@ -6510,6 +6519,7 @@ class player_class(mob):
 						self.inventory.wearing[bodypart].take_damage()
 						self.inventory.wearing[bodypart].set_name()
 				else:
+					sfx.play('hit')
 					message_string = 'A ' + world.maplist[self.pos[2]][self.on_map].npcs[y][x].name + ' hits your ' + bodypart.lower() + '!'
 					message.add(message_string)
 					screen.write_hit_matrix(player.pos[0],player.pos[1],4)
@@ -6527,7 +6537,7 @@ class player_class(mob):
 						message.add(world.maplist[self.pos[2]][self.on_map].npcs[y][x].message)
 				
 			else:
-				
+				sfx.play('miss')
 				message_string = 'A ' + world.maplist[self.pos[2]][self.on_map].npcs[y][x].name + ' miss you!'
 				message.add(message_string)
 				screen.write_hit_matrix(player.pos[0],player.pos[1],3)
@@ -6557,6 +6567,7 @@ class player_class(mob):
 				chance = random.randint(0,25)
 				
 				if chance < world.maplist[self.pos[2]][self.on_map].npcs[y][x].basic_attribute.luck:#monster hits critical
+					sfx.play('hit')
 					message_string = 'A ' + world.maplist[self.pos[2]][self.on_map].npcs[y][x].name + '\'s magic attack hits you critical!'
 					message.add(message_string)
 					screen.write_hit_matrix(player.pos[0],player.pos[1],5)
@@ -6571,6 +6582,7 @@ class player_class(mob):
 						self.inventory.wearing['Hand'].take_damage()
 						self.inventory.wearing['Hand'].set_name()	
 				else:
+					sfx.play('hit')
 					message_string = 'A ' + world.maplist[self.pos[2]][self.on_map].npcs[y][x].name + '\'s magic attack hits you!'
 					message.add(message_string)
 					screen.write_hit_matrix(player.pos[0],player.pos[1],4)
@@ -6593,7 +6605,7 @@ class player_class(mob):
 						message.add(world.maplist[self.pos[2]][self.on_map].npcs[y][x].message)
 					
 			else:
-				
+				sfx.play('miss')
 				message_string = 'A ' + world.maplist[self.pos[2]][self.on_map].npcs[y][x].name + '\'s magic attack miss you!'
 				message.add(message_string)
 				screen.write_hit_matrix(player.pos[0],player.pos[1],3)
@@ -6635,6 +6647,7 @@ class player_class(mob):
 				chance = random.randint(0,25)
 				
 				if chance < player_luck:#player hits critical
+					sfx.play('hit')
 					message_string = 'Your magic attack hits the ' + world.maplist[self.pos[2]][self.on_map].npcs[y][x].name + ' critical!'
 					message.add(message_string)
 					screen.write_hit_matrix(x,y,5)
@@ -6658,6 +6671,7 @@ class player_class(mob):
 						self.inventory.wearing['Hold(L)'].take_damage() 
 					 
 				else:
+					sfx.play('hit')
 					message_string = 'Your magic attack hits the ' + world.maplist[self.pos[2]][self.on_map].npcs[y][x].name + '!'
 					message.add(message_string)
 					screen.write_hit_matrix(x,y,4)
@@ -6680,7 +6694,7 @@ class player_class(mob):
 					if self.inventory.wearing['Hold(L)'] != self.inventory.nothing:
 						self.inventory.wearing['Hold(L)'].take_damage()
 			else:
-				
+				sfx.play('miss')
 				message_string = 'You miss the ' + world.maplist[self.pos[2]][self.on_map].npcs[y][x].name + '.'
 				message.add(message_string)
 				screen.write_hit_matrix(x,y,3)
@@ -6711,6 +6725,7 @@ class player_class(mob):
 				chance = random.randint(0,25)
 				
 				if chance < player_luck:#player hits critical
+					sfx.play('hit')
 					message_string = 'You hit the ' + world.maplist[self.pos[2]][self.on_map].npcs[y][x].name + ' critical!'
 					message.add(message_string)
 					screen.write_hit_matrix(x,y,5)
@@ -6735,6 +6750,7 @@ class player_class(mob):
 						self.inventory.wearing['Hold(R)'].take_damage() 
 					 
 				else:
+					sfx.play('hit')
 					message_string = 'You hit the ' + world.maplist[self.pos[2]][self.on_map].npcs[y][x].name + '!'
 					message.add(message_string)
 					screen.write_hit_matrix(x,y,4)
@@ -6759,13 +6775,14 @@ class player_class(mob):
 						self.inventory.wearing['Hold(R)'].take_damage()
 			
 			else:
-				
+				sfx.play('miss')
 				message_string = 'You miss the ' + world.maplist[self.pos[2]][self.on_map].npcs[y][x].name + '.'
 				message.add(message_string)
 				screen.write_hit_matrix(x,y,3)
 	
 	def player_fire(self,direction):
 		
+		sfx.play('fire')
 		#direction must be a tulpel like (0,1) [style: (x,y)]
 		x=player.pos[0]
 		y=player.pos[1]
@@ -8237,7 +8254,29 @@ class gods_class():
 			return True
 		else:
 			return False
-			
+class sfX():
+	
+	def __init__(self):
+		
+		sfx_path = basic_path + os.sep + 'AUDIO' + os.sep + 'SFX' + os.sep
+		
+		self.sfx_list = {'walk_dry': pygame.mixer.Sound(sfx_path + 'walk_dry.ogg'),
+						'walk_wet': pygame.mixer.Sound(sfx_path + 'walk_wet.ogg'),
+						'miss': pygame.mixer.Sound(sfx_path + 'miss.ogg'),
+						'hit': pygame.mixer.Sound(sfx_path + 'hit.ogg'),
+						'fire': pygame.mixer.Sound(sfx_path + 'fire.ogg'),
+						'boom': pygame.mixer.Sound(sfx_path + 'boom.ogg'),
+						'chop': pygame.mixer.Sound(sfx_path + 'chop.ogg'),
+						'brake': pygame.mixer.Sound(sfx_path + 'brake.ogg')}
+						
+	def play(self,sfx_name):
+		
+		try:
+			if game_options.sfxmode == True:
+				self.sfx_list[sfx_name].play(maxtime=1000)
+		except:
+			print('SFX error')
+				
 class bgM():
 	
 	def  __init__(self):
@@ -8292,12 +8331,14 @@ def main():
 	global time
 	global exitgame
 	global playing
+	global sfx
 	
 	screen = g_screen()
 	gra_files = g_files()
 	tl = tilelist()
 	il = itemlist()
 	ml = monsterlist()
+	sfx = sfX()
 	master_loop = True
 	while master_loop:
 		bgm = bgM()
