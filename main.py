@@ -2791,7 +2791,7 @@ class map():
 							
 							ran = random.randint(0,99)
 							if self.npcs[y][x] != 0:		
-								if ran < self.npcs[y][x].def_flee and self.npcs[y][x].move_done != 1:
+								if ran < self.npcs[y][x].def_flee and self.npcs[y][x].move_done != 1 and self.npcs[y][x].lp < self.npcs[y][x].basic_attribute.max_lp:
 									flee_string = 'A ' + self.npcs[y][x].name + ' turns to flee.'
 									message.add(flee_string)
 									self.npcs[y][x].AI_style = 'flee'

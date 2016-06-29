@@ -50,7 +50,7 @@ class monsterlist():
 				effect_duration = 20, 
 				effect_probability = 20, 
 				message = 'Poison runs trough your veins!',
-				def_flee = 0)
+				def_flee = 20)
 		techID+=1
 		self.mlist['overworld'].append(m)
 
@@ -217,7 +217,8 @@ class monsterlist():
 				attack_were = ('Head','Body','Legs','Feet'),
 				possible_effect = None, 
 				effect_duration = 0, 
-				effect_probability = 0, 
+				effect_probability = 0,
+				def_potion = 35,
 				message = 'None.')
 		techID+=1
 		self.mlist['cave'].append(m)
@@ -277,7 +278,29 @@ class monsterlist():
 				attack_were = ('Head','Body','Legs','Feet'),
 				possible_effect = None, 
 				effect_duration = 0, 
-				effect_probability = 0, 
+				effect_probability = 0,
+				range_shoot = 65, 
+				message = 'None.')
+		techID+=1
+		self.mlist['cave'].append(m)
+
+		m=monster(techID = techID,
+				name = 'goblin',
+				sprite_pos = (3,7),
+				move_border = 1,
+				attribute_prev = (2,2,0,3,2),
+				worn_equipment = (0,0,1,0,0),
+				AI_style = 'hostile',
+				corps_style = 'thief',
+				corps_lvl = 0,
+				personal_id = 'None',
+				move_groups = ('soil','low_liquid'), 
+				behavior = 'attack_melee', 
+				attack_were = ('Body','Legs','Feet'),
+				possible_effect = None, 
+				effect_duration = 0, 
+				effect_probability = 0,
+				close_steal = 70, 
 				message = 'None.')
 		techID+=1
 		self.mlist['cave'].append(m)
