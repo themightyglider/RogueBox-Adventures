@@ -234,6 +234,8 @@ class g_screen():
 		#		3:miss
 		#		4:hit
 		#		5:critical
+		#		6:heal
+		#		7:teleport
 				
 		xx = x - player.pos[0] + 7
 		yy = y - player.pos[1] + 6
@@ -271,6 +273,10 @@ class g_screen():
 					s.blit(gra_files.gdic['display'][14],(((x-start)*32)+plusx,(y-start)*32+plusy))
 				elif self.hit_matrix[y][x] == 5:
 					s.blit(gra_files.gdic['display'][15],(((x-start)*32)+plusx,(y-start)*32+plusy))
+				elif self.hit_matrix[y][x] == 6:
+					s.blit(gra_files.gdic['display'][23],(((x-start)*32)+plusx,(y-start)*32+plusy))
+				elif self.hit_matrix[y][x] == 7:
+					s.blit(gra_files.gdic['display'][24],(((x-start)*32)+plusx,(y-start)*32+plusy))
 
 		s.set_colorkey((255,0,255),pygame.RLEACCEL)	
 		s = s.convert_alpha()
@@ -2786,6 +2792,7 @@ class map():
 									self.npcs[y][x].num_special -= 1
 									tp_string = 'A ' + self.npcs[y][x].name + ' teleports.'
 									message.add(tp_string)
+									screen.write_hit_matrix(x,y,7)
 									self.npcs[moves[pos_num][1]][moves[pos_num][0]] = self.npcs[y][x]
 									self.npcs[y][x] = 0
 							
@@ -2804,6 +2811,7 @@ class map():
 									if self.npcs[y][x].lp < self.npcs[y][x].basic_attribute.max_lp:
 										potion_string = 'A ' + self.npcs[y][x].name + ' quaffes a potion of healing.'
 										message.add(potion_string)
+										screen.write_hit_matrix(x,y,6)
 										lp = min(self.npcs[y][x].basic_attribute.max_lp, self.npcs[y][x].lp+7)
 										self.npcs[y][x].lp = lp
 										self.npcs[y][x].move_done = 1

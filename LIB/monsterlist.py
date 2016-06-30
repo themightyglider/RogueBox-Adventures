@@ -300,7 +300,8 @@ class monsterlist():
 				possible_effect = None, 
 				effect_duration = 0, 
 				effect_probability = 0,
-				close_steal = 70, 
+				close_steal = 70,
+				def_flee = 80, 
 				message = 'None.')
 		techID+=1
 		self.mlist['cave'].append(m)
@@ -324,27 +325,8 @@ class monsterlist():
 				attack_were = ('Head','Body','Legs'),
 				possible_effect = 'bleeding', 
 				effect_duration = 5, 
-				effect_probability = 20, 
-				message = 'The orc warlord tears you a bleeding wound.')
-		techID+=1
-		self.mlist['orcish_mines'].append(m)
-
-		m=monster(techID = techID,
-				name = 'orc warlord',
-				sprite_pos = (1,5),
-				move_border = 2,
-				attribute_prev = (2,2,0,1,2),
-				worn_equipment = (1,0,1,0,1),
-				AI_style = 'hostile',
-				corps_style = 'human',
-				corps_lvl = 3,
-				personal_id = 'None',
-				move_groups = ('soil','low_liquid'), 
-				behavior = 'attack_melee', 
-				attack_were = ('Head','Body','Legs'),
-				possible_effect = 'bleeding', 
-				effect_duration = 5, 
-				effect_probability = 20, 
+				effect_probability = 20,
+				def_potion = 50, 
 				message = 'The orc warlord tears you a bleeding wound.')
 		techID+=1
 		self.mlist['orcish_mines'].append(m)
@@ -364,7 +346,9 @@ class monsterlist():
 				attack_were = ('Head','Body','Legs','Feet'),
 				possible_effect = 'hexed', 
 				effect_duration = 40, 
-				effect_probability = 20, 
+				effect_probability = 20,
+				range_shoot = 99,
+				def_teleport = 20, 
 				message = 'The orcish hag puts a hex on you.')
 		techID+=1
 		self.mlist['orcish_mines'].append(m)
@@ -405,6 +389,7 @@ class monsterlist():
 				possible_effect = 'poisoned', 
 				effect_duration = 60,
 				effect_probability = 45,
+				def_flee = 30,
 				message = 'Poison runs trough your veins!')
 		techID+=1
 		self.mlist['orcish_mines'].append(m)
@@ -497,6 +482,7 @@ class monsterlist():
 				possible_effect = None, 
 				effect_duration = 0, 
 				effect_probability = 0, 
+				range_shoot = 70,
 				message = 'None')
 		techID+=1
 		self.mlist['angry_monster'].append(m)
@@ -518,7 +504,7 @@ class monsterlist():
 				effect_duration = 0, 
 				effect_probability = 0, 
 				message = 'None',
-				def_teleport = 0)#set to 10
+				def_teleport = 10)
 		techID+=1
 		self.mlist['angry_monster'].append(m)
 		#3
@@ -582,6 +568,8 @@ class monsterlist():
 				possible_effect = 'hexed', 
 				effect_duration = 30,
 				effect_probability = 50,
+				range_shoot = 50,
+				def_potion = 20,
 				message = 'The blue naga puts a hex on you.')
 		techID+=1
 		self.mlist['grot'].append(m)
@@ -602,6 +590,7 @@ class monsterlist():
 				possible_effect = 'poisoned', 
 				effect_duration = 50,
 				effect_probability = 40,
+				def_potion = 20,
 				message = 'Poison runs trough your veins!')
 		techID+=1
 		self.mlist['grot'].append(m)
@@ -686,6 +675,8 @@ class monsterlist():
 				possible_effect = 'immobilized', 
 				effect_duration = 4,
 				effect_probability = 30,
+				range_shoot = 30,
+				close_flame = 60,
 				message = 'You can\'t move!')
 		techID+=1
 		self.mlist['lava_cave'].append(m)
@@ -960,7 +951,8 @@ class monsterlist():
 				attack_were = ('Legs','Feet'),
 				possible_effect = 'poisoned', 
 				effect_duration = 240, 
-				effect_probability = 80, 
+				effect_probability = 80,
+				def_flee = 40,
 				message = 'Poison runs trough your veins!')
 		techID+=1
 		self.mlist['desert'].append(m)
