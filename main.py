@@ -1631,8 +1631,11 @@ class g_screen():
 		
 			for y in range(0,max_map_size):
 				for x in range(0,max_map_size):
-					
-					t_col = world.maplist[level][player.on_map].tilemap[y][x].tile_color
+					try:
+						t_col = world.maplist[level][player.on_map].tilemap[y][x].tile_color
+					except:
+						level = 0
+						t_col = world.maplist[level][player.on_map].tilemap[y][x].tile_color
 					
 					if x > player.pos[0]-2 and x < player.pos[0]+2 and y > player.pos[1]-2 and y < player.pos[1]+2 and level == player.pos[2]: #mark players pos
 						m.blit(gra_files.gdic['tile1']['white'],(x,y))
@@ -1968,8 +1971,13 @@ class g_screen():
 			text = '~Game Paused~ [Press ['+key_name['e']+'] to choose]'
 			text_image = screen.font.render(text,1,(255,255,255))
 			s.blit(text_image,(5,2))#menue title
-		
-			menu_items = ('Resume','Map','Message History','Save and Exit', 'Options',)
+			
+			if player.on_map == 'dungeon_0_0':
+				map_name = 'Map (Disabled)'
+			else:
+				map_name = 'Map'
+			
+			menu_items = ('Resume',map_name,'Message History','Save and Exit', 'Options',)
 		
 			for i in range (0,len(menu_items)):
 			
@@ -2024,6 +2032,7 @@ class g_screen():
 					run = False
 					
 				if num == 1:
+					#if player.on_map != 'dungeon_0_0':
 					screen.render_map(player.pos[2])
 					
 				if num == 2:
@@ -2351,6 +2360,7 @@ class map():
 		self.thirst_multi_night = 1
 		self.countdowns = []
 		self.npcs = []
+		self.monster_plus = 0
 		
 		for y in range (0,max_map_size):
 			self.known.append([])
@@ -2368,7 +2378,6 @@ class map():
 				self.npcs[y].append(0) 
 	
 	def fill(self, tile):
-		
 		for y in range (0,max_map_size):
 			for x in range(0,max_map_size):
 				self.tilemap[y][x] = deepcopy(tile)
@@ -2498,8 +2507,8 @@ class map():
 
 	def imp_connect(self,xpos,ypos,replace_inner,replace_except=None,except_replacer=None,style='straight'): #conects two or more points
 						
-		for a in range (0,len(ypos)):
-			for b in range(0,len(xpos)):
+		for a in range (0,len(ypos)-1):
+			for b in range(0,len(xpos)-1):
 				
 				y = ypos[a]
 				x = xpos[b]
@@ -2514,8 +2523,8 @@ class map():
 						x_goal = xpos[b+1]
 				  
 					except:
-						y_goal = y
-						x_goal = x
+						y_goal = ypos[0]
+						x_goal = xpos[0]
 						
 					if x == x_goal and y == y_goal:
 						go = False
@@ -2638,7 +2647,7 @@ class map():
 			
 			ran = random.randint(1,3)
 		
-			monster_lvl = z + ran
+			monster_lvl = z + ran + self.monster_plus
 			self.npcs[y][x].lvl = monster_lvl
 			
 			attribute_list =[] 
@@ -3842,6 +3851,7 @@ class world_class():
 		m = map(name ,tilemap)
 		
 		return m
+		
 	def border_generator(self,layer):
 		
 		cave_name = 'local_0_0'
@@ -4450,6 +4460,8 @@ class world_class():
 		
 		screen.render_load(3,8)
 		
+		m.tilemap[pos[1]+10][pos[0]] = tl.tlist['dungeon'][7]#Change this!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+		
 		#set guidepost
 		y = max_map_size -2
 		x = random.randint(2,max_map_size-2)
@@ -4464,7 +4476,147 @@ class world_class():
 		screen.render_load(3,9)
 		
 		return pos
+	
+	def dungeon_generator(self,monster_plus,stair_down=True,num_traps=10):
 		
+		#0: Basic initializing
+		
+		name = 'dungeon_0_0'
+		
+		tilemap = []
+		for a in range (0,max_map_size):
+			tilemap.append([])
+			for b in range (0,max_map_size):
+				tilemap[a].append(0)
+		
+		m = map(name,tilemap)
+		m.map_type = 'dungeon'
+		m.build_type = 'None'
+		m.monster_plus = monster_plus
+		
+		m.fill(tl.tlist['dungeon'][9])
+		#1: Set rooms
+		test_build = True
+		while test_build:
+			parts_with_rooms = []
+			
+			for part_y in range(0,3):
+				for part_x in range(0,3):
+					ran = random.randint(0,9)
+					if ran > 3:
+						pick = (part_x,part_y)
+						parts_with_rooms.append(pick)
+			
+			if len(parts_with_rooms) > 5:
+				test_build = False
+			
+		coord_x = []
+		coord_y = []
+		
+		for c in parts_with_rooms:
+			x_offset = random.randint(0,5)
+			y_offset = random.randint(0,5)
+			
+			real_x = 9+(15*c[0])+x_offset
+			real_y = 9+(15*c[1])+y_offset
+			
+			
+			coord_x.append(real_x)
+			coord_y.append(real_y)			
+		
+		m.imp_connect(coord_x,coord_y,tl.tlist['dungeon'][1],tl.tlist['dungeon'][0],tl.tlist['dungeon'][0])
+			
+		for i in range(0,len(coord_x)-1):
+			x_minus = random.randint(2,4)
+			x_plus = random.randint(3,5)
+			y_minus = random.randint(2,4)
+			y_plus = random.randint(3,5)
+				
+			for yy in range(coord_y[i]-y_minus-1,coord_y[i]+y_plus+1):
+				for xx in range(coord_x[i]-x_minus-1,coord_x[i]+x_plus+1):
+					m.tilemap[yy][xx] = tl.tlist['dungeon'][9]
+			
+			for yy in range(coord_y[i]-y_minus,coord_y[i]+y_plus):
+				for xx in range(coord_x[i]-x_minus,coord_x[i]+x_plus):
+					m.tilemap[yy][xx] = tl.tlist['dungeon'][0]
+			
+		#2: Set doors			
+						
+		for yyy in range(0,52):
+			for xxx in range(0,52):			#the 52 is hard scripted to safe performance
+				
+				m.known[yyy][xxx] = 1#remove this
+					
+				if m.tilemap[yyy][xxx].techID == tl.tlist['dungeon'][9].techID:
+					if m.tilemap[yyy-1][xxx].move_group == 'soil' and m.tilemap[yyy+1][xxx].move_group == 'soil':
+						m.tilemap[yyy][xxx] = tl.tlist['dungeon'][3]
+					elif m.tilemap[yyy][xxx-1].move_group == 'soil' and m.tilemap[yyy][xxx+1].move_group == 'soil':
+						m.tilemap[yyy][xxx] = tl.tlist['dungeon'][3]
+				
+		for yyy in range(0,52):
+			for xxx in range(0,52):			#the 52 is hard scripted to safe performance
+				
+				if m.tilemap[yyy][xxx].techID == tl.tlist['dungeon'][3].techID:
+					size = m.get_quarter_size(xxx,yyy)
+					if size[0] > 1:
+						for rx in range(xxx,xxx+size[0]+1):
+							m.tilemap[yyy][rx] = tl.tlist['dungeon'][9]
+						rrx = int(xxx+((rx-xxx)/2))
+						m.tilemap[yyy][rrx] = tl.tlist['dungeon'][3]
+						
+						if m.tilemap[yyy-1][rrx].move_group != 'soil':
+							m.tilemap[yyy-1][rrx] = tl.tlist['dungeon'][1]
+						if m.tilemap[yyy+1][rrx].move_group != 'soil':
+							m.tilemap[yyy+1][rrx] = tl.tlist['dungeon'][1]
+					
+					if size[1] > 1:
+						for ry in range(yyy,yyy+size[1]+1):
+							m.tilemap[ry][xxx] = tl.tlist['dungeon'][9]
+						rry = int(yyy+((ry-yyy)/2))
+						m.tilemap[rry][xxx] = tl.tlist['dungeon'][3]
+						
+						if m.tilemap[rry][xxx-1].move_group != 'soil':
+							m.tilemap[rry][xxx-1] = tl.tlist['dungeon'][1]
+						if m.tilemap[rry][xxx+1].move_group != 'soil':
+							m.tilemap[rry][xxx+1] = tl.tlist['dungeon'][1]
+		
+		test = deepcopy(m)
+		pos = test.find_first(tl.tlist['dungeon'][0])
+		test.floating(pos[0],pos[1],tl.tlist['misc'][0],tl.tlist['dungeon'][9])#fill the dungeon with water
+		
+		for yyy in range(0,52):
+			for xxx in range(0,52):			#the 52 is hard scripted to safe performance
+				if test.tilemap[yyy][xxx].techID != tl.tlist['dungeon'][9].techID and test.tilemap[yyy][xxx].techID != tl.tlist['misc'][0].techID:
+					m.tilemap[yyy][xxx] = tl.tlist['dungeon'][9]
+		
+		for yyy in range(0,52):
+			for xxx in range(0,52):			#the 52 is hard scripted to safe performance
+				
+				if m.tilemap[yyy][xxx].techID == tl.tlist['dungeon'][3].techID:
+					ran = random.randint(3,6)
+					m.tilemap[yyy][xxx] = tl.tlist['dungeon'][ran]
+					
+						
+		#3: Make stairs
+		stair_up_pos = m.find_any(tl.tlist['dungeon'][0])
+		m.tilemap[stair_up_pos[1]][stair_up_pos[0]] = tl.tlist['dungeon'][8]
+			
+		if stair_down == True:
+			stair_down_pos = m.find_any(tl.tlist['dungeon'][0])
+			m.tilemap[stair_down_pos[1]][stair_down_pos[0]] = tl.tlist['dungeon'][7]
+		
+		#4: Make Traps
+		
+		for i in range(0,num_traps):
+			pos = m.find_any(tl.tlist['dungeon'][0])
+			replace = m.tilemap[pos[1]][pos[0]]
+			m.tilemap[pos[1]][pos[0]] = deepcopy(tl.tlist['dungeon'][10])#traps have to be deepcopied to work proper
+			m.tilemap[pos[1]][pos[0]].replace = replace
+			
+		m.spawn_monsters(0)
+			
+		self.maplist[1][name] = m
+				
 	def desert_generator(self,chance_object):
 		# chance_scrubs and chance_trees must be between 0 and 99
 		
@@ -4814,6 +4966,11 @@ class mob():
 		
 	def move_check(self,x,y):
 		
+		if world.maplist[self.pos[2]][self.on_map].tilemap[self.pos[1]+y][self.pos[0]+x].move_group == 'door':
+				message.add(world.maplist[self.pos[2]][self.on_map].tilemap[self.pos[1]+y][self.pos[0]+x].move_mes)
+				world.maplist[self.pos[2]][self.on_map].tilemap[self.pos[1]+y][self.pos[0]+x] = world.maplist[self.pos[2]][self.on_map].tilemap[self.pos[1]+y][self.pos[0]+x].replace
+				return False
+		
 		try:
 			
 			if world.maplist[self.pos[2]][self.on_map].npcs[self.pos[1]+y][self.pos[0]+x] != 0:
@@ -4932,6 +5089,20 @@ class mob():
 		elif world.maplist[self.pos[2]][self.on_map].tilemap[self.pos[1]][self.pos[0]].damage < 0:
 			if self.lp < self.attribute.max_lp:	
 				self.lp = self.lp - world.maplist[self.pos[2]][self.on_map].tilemap[self.pos[1]][self.pos[0]].damage
+		
+		for y in range(player.pos[1]-1,player.pos[1]+2):
+			for x in range(player.pos[0]-1,player.pos[0]+2):
+				if world.maplist[self.pos[2]][self.on_map].tilemap[y][x].techID == tl.tlist['dungeon'][6].techID:#this is a secret door
+					ran = random.randint(0,25)#check players luck
+					if ran < player.attribute.luck:
+						world.maplist[self.pos[2]][self.on_map].tilemap[y][x] = tl.tlist['dungeon'][3]
+						message.add('You found something.')
+				
+				if world.maplist[self.pos[2]][self.on_map].tilemap[y][x].techID == tl.tlist['dungeon'][10].techID:#this is a trap
+					ran = random.randint(0,25)#check players luck
+					if ran < player.attribute.luck:
+						world.maplist[self.pos[2]][self.on_map].tilemap[y][x].tile_pos = (10,8)
+						message.add('You found something.')
 				
 		for y in range (-radius,radius+1):#line of sight
 			for x in range (-radius,radius+1):
@@ -5676,6 +5847,32 @@ class mob():
 					message.add('You havn\'t enough gems to buy this item.')
 			else:
 				message.add('Never Mind.')
+		
+		elif world.maplist[self.pos[2]][self.on_map].tilemap[self.pos[1]][self.pos[0]].use_group == 'grassland_down':#this is a grassland dungeon stair down
+			plus = world.maplist[self.pos[2]][self.on_map].monster_plus
+			if plus < 5:
+				world.dungeon_generator(plus+1,True)
+			else:
+				world.dungeon_generator(plus+1,False)
+				
+			player.on_map = 'dungeon_0_0'
+			player.pos[2] = 1
+			
+			pos = world.maplist[player.pos[2]][player.on_map].find_first(tl.tlist['dungeon'][8])
+			player.pos[0] = pos[0]
+			player.pos[1] = pos[1]
+			player.stand_check()
+		
+		elif world.maplist[self.pos[2]][self.on_map].tilemap[self.pos[1]][self.pos[0]].use_group == 'grassland_up':#this is a grassland dungeon stair up
+			choose = screen.get_choice('Do you want to give up?',['No','Yes'],True)
+			if choose == 1:
+				player.on_map = 'local_0_0'
+				player.pos[2] = 0
+				
+				pos = world.maplist[player.pos[2]][player.on_map].find_first(tl.tlist['dungeon'][7])
+				player.pos[0] = pos[0]
+				player.pos[1] = pos[1]
+				player.stand_check()
 			
 		else:
 			message.add('There is nothing to interact with at this place.')

@@ -1016,3 +1016,13 @@ class monsterlist():
 				message = 'None')
 		techID+=1
 		self.mlist['desert'].append(m)
+		
+		#dungeon monster
+		self.mlist['dungeon'] = []
+		
+		for a in self.mlist['grot']:
+			self.mlist['dungeon'].append(a)
+			
+		for b in self.mlist['orcish_mines']:
+			self.mlist['dungeon'].append(b)
+				
