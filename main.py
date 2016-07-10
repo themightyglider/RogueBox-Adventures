@@ -4544,8 +4544,6 @@ class world_class():
 						
 		for yyy in range(0,52):
 			for xxx in range(0,52):			#the 52 is hard scripted to safe performance
-				
-				m.known[yyy][xxx] = 1#remove this
 					
 				if m.tilemap[yyy][xxx].techID == tl.tlist['dungeon'][9].techID:
 					if m.tilemap[yyy-1][xxx].move_group == 'soil' and m.tilemap[yyy+1][xxx].move_group == 'soil':
